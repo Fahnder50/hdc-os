@@ -1,7 +1,7 @@
 ---
 document: Bausteine.md
-version: 0.2
-status: Draft
+version: 1.0
+status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
 last_review: -
@@ -10,19 +10,19 @@ classification: Workspace
 
 # Bausteine
 
-HDC-OS besteht aus mehreren Bausteinen.
+Dieses Dokument beschreibt die grundlegenden Bausteine von HDC-OS.
 
-Ein Baustein ist ein logisch abgegrenzter Teil des Systems. Jeder Baustein erfüllt eine bestimmte Aufgabe und arbeitet mit anderen Bausteinen zusammen.
+Ein Baustein ist ein logisch abgegrenzter Teil des Systems. Er hat eine klare Aufgabe und kann später erweitert werden.
 
-Dieses Dokument beschreibt die zentralen Bausteine von HDC-OS. Die Beziehungen zwischen den Bausteinen werden im Dokument `Systemmodell.md` beschrieben.
+Die Beziehungen zwischen den Bausteinen werden nicht in diesem Dokument beschrieben. Sie gehören in das spätere Dokument `Systemmodell.md`.
 
 ---
 
 ## Operations Platform
 
-Die Operations Platform ist der betriebliche Kern von HDC-OS.
+Die Operations Platform bildet den zentralen Betriebsbaustein von HDC-OS.
 
-Sie verbindet Infrastruktur, Services, Automatisierung, Wissen und Benutzerinteraktion zu einem gemeinsamen System.
+Sie verbindet alle weiteren Bausteine zu einem gemeinsamen System und koordiniert deren Zusammenarbeit.
 
 ---
 
@@ -30,58 +30,51 @@ Sie verbindet Infrastruktur, Services, Automatisierung, Wissen und Benutzerinter
 
 Services sind fachliche Funktionsbereiche innerhalb von HDC-OS.
 
-Ein Service beschreibt einen klar abgegrenzten Teil dessen, was HDC-OS leistet.
+Ein Service übernimmt einen klar abgegrenzten fachlichen Aufgabenbereich innerhalb von HDC-OS.
 
-Beispiele:
-
-- Network Security
-- Monitoring
-- Procurement
-- Documentation
-- Knowledge
-- Backup
-- Device Management
+Services können später verfeinert oder durch weitere Services ergänzt werden.
 
 ---
 
 ## Assets
 
-Assets sind konkrete Objekte, die von HDC-OS verwaltet, überwacht oder dokumentiert werden.
+Assets sind konkrete Objekte, die in HDC-OS verwaltet, überwacht oder dokumentiert werden.
 
-Beispiele:
+Assets können physisch, virtuell oder logisch sein.
 
-- Firewall
-- Switch
-- Router
-- Laptop
-- NAS
-- Access Point
-- Kamera
-- Temperatursensor
+Der Fokus liegt auf der Infrastruktur, die für den Aufbau und Betrieb von HDC-OS relevant ist.
 
 ---
 
 ## Knowledge Base
 
-Die Knowledge Base ist das Wissensfundament von HDC-OS.
+Die Knowledge Base ist die Wissensbasis von HDC-OS.
 
-Sie enthält bestätigtes Wissen über Infrastruktur, Entscheidungen, Zusammenhänge, Betriebszustände und Erfahrungen.
+Sie enthält bestätigtes Wissen über Infrastruktur, Entscheidungen, Betriebsinformationen und Erfahrungen.
+
+Sie bildet die gemeinsame Wissensgrundlage für Services, AI Services und Automatisierungen.
+
+Wissen wird bewusst einfach, nachvollziehbar und prüfbar gehalten.
 
 ---
 
 ## AI Services
 
-AI Services erweitern HDC-OS um Analyse, Empfehlungen und Wissensaufbereitung.
+AI Services erweitern HDC-OS um Analyse, Empfehlungen und Entscheidungsunterstützung.
 
-HDC-OS muss auch ohne AI Services funktionsfähig bleiben. Die KI verbessert das System, ist aber keine Voraussetzung für den Grundbetrieb.
+AI Services analysieren Informationen, bereiten Empfehlungen vor und unterstützen Benutzer bei Entscheidungen.
+
+HDC-OS bleibt ohne AI Services vollständig funktionsfähig.
+
+AI Services unterstützen den Menschen, ersetzen ihn aber nicht.
 
 ---
 
 ## Automation
 
-Automation führt definierte Abläufe kontrolliert aus.
+Automation führt definierte Prozesse kontrolliert auf Basis von Regeln, Wissen und Freigaben aus.
 
-Automatisierung basiert auf Regeln, Services, Wissen und Freigaben. Kritische Aktionen benötigen menschliche Kontrolle.
+Kritische Änderungen bleiben an menschliche Kontrolle gebunden.
 
 ---
 
@@ -89,4 +82,6 @@ Automatisierung basiert auf Regeln, Services, Wissen und Freigaben. Kritische Ak
 
 Benutzer sind Menschen, die HDC-OS verwenden, Entscheidungen treffen oder Freigaben erteilen.
 
-In Horizon 1 ist der primäre Benutzer Daniel. Später können weitere Benutzer oder Administratoren hinzukommen.
+In der ersten Ausbaustufe ist der primäre Benutzer der Project Owner.
+
+Das Modell bleibt offen für weitere Benutzer, Rollen oder Verantwortlichkeiten in späteren Ausbaustufen.

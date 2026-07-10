@@ -21,17 +21,41 @@ Projektstart:
 
 ## Erreichte Meilensteine
 
-✅ Vision definiert
+- Vision definiert
+- Verfassung verabschiedet
+- Architektur eingefroren
+- Hardware-Vorauswahl abgeschlossen
+- Workspace aufgebaut
+- Git Repository eingerichtet
+- Entwicklungsprozess definiert
+- Codex erfolgreich als Repository Engineer integriert
+- Repository-gestützter Entwicklungsprozess etabliert
+- README.md erstellt
+- PROJECT.md Version 1.0 freigegeben
+- Bausteine.md Accepted
+- Systemmodell.md Accepted
+- Constitution.md Accepted
+- DEVELOPMENT.md Accepted
+- Workspace Audit abgeschlossen
+- Product Backlog initialisiert
 
-✅ Verfassung verabschiedet
+---
 
-✅ Architektur eingefroren
+## Aktueller Entwicklungsstand
 
-✅ Hardware-Vorauswahl abgeschlossen
+Der Workspace bildet inzwischen die fachliche Quelle der Wahrheit.
 
-✅ Workspace erstellt
+Der Chat dient ausschließlich als Denk- und Arbeitsraum.
 
-✅ PROJECT.md Version 1.0 freigegeben
+Der Entwicklungsprozess basiert auf:
+
+- Work Orders
+- Review Work Orders
+- Review
+- Accepted
+- Commit
+- Release
+- Workspace Audit
 
 ---
 
@@ -41,7 +65,12 @@ Sprint 1 – Foundation
 
 ### Ziel
 
-Den HDC Workspace als Grundlage für die weitere Entwicklung aufbauen.
+Die Foundation vollständig in den Workspace überführen.
+
+### Status
+
+Sprint 1 abgeschlossen.
+Foundation Commit und Foundation Release vorbereitet.
 
 ---
 
@@ -85,26 +114,29 @@ Project Owner
 
 Daniel
 
-Lead Architect & Technical Editor
+Lead Architect
 
 ChatGPT
 
+Repository Engineer
+
+Codex
+
 ---
 
-## Nächster Schritt
+## Nächster Meilenstein
 
-- README.md erstellen
-- Repository-Standard definieren
+Sprint 2
+
+Planung und Umsetzung der ersten lauffähigen Infrastruktur.
 
 ---
 
 ## Letzter Review
 
-Review-ID:
-RV-0001
+Letzte Reviews
 
-Status:
-🟢 Accepted
-
-Freigegeben:
-06.07.2026
+- RWO-0001 – Bausteine.md – Accepted
+- RWO-0002 – Systemmodell.md – Accepted
+- RWO-0003 – PROJECT.md – Accepted
+- RWO-0004 – DEVELOPMENT.md – Accepted
