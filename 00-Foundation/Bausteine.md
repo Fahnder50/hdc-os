@@ -1,7 +1,7 @@
 ---
 document: Bausteine.md
 version: 1.0
-status: Accepted
+status: Released
 owner: Project Owner
 reviewed_by: Lead Architect
 last_review: ""

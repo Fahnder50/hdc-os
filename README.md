@@ -1,7 +1,7 @@
 ---
 document: README.md
 version: 1.0
-status: Draft
+status: Released
 owner: Project Owner
 reviewed_by: Lead Architect
 last_review: ""
@@ -44,11 +44,11 @@ Sie verbindet Sicherheit, Infrastrukturverwaltung, Monitoring, Automatisierung u
 
 | Dokument | Beschreibung |
 |----------|--------------|
-| PROJECT.md | Aktueller Projektstatus |
-| Constitution.md | Verfassung und Grundprinzipien |
-| Architecture | Systemarchitektur |
-| Services | Servicekatalog |
-| Operations | Betriebsdokumentation |
+| [Project.md](Project.md) | Aktueller Projektstatus |
+| [Constitution.md](00-Foundation/Constitution.md) | Verfassung und Grundprinzipien |
+| [Bausteine.md](00-Foundation/Bausteine.md) | Grundlegende Bausteine |
+| [Systemmodell.md](00-Foundation/Systemmodell.md) | Beziehungen zwischen den Bausteinen |
+| [DEVELOPMENT.md](10-Engineering/DEVELOPMENT.md) | Entwicklungsprozess |
 
 ---
 

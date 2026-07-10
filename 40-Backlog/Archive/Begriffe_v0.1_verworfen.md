@@ -1,7 +1,7 @@
 ---
 document: Begriffe.md
 version: 0.1
-status: Draft
+status: Released
 owner: Project Owner
 reviewed_by: Lead Architect
 last_review: ""

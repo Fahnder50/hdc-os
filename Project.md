@@ -9,7 +9,7 @@ Version:
 1.0
 
 Status:
-Sprint 1 – Foundation
+Sprint 1 Released
 
 Aktueller Meilenstein:
 M1 – Workspace
@@ -59,6 +59,16 @@ Der Entwicklungsprozess basiert auf:
 
 ---
 
+## Repository
+
+Status:
+
+Foundation Version 1.0.1 veröffentlicht.
+
+GitHub Repository ist die offizielle Source of Truth.
+
+---
+
 ## Aktueller Sprint
 
 Sprint 1 – Foundation
@@ -69,8 +79,8 @@ Die Foundation vollständig in den Workspace überführen.
 
 ### Status
 
-Sprint 1 abgeschlossen.
-Foundation Commit und Foundation Release vorbereitet.
+Sprint 1 Released.
+Foundation Commit und Foundation Release abgeschlossen.
 
 ---
 
