@@ -173,3 +173,5 @@ Letzte Reviews
 - RWO-0002 – Systemmodell.md – Accepted
 - RWO-0003 – PROJECT.md – Accepted
 - RWO-0004 – DEVELOPMENT.md – Accepted
+- RWO-0006 – Knowledge Recovery aus WO-0012 – Accepted
+- WO-0013 – M2.1 Closure & Release – Accepted

@@ -58,7 +58,7 @@ Ziel ist der formale Abschluss von M2.1 und die Vorbereitung des Zwischenrelease
 
 Ergebnis ist dieses Closure-Dokument mit aktualisiertem Projektstatus und vorbereitetem Release.
 
-Reviewstatus: In Review.
+Reviewstatus: Accepted.
 
 ---
 
