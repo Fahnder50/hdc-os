@@ -4,7 +4,7 @@ version: 0.1
 status: Draft
 owner: Project Owner
 reviewed_by: Lead Architect
-last_review: -
+last_review: ""
 classification: Workspace
 ---
 
