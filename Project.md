@@ -9,10 +9,13 @@ Version:
 1.0
 
 Status:
-Sprint 1 Released
+Sprint 2
 
 Aktueller Meilenstein:
-M1 – Workspace
+M2.2 – Procurement Foundation
+
+Abgeschlossener Meilenstein:
+M2.1 – Knowledge Consolidation
 
 Projektstart:
 06.07.2026
@@ -38,6 +41,11 @@ Projektstart:
 - DEVELOPMENT.md Accepted
 - Workspace Audit abgeschlossen
 - Product Backlog initialisiert
+- Procurement-Wissen aus Sprint 1 konsolidiert
+- Infrastrukturwissen aus Sprint 1 konsolidiert
+- Governance ergänzt
+- Knowledge-Recovery-Audit abgeschlossen
+- historische Preiszeitreihen-Lücke dokumentiert
 
 ---
 
@@ -67,20 +75,33 @@ Foundation Version 1.0.1 veröffentlicht.
 
 GitHub Repository ist die offizielle Source of Truth.
 
+Sprint 1 ist abgeschlossen.
+
+M2.1 – Knowledge Consolidation ist fachlich abgeschlossen.
+
+Knowledge Recovery ist abgeschlossen.
+
+Nächster Schwerpunkt ist M2.2 – Procurement Foundation.
+
 ---
 
 ## Aktueller Sprint
 
-Sprint 1 – Foundation
+Sprint 2
 
 ### Ziel
 
-Die Foundation vollständig in den Workspace überführen.
+M2.1 – Knowledge Consolidation abschließen und den Workspace als Source of Truth konsolidieren.
 
 ### Status
 
-Sprint 1 Released.
-Foundation Commit und Foundation Release abgeschlossen.
+M2.1 – Knowledge Consolidation
+
+Status: abgeschlossen
+
+M2.2 – Procurement Foundation
+
+Status: vorbereitet / noch nicht begonnen
 
 ---
 
@@ -136,9 +157,11 @@ Codex
 
 ## Nächster Meilenstein
 
-Sprint 2
+M2.2 – Procurement Foundation
 
-Planung und Umsetzung der ersten lauffähigen Infrastruktur.
+Der Procurement Watch wird in einen strukturierten, repositorygestützten und historienfähigen Prozess überführt.
+
+Offene Detailentscheidungen aus M2.1 sind Folgearbeiten für M2.2 beziehungsweise spätere Infrastruktur-Work-Orders.
 
 ---
 

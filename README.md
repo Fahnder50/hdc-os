@@ -4,7 +4,7 @@ version: 1.0
 status: Released
 owner: Project Owner
 reviewed_by: Lead Architect
-last_review: ""
+last_review: "2026-07-10"
 classification: Public
 ---
 
@@ -49,6 +49,10 @@ Sie verbindet Sicherheit, Infrastrukturverwaltung, Monitoring, Automatisierung u
 | [Bausteine.md](00-Foundation/Bausteine.md) | Grundlegende Bausteine |
 | [Systemmodell.md](00-Foundation/Systemmodell.md) | Beziehungen zwischen den Bausteinen |
 | [DEVELOPMENT.md](10-Engineering/DEVELOPMENT.md) | Entwicklungsprozess |
+| [Governance.md](10-Engineering/Governance.md) | Ergänzende Arbeitsregeln |
+| [Infrastructure.md](20-Operations/Infrastructure.md) | Infrastrukturwissen aus Sprint 1 |
+| [Procurement.md](30-Procurement/Procurement.md) | Procurement-Wissen aus Sprint 1 |
+| [Knowledge-Recovery-Sprint1.md](10-Engineering/Knowledge-Recovery-Sprint1.md) | Audit der Sprint-1-Wissensübernahme |
 
 ---
 
