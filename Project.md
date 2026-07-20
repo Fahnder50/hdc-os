@@ -101,7 +101,9 @@ Status: abgeschlossen
 
 M2.2 – Procurement Foundation
 
-Status: vorbereitet / noch nicht begonnen
+Status: WO-0015 – Procurement Domain Architecture Accepted
+
+WO-0016 – Procurement Runtime Foundation wartet auf Review und ausdrückliche Freigabe.
 
 ---
 
@@ -175,3 +177,4 @@ Letzte Reviews
 - RWO-0004 – DEVELOPMENT.md – Accepted
 - RWO-0006 – Knowledge Recovery aus WO-0012 – Accepted
 - WO-0013 – M2.1 Closure & Release – Accepted
+- WO-0015 – Procurement Domain Architecture – Accepted

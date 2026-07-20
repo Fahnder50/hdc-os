@@ -10,6 +10,17 @@ classification: Workspace
 
 # Procurement
 
+## M2.2-Architektur
+
+Die verbindliche Zielarchitektur und die Ausführungsverträge für den Procurement Watch sind in den folgenden Dokumenten beschrieben:
+
+- [Procurement-Architektur](architecture/Procurement-Architecture.md)
+- [Datenmodell](architecture/Data-Model.md)
+- [Ausführungsmodell](architecture/Execution-Model.md)
+- [ADR-M2.2-Procurement-Foundation](../10-Engineering/Architecture/ADR-M2.2-Procurement-Foundation.md)
+
+Die Dokumente sind der Architekturstand von WO-0015. Runtime-Code, Datenbank, Adapter, CLI und Reports sind darin nur als Folgearbeiten eingeordnet.
+
 ## Zweck
 
 Dieses Dokument sammelt die in Sprint 1 bekannten Procurement-Erkenntnisse für HDC-OS.
