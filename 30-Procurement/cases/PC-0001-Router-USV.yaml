@@ -1,0 +1,37 @@
+case_id: PC-0001
+title: Router-USV für geplanten Stromausfall
+status: evaluating
+priority: high
+
+need:
+  description: Internetzugang während eines geplanten Stromausfalls möglichst aufrechterhalten
+
+device:
+  name: Telekom Speedport Smart 4
+
+budget:
+  currency: EUR
+  maximum_total_price: 50.00
+
+requirements:
+  target_runtime_hours:
+    value: 4
+    status: open
+  automatic_failover:
+    value: required
+    status: open
+  automatic_return_to_mains:
+    value: required
+    status: open
+  standalone_operation:
+    value: required
+    status: open
+  cloud_dependency:
+    value: prohibited
+    status: open
+  local_monitoring:
+    value: preferred
+    status: open
+  hdc_os_asset_handover:
+    value: required
+    status: open

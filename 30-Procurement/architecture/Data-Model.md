@@ -30,9 +30,44 @@ Ein `Product` beschreibt einen Produktkandidaten. Ein `Offer` beschreibt das Ang
 | `Evaluation` | Ergebnis einer Regelprüfung mit PASS, FAIL, UNKNOWN oder NOT_APPLICABLE und Begründung | `evaluation_id`; referenziert Case, Requirement und optional Offer/Run | je Lauf neu nachvollziehbar; Rule Evaluator / SQLite |
 | `WatchRun` | Ausführungskontext mit Start, Ende, Status und Fehlerzähler | `watch_run_id`; enthält Results und Observations | started → succeeded/failed/partial; Procurement Service / SQLite |
 | `WatchRunResult` | Ergebnis einer Quelle oder Case-Verarbeitung innerhalb eines WatchRuns | `result_id`; gehört zu WatchRun, optional Case und Source | pending → succeeded/failed/skipped; Collector / SQLite |
-| `Event` | Nachvollziehbarer relevanter Zustand oder Zustandswechsel, z. B. BudgetExceeded | `event_id`; deduplizierbarer Schlüssel aus Typ und fachlichem Kontext | open → acknowledged/resolved/superseded; Event Generator / SQLite |
+| `Event` | Nachvollziehbarer relevanter Zustand oder Zustandswechsel, z. B. BudgetExceeded | `event_id`, `event_type`, `severity`; deduplizierbarer Schlüssel aus Typ und fachlichem Kontext | open → acknowledged/resolved/superseded; Event Generator / SQLite |
 | `PurchaseDecision` | Menschlich verantwortete Entscheidung oder Freigabe mit Begründung | `decision_id`; gehört zu ProcurementCase und referenziert Evaluationsstand | proposed → approved/rejected/withdrawn; Project Owner / SQLite |
 | `AssetHandover` | Übergabe eines erhaltenen Beschaffungsgegenstands an ein späteres Asset-Modul | `handover_id`; gehört zu Case/Product und referenziert PurchaseDecision | planned → handed_over/cancelled; Procurement Service / SQLite |
+
+## Event-Vertrag
+
+Jedes Event besitzt neben seinem fachlichen `event_type` eine feste Schweregrad-Klassifizierung. Verbraucher wie HTML-Report, Scheduler und spätere Benachrichtigungen verwenden diese Klassifizierung und leiten die Dringlichkeit nicht aus dem Text ab.
+
+Erlaubte Schweregrade:
+
+```text
+INFO
+NOTICE
+WARNING
+ACTION_REQUIRED
+ERROR
+```
+
+Erlaubte fachliche Typen und ihre Standardklassifizierung:
+
+| Event-Typ | Standardklassifizierung |
+|---|---|
+| `BUY_CANDIDATE` | `ACTION_REQUIRED` |
+| `PRICE_DROP` | `NOTICE` |
+| `PRICE_INCREASE` | `NOTICE` |
+| `RULE_FAILED` | `WARNING` |
+| `CASE_COMPLETED` | `INFO` |
+| `CASE_CHANGED` | `INFO` |
+| `BUDGET_EXCEEDED` | `WARNING` |
+| `PRODUCT_UNAVAILABLE` | `WARNING` |
+| `PRODUCT_AVAILABLE` | `INFO` |
+| `PRODUCT_AVAILABLE_AGAIN` | `INFO` |
+| `REQUIREMENT_UNKNOWN` | `NOTICE` |
+| `OFFER_CHANGED` | `NOTICE` |
+| `PRICE_TARGET_REACHED` | `ACTION_REQUIRED` |
+| `SOURCE_FAILED` | `ERROR` |
+
+Unbekannte Event-Typen oder Schweregrade sind ungültig. Die Klassifizierung wird beim Erzeugen validiert und zusammen mit dem Event gespeichert.
 
 ## Fachliche Abgrenzungen
 
@@ -44,4 +79,4 @@ Ein `Product` beschreibt einen Produktkandidaten. Ein `Offer` beschreibt das Ang
 
 ## Zuständigkeiten
 
-Der Case Loader verantwortet versionierte fachliche Ausgangsdaten. Der Collector erfasst Quelldaten und der Normalizer überführt sie in das kanonische Modell. Nach erfolgreicher Validierung veranlasst der Procurement Service die Speicherung der Beobachtungen über den Repository Layer. Der Rule Evaluator verantwortet Bewertungen, der Event Generator deren Ableitung. Der Project Owner verantwortet Kaufentscheidungen.
+Der Case Loader verantwortet versionierte fachliche Ausgangsdaten. Der Collector erfasst Quelldaten und der Normalizer überführt sie in das kanonische Modell. Nach erfolgreicher Validierung veranlasst der Procurement Service die Speicherung der Beobachtungen über den Repository Layer. Der Rule Evaluator verantwortet Bewertungen, der Event Generator deren Ableitung und Klassifizierung. Der Project Owner verantwortet Kaufentscheidungen.

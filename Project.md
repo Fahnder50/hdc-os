@@ -105,6 +105,8 @@ Status: WO-0015 – Procurement Domain Architecture Accepted
 
 WO-0016 – Procurement Runtime Foundation Accepted.
 
+WO-0017 – PC-0001 Vertical Slice in Umsetzung.
+
 ---
 
 ## Aktive Prozesse

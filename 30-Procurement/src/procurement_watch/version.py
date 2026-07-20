@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 
 
-SCHEMA_VERSION = "001"
+SCHEMA_VERSION = "002"
 
 
 def _git_value(repository_root, *arguments):

@@ -33,9 +33,17 @@ python -m procurement_watch db status
 python -m procurement_watch migrate
 python -m procurement_watch watch run
 python -m procurement_watch status
+python -m procurement_watch case import 30-Procurement/cases/PC-0001-Router-USV.yaml
+python -m procurement_watch product add --product-id PROD-001 --product-name "Router-USV" --case-id PC-0001
+python -m procurement_watch offer add --offer-id OFFER-001 --product-id PROD-001 --vendor-id VENDOR-001 --vendor-name "Händler" --price 39.99 --shipping 4.99 --availability in_stock --case-id PC-0001
+python -m procurement_watch offers PC-0001
+python -m procurement_watch history PC-0001
+python -m procurement_watch status PC-0001
 ```
 
 Ohne konfigurierte Händlerquellen führt `watch run` einen kontrollierten Foundation-Lauf aus. Echte Quellen sind Bestandteil späterer Work Orders.
+
+Jede manuelle oder strukturierte Angebotserfassung erzeugt eine neue unveränderliche `PriceObservation`. Preis- oder Verfügbarkeitskorrekturen werden als neue Beobachtung gespeichert; die Historie wird nicht überschrieben.
 
 ## Lokale Pfade
 

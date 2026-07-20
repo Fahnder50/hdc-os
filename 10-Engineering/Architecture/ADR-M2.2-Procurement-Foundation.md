@@ -48,6 +48,12 @@ Need
 
 Bestellung, Inventarisierung und Monitoring werden in M2.2 nicht umgesetzt. `PurchaseDecision` bedeutet menschliche Freigabe oder Ablehnung; `AssetHandover` markiert nur die spätere Übergabegrenze.
 
+### AD-M2.2-006: PriceObservations sind unveränderlich
+
+Eine `PriceObservation` wird nach dem Anlegen niemals geändert oder überschrieben. Beobachtungen werden ausschließlich per `INSERT` erzeugt. Korrekturen oder neue Erkenntnisse erzeugen eine neue Beobachtung; die bisherige Historie bleibt vollständig erhalten. Die Datenbank schützt diese Eigenschaft zusätzlich gegen `UPDATE` und `DELETE`.
+
+Damit bleiben Preisdiagramme, Trendanalysen, Auditierung, Reproduzierbarkeit, Debugging und spätere Machine-Learning-Auswertungen auf einer vollständigen Zeitreihe möglich.
+
 ## Konsequenzen
 
 - Der Watch kann unabhängig und lokal getestet, betrieben und diagnostiziert werden.
