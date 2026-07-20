@@ -1,0 +1,9 @@
+schema_version: "001"
+watch:
+  enabled: true
+  interval: daily
+  timezone: Europe/Berlin
+  sources: []
+rules:
+  unknown_is_pass: false
+  purchase_requires_human_approval: true

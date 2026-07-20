@@ -1,0 +1,16 @@
+*.db
+*.db-shm
+*.db-wal
+.env
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.pytest-temp/
+*pytest-temp*/
+logs/
+reports/
+30-Procurement/logs/
+30-Procurement/reports/
+30-Procurement/.runtime/

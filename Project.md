@@ -103,7 +103,7 @@ M2.2 – Procurement Foundation
 
 Status: WO-0015 – Procurement Domain Architecture Accepted
 
-WO-0016 – Procurement Runtime Foundation wartet auf Review und ausdrückliche Freigabe.
+WO-0016 – Procurement Runtime Foundation Accepted.
 
 ---
 

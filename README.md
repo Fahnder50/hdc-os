@@ -52,6 +52,7 @@ Sie verbindet Sicherheit, Infrastrukturverwaltung, Monitoring, Automatisierung u
 | [Governance.md](10-Engineering/Governance.md) | Ergänzende Arbeitsregeln |
 | [Infrastructure.md](20-Operations/Infrastructure.md) | Infrastrukturwissen aus Sprint 1 |
 | [Procurement.md](30-Procurement/Procurement.md) | Procurement-Wissen aus Sprint 1 |
+| [Procurement Runtime README](30-Procurement/README.md) | Lokale Procurement-Watch-Runtime |
 | [Procurement-Architecture.md](30-Procurement/architecture/Procurement-Architecture.md) | M2.2 Procurement-Architektur |
 | [Data-Model.md](30-Procurement/architecture/Data-Model.md) | M2.2 Procurement-Datenmodell |
 | [Execution-Model.md](30-Procurement/architecture/Execution-Model.md) | M2.2 Ausführungsmodell |
