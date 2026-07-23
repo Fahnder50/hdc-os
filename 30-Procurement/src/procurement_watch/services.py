@@ -12,6 +12,7 @@ from .delivery import apply_purchase_window, normalize_delivery
 from .evaluator import evaluate_case
 from .events import emit_event
 from .logging_utils import log_record
+from .journal import entries_for_case, record_entry
 from .reporting import write_case_report
 
 
@@ -54,7 +55,10 @@ def run_watch(config, simulate_failure=False):
         connection.commit()
         active_cases = [row["case_id"] for row in connection.execute("SELECT case_id FROM procurement_cases WHERE status NOT IN ('closed', 'cancelled')")]
         for case_id in active_cases:
-            write_case_report(config, case_report_data(config, case_id))
+            report_data = case_report_data(config, case_id)
+            write_case_report(config, report_data)
+            case_db_id = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()[0]
+            record_entry(connection, case_db_id, database_run_id, ended_at, report_data)
         log_record(config, "INFO", "Watch run completed", run_id=run_id)
         return {"watch_run_id": run_id, "started_at": started_at, "ended_at": ended_at, "status": result_status, "error_count": int(simulate_failure)}
     except Exception:
@@ -70,6 +74,29 @@ def _requirement_value(connection, case_db_id, requirement_id, default=None):
         (case_db_id, requirement_id),
     ).fetchone()
     return json.loads(row[0]) if row else default
+
+
+def _backfill_journal(config):
+    connection = connect(config)
+    try:
+        runs = connection.execute(
+            """
+            SELECT watch_runs.id, watch_runs.started_at, watch_runs.ended_at, procurement_cases.id AS case_db_id,
+                procurement_cases.case_id
+            FROM watch_runs
+            JOIN watch_run_results ON watch_run_results.watch_run_id = watch_runs.id
+            JOIN procurement_cases ON procurement_cases.id = watch_run_results.case_id
+            LEFT JOIN journal_entries ON journal_entries.watch_run_id = watch_runs.id
+            WHERE journal_entries.id IS NULL
+            GROUP BY watch_runs.id, procurement_cases.id
+            ORDER BY watch_runs.started_at
+            """
+        ).fetchall()
+        for run in runs:
+            data = case_report_data(config, run["case_id"])
+            record_entry(connection, run["case_db_id"], run["id"], run["ended_at"] or run["started_at"], data)
+    finally:
+        connection.close()
 
 
 def _save_live_offer(connection, normalized, case_db_id, observed_at, required_by_date, preferred_shipping_purchase_by, shipping_exception_date, watch_run_db_id, repository_root):
@@ -158,6 +185,7 @@ def _save_live_offer(connection, normalized, case_db_id, observed_at, required_b
 
 def run_live_watch(config, case_id):
     initialize(config)
+    _backfill_journal(config)
     sources_document = load_yaml_config(config.sources_path)
     policy_document = load_yaml_config(config.policy_path) if config.policy_path.exists() else {}
     sources = [source for source in sources_document.get("sources", []) if source.get("case_id") in (None, case_id)]
@@ -213,6 +241,12 @@ def run_live_watch(config, case_id):
             (ended_at, result_status, failed_sources, database_run_id),
         )
         connection.commit()
+        report_data = case_report_data(config, case_id)
+        journal_connection = connect(config)
+        try:
+            record_entry(journal_connection, case[0], database_run_id, ended_at, report_data)
+        finally:
+            journal_connection.close()
     except Exception:
         connection.rollback()
         raise
@@ -449,7 +483,7 @@ def history_for_case(config, case_id):
     try:
         rows = connection.execute(
             """
-            SELECT offers.offer_id, price_observations.observation_id, price_observations.price_cents,
+            SELECT offers.offer_id, products.model_number, price_observations.observation_id, price_observations.price_cents,
                 price_observations.shipping_cents, price_observations.total_price_cents, price_observations.currency,
                 price_observations.availability, price_observations.observed_at, price_observations.source_adapter,
                 price_observations.delivery_text_raw, price_observations.delivery_date_earliest,
@@ -458,6 +492,7 @@ def history_for_case(config, case_id):
                 price_observations.pickup_location, price_observations.product_url
             FROM price_observations
             JOIN offers ON offers.id = price_observations.offer_id
+            JOIN products ON products.id = offers.product_id
             JOIN case_products ON case_products.product_id = offers.product_id
             JOIN procurement_cases ON procurement_cases.id = case_products.case_id
             WHERE procurement_cases.case_id = ?
@@ -608,6 +643,7 @@ def case_report_data(config, case_id):
         watch_runs = connection.execute(
             "SELECT watch_run_id, status, started_at, ended_at, error_count FROM watch_runs ORDER BY started_at DESC LIMIT 20"
         ).fetchall()
+        journal = entries_for_case(connection, case[0])
         return {
             "status": case_status(config, case_id),
             "offers": offers_for_case(config, case_id),
@@ -615,6 +651,7 @@ def case_report_data(config, case_id):
             "evaluations": [dict(row) for row in evaluations],
             "events": [dict(row) for row in events],
             "watch_runs": [dict(row) for row in watch_runs],
+            "journal": journal,
         }
     finally:
         connection.close()
@@ -655,7 +692,7 @@ def doctor(config):
     checks = {
         "python": {"ok": sys.version_info >= (3, 12), "detail": sys.version.split()[0]},
         "database": {"ok": db["reachable"], "detail": db["path"]},
-        "schema": {"ok": db["schema_version"] == "005", "detail": db["schema_version"]},
+        "schema": {"ok": db["schema_version"] == "006", "detail": db["schema_version"]},
         "logs_path": {"ok": config.logs_path.parent.exists(), "detail": str(config.logs_path)},
         "reports_path": {"ok": config.reports_path.parent.exists(), "detail": str(config.reports_path)},
         "sources": {"ok": config.sources_path.exists(), "detail": str(config.sources_path)},

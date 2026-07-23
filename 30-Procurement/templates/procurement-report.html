@@ -2,27 +2,36 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <title>{{CASE_ID}} Procurement Report</title>
+  <title>{{CASE_ID}} – Procurement Operations Journal</title>
   <style>
-    body { font-family: Segoe UI, Arial, sans-serif; max-width: 1200px; margin: 2rem auto; padding: 0 1rem; color: #202124; background: #f7f8fa; }
-    section { background: #fff; padding: 1rem 1.25rem; margin: 1rem 0; border: 1px solid #d9dee7; border-radius: 8px; }
+    body { font-family: Segoe UI, Arial, sans-serif; max-width: 1180px; margin: 2rem auto; padding: 0 1rem; color: #202124; background: #f4f6f8; }
+    section { background: #fff; padding: 1.25rem; margin: 1rem 0; border: 1px solid #d9dee7; border-radius: 10px; }
+    .hero { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; }
+    .decision { background: #fff8d8; border-left: 7px solid #e0b100; }
+    .decision h2 { margin-top: 0; font-size: 1.8rem; }
+    .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+    .fact { padding: .8rem; background: #f7f9fb; border-radius: 8px; }
+    .label { display: block; color: #5f6368; font-size: .85rem; }
+    .value { font-weight: 700; font-size: 1.15rem; }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: .5rem; border-bottom: 1px solid #e4e7eb; text-align: left; vertical-align: top; }
+    th, td { padding: .55rem; border-bottom: 1px solid #e4e7eb; text-align: left; vertical-align: top; }
     th { background: #eef2f7; }
-    .status { font-size: 1.2rem; font-weight: 700; }
     .muted { color: #5f6368; }
+    ul { margin-top: .5rem; }
+    @media (max-width: 750px) { .hero { grid-template-columns: 1fr; } .facts { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <h1>{{CASE_ID}}: {{TITLE}}</h1>
-  <p class="muted">Report generiert: {{GENERATED_AT}}</p>
-  <section><h2>Case-Status</h2><p class="status">{{RECOMMENDATION_STATUS}}</p><p>Priorität: {{PRIORITY}} · Budget: {{BUDGET}} EUR · Produktkandidaten: {{PRODUCT_CANDIDATES}} · Aktive Angebote: {{ACTIVE_OFFERS}}</p><p>Günstigstes verfügbares Angebot: {{CHEAPEST_AVAILABLE}} · Budgetkonform: {{CHEAPEST_BUDGET_COMPLIANT}}</p></section>
-  <section><h2>Anforderungen und Warnungen</h2>{{REQUIREMENTS}}{{WARNINGS}}</section>
-  <section><h2>Aktuelle Angebote</h2><table><tr><th>Angebot</th><th>Modell</th><th>Händler</th><th>Preis</th><th>Versand</th><th>Gesamt</th><th>Währung</th><th>Verfügbarkeit</th><th>Liefertext</th><th>Lieferung bis</th><th>Fulfillment</th><th>Frist</th><th>Quelle</th><th>Beobachtet</th></tr>{{OFFER_ROWS}}</table></section>
-  <section><h2>Preisverlauf</h2><table><tr><th>Zeitpunkt</th><th>Angebot</th><th>Gesamtpreis</th><th>Verfügbarkeit</th></tr>{{HISTORY_ROWS}}</table></section>
-  <section><h2>Regelbewertungen</h2><table><tr><th>Regel</th><th>Ergebnis</th><th>Begründung</th></tr>{{EVALUATION_ROWS}}</table></section>
-  <section><h2>Events</h2><table><tr><th>Typ</th><th>Schweregrad</th><th>Status</th><th>Nachricht</th></tr>{{EVENT_ROWS}}</table></section>
-  <section><h2>Rangfolge</h2>{{RANKING}}</section>
-  <section><h2>Watch-Läufe</h2>{{WATCH_RUNS}}</section>
+  <h1>{{CASE_ID}} – Procurement Operations Journal</h1>
+  <p class="muted">{{TITLE}} · Stand: {{GENERATED_AT}}</p>
+  <div class="hero">
+    <section class="decision"><h2>Heute empfehlen wir: {{RECOMMENDATION_STATUS}}</h2><p>{{RECOMMENDATION_REASON}}</p><p class="muted">Engine-Status: {{STAGE}}</p></section>
+    <section><h2>Kurzübersicht</h2><div class="facts"><div class="fact"><span class="label">Empfohlenes Angebot</span><span class="value">{{TOP_MODEL}}</span></div><div class="fact"><span class="label">Preis</span><span class="value">{{TOP_PRICE}}</span></div><div class="fact"><span class="label">Händler</span><span class="value">{{TOP_VENDOR}}</span></div><div class="fact"><span class="label">Lieferung</span><span class="value">{{TOP_DELIVERY}}</span></div><div class="fact"><span class="label">Nächste Beobachtung</span><span class="value">{{NEXT_OBSERVATION}}</span></div></div></section>
+  </div>
+  <section><h2>Was hat sich seit gestern geändert?</h2>{{CHANGE_LINES}}</section>
+  <section><h2>Top-Angebote</h2><table><tr><th>Rang</th><th>Modell</th><th>Händler</th><th>Preis</th><th>Lieferung</th><th>Evidenz</th></tr>{{OFFER_ROWS}}</table></section>
+  <section><h2>Preisentwicklung pro Modell</h2><table><tr><th>Zeitpunkt</th><th>Modell</th><th>Preis</th></tr>{{PRICE_ROWS}}</table></section>
+  <section><h2>Journal-Timeline</h2><table><tr><th>Zeitpunkt</th><th>Watch Run</th><th>Empfehlung</th><th>Änderungen</th></tr>{{JOURNAL_ROWS}}</table></section>
+  <details><summary>Technische Details</summary><section><h3>Hinweise und offene Punkte</h3>{{TECHNICAL_DETAILS}}<h3>Events</h3>{{EVENT_ROWS}}<h3>Rohdaten</h3><p>{{RAW_DATA}}</p></section></details>
 </body>
 </html>
