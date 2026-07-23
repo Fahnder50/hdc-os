@@ -189,8 +189,6 @@ def run_live_watch(config, case_id):
     sources_document = load_yaml_config(config.sources_path)
     policy_document = load_yaml_config(config.policy_path) if config.policy_path.exists() else {}
     sources = [source for source in sources_document.get("sources", []) if source.get("case_id") in (None, case_id)]
-    if not sources:
-        raise ValueError(f"No live sources configured for case: {case_id}")
     connection = connect(config)
     run_id = f"WR-{uuid.uuid4().hex[:12]}"
     started_at = utc_now()
@@ -235,7 +233,7 @@ def run_live_watch(config, case_id):
                 log_record(config, "ERROR", "Live source failed", run_id=run_id, case_id=case_id, source_id=source_id, error_class=error_class)
         evaluate_case(connection, case_id, database_run_id)
         ended_at = utc_now()
-        result_status = "succeeded" if successful_sources else "failed"
+        result_status = "succeeded" if successful_sources or not sources else "failed"
         connection.execute(
             "UPDATE watch_runs SET ended_at = ?, status = ?, error_count = ? WHERE id = ?",
             (ended_at, result_status, failed_sources, database_run_id),
@@ -523,6 +521,8 @@ def case_status(config, case_id):
         ).fetchone()[0]
         budget = connection.execute("SELECT value_json FROM requirements WHERE case_id = ? AND requirement_id = 'budget_maximum_total_price'", (case["id"],)).fetchone()
         budget_cents = int(json.loads(budget[0]) * 100) if budget else None
+        target_budget = connection.execute("SELECT value_json FROM requirements WHERE case_id = ? AND requirement_id = 'budget_target_price'", (case["id"],)).fetchone()
+        target_budget_cents = int(json.loads(target_budget[0]) * 100) if target_budget else None
         cheapest = connection.execute(
             "SELECT MIN(total_price_cents) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND offers.status = 'active' AND offers.availability IN ('available', 'in_stock', 'instock', 'in stock')",
             (case["id"],),
@@ -562,7 +562,7 @@ def case_status(config, case_id):
             recommendation = "CONDITIONAL_BUY"
         elif any(result == "UNKNOWN" for values in offer_results.values() for result in values.values()):
             recommendation = "WAIT"
-        elif any(set(values.values()) == {"PASS"} and len(values) >= (19 if live_mode else 7) for values in offer_results.values()) and cheapest is not None and (budget_cents is None or cheapest <= budget_cents):
+        elif any(set(values.values()) == {"PASS"} and len(values) >= (22 if live_mode else 7) for values in offer_results.values()) and cheapest is not None and (budget_cents is None or cheapest <= budget_cents):
             recommendation = "BUY_CANDIDATE"
         else:
             recommendation = "EVALUATING"
@@ -573,6 +573,18 @@ def case_status(config, case_id):
             "SELECT MIN(total_price_cents) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND offers.status = 'active' AND offers.availability IN ('available', 'in_stock', 'instock', 'in stock') AND (? IS NULL OR total_price_cents <= ?)",
             (case["id"], budget_cents, budget_cents),
         ).fetchone()[0]
+        best_observed_price = connection.execute(
+            "SELECT MIN(price_cents) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND offers.status = 'active'",
+            (case["id"],),
+        ).fetchone()[0]
+        if best_observed_price is None:
+            budget_status = "NO_OFFER"
+        elif target_budget_cents is not None and best_observed_price <= target_budget_cents:
+            budget_status = "WITHIN_TARGET_BUDGET"
+        elif budget_cents is not None and best_observed_price <= budget_cents:
+            budget_status = "WITHIN_MAXIMUM_BUDGET"
+        else:
+            budget_status = "OVER_MAXIMUM_BUDGET"
         ranking_rows = connection.execute(
             """
             SELECT offers.offer_id, vendors.name AS vendor_name, offers.total_price_cents,
@@ -599,6 +611,9 @@ def case_status(config, case_id):
         return {
             "case_id": case["case_id"], "title": case["title"], "priority": case["priority"],
             "budget": budget_cents / 100 if budget_cents is not None else None,
+            "budget_target": target_budget_cents / 100 if target_budget_cents is not None else None,
+            "best_observed_price": best_observed_price / 100 if best_observed_price is not None else None,
+            "budget_status": budget_status,
             "product_candidates": product_count, "active_offers": offer_count,
             "cheapest_available_offer": cheapest / 100 if cheapest is not None else None,
             "cheapest_budget_compliant_offer": budget_compliant / 100 if budget_compliant is not None else None,
@@ -696,5 +711,6 @@ def doctor(config):
         "logs_path": {"ok": config.logs_path.parent.exists(), "detail": str(config.logs_path)},
         "reports_path": {"ok": config.reports_path.parent.exists(), "detail": str(config.reports_path)},
         "sources": {"ok": config.sources_path.exists(), "detail": str(config.sources_path)},
+        "portfolio": {"ok": config.portfolio_path.exists(), "detail": str(config.portfolio_path)},
     }
     return {"ok": all(check["ok"] for check in checks.values()), "checks": checks, "database": db}

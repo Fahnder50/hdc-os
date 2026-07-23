@@ -21,9 +21,9 @@ shipping_purchase_exception_date: 2026-08-01
 
 budget:
   currency: EUR
-  target_price: 80.00
-  maximum_total_price: 100.00
-  absolute_maximum_total_price: 120.00
+  target_price: 50.00
+  maximum_total_price: 70.00
+  absolute_maximum_total_price: 70.00
 
 requirements:
   target_runtime_hours:

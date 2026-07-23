@@ -1,0 +1,21 @@
+case_id: PC-0005
+title: Rack-USV
+status: WATCHING
+priority: high
+
+need:
+  description: Rackmontierbare USV zum Schutz des späteren Server-Racks.
+
+budget:
+  currency: EUR
+  target_price: 170.00
+  maximum_total_price: 350.00
+  absolute_maximum_total_price: 350.00
+
+requirements:
+  rack_mountable: {value: required, status: open}
+  runtime_sufficient: {value: required, status: open}
+  usb_or_network_monitoring: {value: required, status: open}
+  linux_compatible: {value: required, status: open}
+  expandable: {value: required, status: open}
+  server_rack_protection: {value: required, status: open}

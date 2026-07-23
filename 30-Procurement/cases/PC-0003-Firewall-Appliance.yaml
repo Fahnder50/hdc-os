@@ -1,0 +1,30 @@
+case_id: PC-0003
+title: Firewall Appliance
+status: WATCHING
+priority: high
+
+need:
+  description: Energiearme Firewall Appliance für VPN, VLAN und 24/7-Homeoffice-Betrieb.
+
+budget:
+  currency: EUR
+  target_price: 220.00
+  maximum_total_price: 220.00
+  absolute_maximum_total_price: 220.00
+
+requirements:
+  vpn: {value: required, status: open}
+  vlan: {value: required, status: open}
+  low_power_consumption: {value: required, status: open}
+  continuous_24_7_operation: {value: required, status: open}
+  homeoffice_suitable: {value: required, status: open}
+  open_source_friendly: {value: required, status: open}
+  no_unnecessary_license_costs: {value: required, status: open}
+  monitoring_possible: {value: required, status: open}
+  cpu: {value: Intel Processor N100, status: required}
+  network_controller: {value: Intel i226, status: required}
+  network_ports: {value: "at least 4 x 2.5GbE", status: required}
+  architecture: {value: x86-64, status: required}
+  firewall_compatibility: {value: "pfSense or OPNsense", status: required}
+  fanless_preferred: {value: preferred, status: open}
+  hardware_license: {value: "no mandatory recurring hardware or cloud license", status: required}

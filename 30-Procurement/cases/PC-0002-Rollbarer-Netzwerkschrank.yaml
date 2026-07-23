@@ -1,0 +1,22 @@
+case_id: PC-0002
+title: Rollbarer Netzwerkschrank
+status: WATCHING
+priority: high
+
+need:
+  description: Rollbarer und ausbaufähiger Netzwerkschrank für die lokale HDC-OS-Infrastruktur.
+
+budget:
+  currency: EUR
+  target_price: 120.00
+  maximum_total_price: 400.00
+  absolute_maximum_total_price: 400.00
+
+requirements:
+  mobile_floor_standing: {value: required, status: open}
+  wall_mount: {value: forbidden, status: open}
+  rack_units_long_term_expansion: {value: required, status: open}
+  lockable: {value: required, status: open}
+  ventilation: {value: required, status: open}
+  cable_management: {value: required, status: open}
+  budget_monitoring: {value: required, status: open}

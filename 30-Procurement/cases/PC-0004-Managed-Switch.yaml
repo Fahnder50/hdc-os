@@ -1,0 +1,21 @@
+case_id: PC-0004
+title: Managed Switch
+status: WATCHING
+priority: high
+
+need:
+  description: Geräuscharmer Managed Switch für VLAN und den späteren Ausbau des Netzwerks.
+
+budget:
+  currency: EUR
+  target_price: 150.00
+  maximum_total_price: 220.00
+  absolute_maximum_total_price: 220.00
+
+requirements:
+  managed: {value: required, status: open}
+  vlan: {value: required, status: open}
+  sufficient_ports: {value: required, status: open}
+  gigabit_or_better: {value: required, status: open}
+  fanless_preferred: {value: preferred, status: open}
+  low_power_consumption: {value: required, status: open}

@@ -14,6 +14,7 @@ class AppConfig:
     repository_version: str | None
     sources_path: Path
     policy_path: Path
+    portfolio_path: Path
     request_timeout: float
     user_agent: str
     max_retries: int
@@ -31,6 +32,7 @@ def resolve_config(environ=None, repository_root=None):
         repository_version=values.get("HDC_REPOSITORY_VERSION"),
         sources_path=Path(values.get("HDC_PROCUREMENT_SOURCES", default_config_root / "sources.yaml")),
         policy_path=Path(values.get("HDC_PROCUREMENT_POLICY", default_config_root / "watch-policy.yaml")),
+        portfolio_path=Path(values.get("HDC_PROCUREMENT_PORTFOLIO", default_config_root / "portfolio.yaml")),
         request_timeout=float(values.get("HDC_PROCUREMENT_TIMEOUT", "20")),
         user_agent=values.get("HDC_PROCUREMENT_USER_AGENT", "HDC-Procurement-Watch/0.1"),
         max_retries=int(values.get("HDC_PROCUREMENT_RETRIES", "1")),

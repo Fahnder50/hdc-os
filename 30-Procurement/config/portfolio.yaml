@@ -1,0 +1,10 @@
+portfolio:
+  currency: EUR
+  target_total_hardware_budget: 2000.00
+  absolute_total_hardware_budget: 2000.00
+  cases:
+    - PC-0001
+    - PC-0002
+    - PC-0003
+    - PC-0004
+    - PC-0005

@@ -73,8 +73,8 @@ def emit_evaluation_events(connection, case_db_id, offer_id, evaluations):
             emit_event(connection, case_db_id, "DELIVERY_UNKNOWN", f"{case_db_id}:delivery-unknown:{offer_id}", "Offer delivery cannot be verified against the deadline.")
         elif result == "FAIL" and rule_id == "DELIVERY_ELIGIBILITY":
             emit_event(connection, case_db_id, "DELIVERY_TOO_LATE", f"{case_db_id}:delivery-late:{offer_id}", "Offer cannot meet the procurement deadline.")
-        elif result == "FAIL" and rule_id in {"TOTAL_PRICE_WITHIN_BUDGET", "OVER_ABSOLUTE_BUDGET"}:
-            event_type = "OVER_BUDGET" if rule_id == "OVER_ABSOLUTE_BUDGET" else "BUDGET_EXCEEDED"
+        elif result == "FAIL" and rule_id in {"TOTAL_PRICE_WITHIN_BUDGET", "OVER_ABSOLUTE_BUDGET", "WITHIN_MAXIMUM_BUDGET", "OVER_MAXIMUM_BUDGET"}:
+            event_type = "OVER_BUDGET" if rule_id in {"OVER_ABSOLUTE_BUDGET", "OVER_MAXIMUM_BUDGET"} else "BUDGET_EXCEEDED"
             emit_event(connection, case_db_id, event_type, f"{case_db_id}:budget:{offer_id}:{rule_id}", "Offer exceeds the applicable case budget.")
         elif result == "FAIL" and rule_id == "PRODUCT_AVAILABLE":
             emit_event(connection, case_db_id, "PRODUCT_UNAVAILABLE", f"{case_db_id}:unavailable:{offer_id}", "Offer is not available.")

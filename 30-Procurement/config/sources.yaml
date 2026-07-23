@@ -9,3 +9,52 @@ sources:
     case_id: PC-0001
     url: https://geizhals.de/apc-back-ups-750va-bx750mi-a2373265.html
     max_offers: 3
+  - source_id: geizhals-digitus-dn48000
+    adapter: geizhals
+    case_id: PC-0002
+    url: https://geizhals.de/digitus-audio-video-rack-19-avs-equipment-rack-8he-dn-48000-a3566317.html
+    max_offers: 3
+  - source_id: geizhals-digitus-dn48001
+    adapter: geizhals
+    case_id: PC-0002
+    url: https://geizhals.de/digitus-audio-video-rack-19-avs-equipment-rack-16he-dn-48001-a3566294.html
+    max_offers: 3
+  - source_id: geizhals-digitus-dn48002
+    adapter: geizhals
+    case_id: PC-0002
+    url: https://geizhals.de/digitus-audio-video-rack-19-avs-equipment-rack-21he-dn-48002-a3566329.html
+    max_offers: 3
+  - source_id: geizhals-tplink-sg2218
+    adapter: geizhals
+    case_id: PC-0004
+    url: https://geizhals.de/tp-link-tl-sg2200-jetstream-rackmount-gigabit-smart-switch-tl-sg2218-a2519275.html
+    max_offers: 3
+  - source_id: geizhals-cyberpower-or1000erm1u
+    adapter: geizhals
+    case_id: PC-0005
+    url: https://geizhals.de/cyberpower-office-rackmount-1000va-1he-or1000erm1u-a2531829.html
+    max_offers: 3
+  - source_id: pc3-pczinophyte-public
+    adapter: json-ld
+    case_id: PC-0003
+    url: https://www.handyhuellen.berlin/products/pczinophyte-micro-firewall-appliance-n100-firewall-router-pc-upgraded-version-lufterloser-mini-pc-4x-i226-v-2-5g-solid-computer-proxmox-esxi-opnsense
+    max_offers: 1
+    variant: complete-system
+    vendor_name: handyhuellen.berlin
+    shipping: 0
+    evidence: "Intel N100; 4x Intel i226-V; 2.5G; fanless; OPNsense; 16GB/256GB listed by public product title; price 169.99 EUR; out of stock"
+  - source_id: pc3-netzshopping-public
+    adapter: json-ld
+    case_id: PC-0003
+    url: https://www.netzshopping.de/p/B0DNDPJNG3/
+    max_offers: 1
+    variant: complete-system
+    vendor_name: netzshopping.de
+    evidence: "Intel N100; 4x i226; 2.5G; fanless; pfSense/OPNsense; 16GB DDR4/256GB NVMe listed by public product title; price not exposed by parser"
+  - source_id: pc3-geizhals-mnboxconet-public
+    adapter: geizhals
+    case_id: PC-0003
+    url: https://geizhals.de/mini-pc-barebone-netzwerk-pc-intel-n100-a2926991.html
+    max_offers: 3
+    variant: barebone-or-complete
+    evidence: "Public Geizhals listing identifies N100 firewall variants with 4 or 6 Intel i226-V 2.5GbE ports; observed prices are above the 220 EUR target"

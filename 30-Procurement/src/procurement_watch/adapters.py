@@ -4,6 +4,7 @@ from html import unescape
 import re
 from pathlib import Path
 from time import sleep
+from urllib.parse import urlparse
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -186,5 +187,17 @@ def collect_source(source, timeout=20, user_agent="HDC-Procurement-Watch/0.1", r
     if adapter == "geizhals":
         return parse_geizhals(document, source["url"], int(source.get("max_offers", 5)))
     if adapter == "json-ld":
-        return [parse_json_ld(document, source["url"])]
+        normalized = parse_json_ld(document, source["url"])
+        source_host = urlparse(source["url"]).netloc.removeprefix("www.")
+        vendor_name = normalized.get("vendor_name") or source.get("vendor_name") or source_host
+        identity = normalized.get("sku") or normalized.get("mpn") or normalized.get("technical_reference") or source.get("source_id", "offer")
+        offer_key = re.sub(r"[^A-Za-z0-9]+", "-", str(identity)).strip("-").upper()
+        normalized["vendor_name"] = vendor_name
+        normalized["vendor_id"] = f"LIVE-{re.sub(r'[^A-Za-z0-9]+', '-', vendor_name).strip('-').upper()}"
+        normalized["product_id"] = f"LIVE-{offer_key}"
+        normalized["offer_id"] = f"LIVE-{offer_key}-{re.sub(r'[^A-Za-z0-9]+', '-', vendor_name).strip('-').upper()}"
+        normalized["shipping"] = source.get("shipping")
+        if normalized.get("price") is not None and normalized.get("shipping") is not None:
+            normalized["total_price"] = normalized["price"] + normalized["shipping"]
+        return [normalized]
     raise LiveAdapterError(f"Unknown live adapter: {adapter}")

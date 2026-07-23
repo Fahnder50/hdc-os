@@ -5,6 +5,9 @@ from .events import emit_evaluation_events
 
 
 RULES = (
+    "WITHIN_TARGET_BUDGET",
+    "WITHIN_MAXIMUM_BUDGET",
+    "OVER_MAXIMUM_BUDGET",
     "TOTAL_PRICE_WITHIN_TARGET",
     "TOTAL_PRICE_WITHIN_BUDGET",
     "OVER_ABSOLUTE_BUDGET",
@@ -70,15 +73,15 @@ def _evaluate_rule(rule_id, offer, product, requirements, target_runtime):
     target_price = requirements.get("budget_target_price")
     maximum_price = requirements.get("budget_maximum_total_price")
     absolute_price = requirements.get("budget_absolute_maximum_total_price")
-    if rule_id == "TOTAL_PRICE_WITHIN_TARGET":
+    if rule_id in {"WITHIN_TARGET_BUDGET", "TOTAL_PRICE_WITHIN_TARGET"}:
         if offer["total_price_cents"] is None or target_price is None:
             return "UNKNOWN", "Total price or target price is missing."
         return ("PASS", "Total price is at or below the preferred target price.") if offer["total_price_cents"] <= int(float(target_price) * 100) else ("REVIEW", "Total price exceeds the preferred target price.")
-    if rule_id == "TOTAL_PRICE_WITHIN_BUDGET":
+    if rule_id in {"WITHIN_MAXIMUM_BUDGET", "TOTAL_PRICE_WITHIN_BUDGET"}:
         if offer["total_price_cents"] is None or maximum_price is None:
             return "UNKNOWN", "Total price or regular maximum budget is missing."
         return ("PASS", "Total price is within the regular maximum budget.") if offer["total_price_cents"] <= int(float(maximum_price) * 100) else ("FAIL", "Total price exceeds the regular maximum budget.")
-    if rule_id == "OVER_ABSOLUTE_BUDGET":
+    if rule_id in {"OVER_MAXIMUM_BUDGET", "OVER_ABSOLUTE_BUDGET"}:
         if offer["total_price_cents"] is None or absolute_price is None:
             return "UNKNOWN", "Total price or absolute budget is missing."
         return ("PASS", "Total price is within the absolute budget.") if offer["total_price_cents"] <= int(float(absolute_price) * 100) else ("FAIL", "Total price exceeds the absolute budget.")
