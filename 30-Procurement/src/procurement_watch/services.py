@@ -7,6 +7,8 @@ import uuid
 from .config import load_yaml_config
 from .database import connect, initialize, schema_status
 from .evaluator import evaluate_case
+from .logging_utils import log_record
+from .reporting import write_case_report
 
 
 def utc_now():
@@ -46,6 +48,10 @@ def run_watch(config, simulate_failure=False):
             (ended_at, result_status, int(simulate_failure), database_run_id),
         )
         connection.commit()
+        active_cases = [row["case_id"] for row in connection.execute("SELECT case_id FROM procurement_cases WHERE status NOT IN ('closed', 'cancelled')")]
+        for case_id in active_cases:
+            write_case_report(config, case_report_data(config, case_id))
+        log_record(config, "INFO", "Watch run completed", run_id=run_id)
         return {"watch_run_id": run_id, "started_at": started_at, "ended_at": ended_at, "status": result_status, "error_count": int(simulate_failure)}
     except Exception:
         connection.rollback()
@@ -344,3 +350,76 @@ def _require_initialized(config):
     required_tables = {"procurement_cases", "offers", "price_observations"}
     if not result["reachable"] or not required_tables.issubset(result["tables"]):
         raise ValueError("Procurement database is not initialized; run 'db init' first.")
+
+
+def case_report_data(config, case_id):
+    _require_initialized(config)
+    connection = connect(config)
+    try:
+        case = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
+        if case is None:
+            raise ValueError(f"Unknown case: {case_id}")
+        evaluations = connection.execute(
+            "SELECT rule_id, result, reason, evaluated_at FROM evaluations WHERE case_id = ? ORDER BY evaluated_at DESC",
+            (case[0],),
+        ).fetchall()
+        events = connection.execute(
+            "SELECT event_type, severity, status, message, created_at FROM events WHERE case_id = ? ORDER BY created_at DESC",
+            (case[0],),
+        ).fetchall()
+        watch_runs = connection.execute(
+            "SELECT watch_run_id, status, started_at, ended_at, error_count FROM watch_runs ORDER BY started_at DESC LIMIT 20"
+        ).fetchall()
+        return {
+            "status": case_status(config, case_id),
+            "offers": offers_for_case(config, case_id),
+            "history": history_for_case(config, case_id),
+            "evaluations": [dict(row) for row in evaluations],
+            "events": [dict(row) for row in events],
+            "watch_runs": [dict(row) for row in watch_runs],
+        }
+    finally:
+        connection.close()
+
+
+def report_case(config, case_id):
+    return write_case_report(config, case_report_data(config, case_id))
+
+
+def current_events(config):
+    result = schema_status(config)
+    if not result["reachable"]:
+        return {"initialized": False, "events": []}
+    connection = connect(config)
+    try:
+        rows = connection.execute("SELECT event_id, event_type, severity, status, message, created_at FROM events WHERE status = 'open' ORDER BY created_at DESC").fetchall()
+        return {"initialized": True, "events": [dict(row) for row in rows]}
+    finally:
+        connection.close()
+
+
+def recent_watch_runs(config):
+    result = schema_status(config)
+    if not result["reachable"]:
+        return {"initialized": False, "runs": []}
+    connection = connect(config)
+    try:
+        rows = connection.execute("SELECT watch_run_id, status, started_at, ended_at, error_count FROM watch_runs ORDER BY started_at DESC LIMIT 20").fetchall()
+        return {"initialized": True, "runs": [dict(row) for row in rows]}
+    finally:
+        connection.close()
+
+
+def doctor(config):
+    import sys
+
+    db = schema_status(config)
+    checks = {
+        "python": {"ok": sys.version_info >= (3, 12), "detail": sys.version.split()[0]},
+        "database": {"ok": db["reachable"], "detail": db["path"]},
+        "schema": {"ok": db["schema_version"] == "003", "detail": db["schema_version"]},
+        "logs_path": {"ok": config.logs_path.parent.exists(), "detail": str(config.logs_path)},
+        "reports_path": {"ok": config.reports_path.parent.exists(), "detail": str(config.reports_path)},
+        "sources": {"ok": True, "detail": "No live sources configured in WO-0018 foundation."},
+    }
+    return {"ok": all(check["ok"] for check in checks.values()), "checks": checks, "database": db}

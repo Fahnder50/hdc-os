@@ -5,9 +5,10 @@ import procurement_watch.cli as cli
 import procurement_watch.services as services_module
 from procurement_watch.config import load_yaml_config, resolve_config
 from procurement_watch.database import schema_status
+from procurement_watch.backup import backup_database, restore_database
 from procurement_watch.adapters import AdapterError, parse_json_ld_file
 from procurement_watch.events import EVENT_SEVERITIES, EVENT_TYPES, classify_event, emit_event
-from procurement_watch.services import add_offer, add_product, case_status, import_case, init_database, offers_for_case, procurement_status, run_watch, history_for_case
+from procurement_watch.services import add_offer, add_product, case_status, current_events, doctor, import_case, init_database, offers_for_case, procurement_status, recent_watch_runs, run_watch, history_for_case
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -32,11 +33,11 @@ def test_yaml_configuration_loads_mapping(tmp_path):
 def test_database_initialization_is_repeatable_and_tracks_repository(monkeypatch, tmp_path):
     config = resolve_config(
         environ={"HDC_PROCUREMENT_DB": str(tmp_path / "procurement.db"), "HDC_REPOSITORY_VERSION": "knowledge-v1.2"},
-        repository_root=tmp_path,
+        repository_root=REPO_ROOT,
     )
     first = init_database(config)
     second = init_database(config)
-    assert first["schema_version"] == "002"
+    assert first["schema_version"] == "003"
     assert second["repository_version"] == "knowledge-v1.2"
     connection = sqlite3.connect(config.database_path)
     metadata = dict(connection.execute("SELECT metadata_key, metadata_value FROM runtime_metadata").fetchall())
@@ -45,8 +46,8 @@ def test_database_initialization_is_repeatable_and_tracks_repository(monkeypatch
     assert len(metadata["repository_commit"]) == 40
     assert all(character in "0123456789abcdef" for character in metadata["repository_commit"])
     assert metadata["repository_version"] == "knowledge-v1.2"
-    assert metadata["schema_version"] == "002"
-    assert migration_count == 2
+    assert metadata["schema_version"] == "003"
+    assert migration_count == 3
 
 
 def test_foreign_keys_are_enforced(tmp_path):
@@ -71,7 +72,7 @@ def test_watch_run_completes_and_status_reads_it(tmp_path):
     assert result["ended_at"]
     assert status["last_watch_run"]["watch_run_id"] == result["watch_run_id"]
     assert status["last_watch_run"]["status"] == "succeeded"
-    assert status["schema_version"] == "002"
+    assert status["schema_version"] == "003"
     assert status["initialized"] is True
 
 
@@ -289,6 +290,52 @@ def test_price_observations_are_immutable(tmp_path):
         raise AssertionError("price observation update was not blocked")
     finally:
         connection.close()
+
+
+def test_watch_run_writes_report_and_structured_log(tmp_path):
+    config = resolve_config(
+        environ={
+            "HDC_PROCUREMENT_DB": str(tmp_path / "procurement.db"),
+            "HDC_PROCUREMENT_LOGS": str(tmp_path / "logs"),
+            "HDC_PROCUREMENT_REPORTS": str(tmp_path / "reports"),
+        },
+        repository_root=REPO_ROOT,
+    )
+    import_case(config, "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    result = run_watch(config)
+    report = config.reports_path / "PC-0001.html"
+    log_file = config.logs_path / "procurement-watch.jsonl"
+    assert result["status"] == "succeeded"
+    assert report.exists()
+    assert "PC-0001" in report.read_text(encoding="utf-8")
+    assert "<script src=" not in report.read_text(encoding="utf-8")
+    assert log_file.exists()
+    assert '"watch_run_id"' in log_file.read_text(encoding="utf-8")
+
+
+def test_operational_health_and_read_models(tmp_path):
+    config = resolve_config(
+        environ={"HDC_PROCUREMENT_DB": str(tmp_path / "procurement.db")},
+        repository_root=REPO_ROOT,
+    )
+    init_database(config)
+    health = doctor(config)
+    assert health["ok"] is True
+    assert current_events(config)["initialized"] is True
+    assert recent_watch_runs(config)["runs"] == []
+
+
+def test_database_backup_and_restore(tmp_path):
+    config = resolve_config(
+        environ={"HDC_PROCUREMENT_DB": str(tmp_path / "procurement.db")},
+        repository_root=REPO_ROOT,
+    )
+    init_database(config)
+    backup = backup_database(config, tmp_path / "backup" / "procurement.db")
+    config.database_path.unlink()
+    restored = restore_database(config, backup)
+    assert restored == config.database_path
+    assert schema_status(config)["schema_version"] == "003"
 
 
 def test_event_classification_contract_is_persisted(tmp_path):

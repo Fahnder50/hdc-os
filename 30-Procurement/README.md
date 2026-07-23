@@ -32,13 +32,19 @@ python -m procurement_watch db init
 python -m procurement_watch db status
 python -m procurement_watch migrate
 python -m procurement_watch watch run
+python -m procurement_watch watch runs
 python -m procurement_watch status
+python -m procurement_watch doctor
+python -m procurement_watch events
 python -m procurement_watch case import 30-Procurement/cases/PC-0001-Router-USV.yaml
 python -m procurement_watch product add --product-id PROD-001 --product-name "Router-USV" --case-id PC-0001
 python -m procurement_watch offer add --offer-id OFFER-001 --product-id PROD-001 --vendor-id VENDOR-001 --vendor-name "Händler" --price 39.99 --shipping 4.99 --availability in_stock --case-id PC-0001
 python -m procurement_watch offers PC-0001
 python -m procurement_watch history PC-0001
 python -m procurement_watch status PC-0001
+python -m procurement_watch report PC-0001
+python -m procurement_watch backup C:\HDC\Backups\procurement.db
+python -m procurement_watch restore C:\HDC\Backups\procurement.db
 ```
 
 Ohne konfigurierte Händlerquellen führt `watch run` einen kontrollierten Foundation-Lauf aus. Echte Quellen sind Bestandteil späterer Work Orders.
@@ -60,6 +66,8 @@ Tests verwenden ausschließlich temporäre Datenbanken.
 Konfigurationstemplates werden mit `load_yaml_config` geladen und validieren eine Mapping-Struktur. Die Foundation führt noch keine Quellen aus.
 
 ## Datenschutz und Einschränkungen
+
+Der lokale HTML-Report wird aus `30-Procurement/templates/procurement-report.html` erzeugt. Betriebsabläufe sind in `30-Procurement/operations/Operations-Runbook.md` dokumentiert; Task Scheduler und Backup/Restore haben eigene Anleitungen.
 
 Operative Daten, Logs und Reports bleiben lokal. Keine Secrets werden versioniert. Die Runtime enthält noch keine Live-Händlerabrufe, automatische Kaufentscheidung, Bestellung, Benachrichtigung oder KI-Integration.
 

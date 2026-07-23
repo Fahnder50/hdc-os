@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import sys
 
+from .backup import backup_database, restore_database
 from .config import resolve_config
 from .database import schema_status
 from .services import (
@@ -15,6 +16,10 @@ from .services import (
     migrate_database,
     offers_for_case,
     procurement_status,
+    current_events,
+    doctor,
+    recent_watch_runs,
+    report_case,
     run_watch,
 )
 
@@ -30,6 +35,7 @@ def _parser():
     watch = commands.add_parser("watch")
     watch_commands = watch.add_subparsers(dest="watch_command", required=True)
     watch_commands.add_parser("run")
+    watch_commands.add_parser("runs")
     case = commands.add_parser("case")
     case_commands = case.add_subparsers(dest="case_command", required=True)
     case_import = case_commands.add_parser("import")
@@ -67,6 +73,15 @@ def _parser():
     history.add_argument("case_id")
     status = commands.add_parser("status")
     status.add_argument("case_id", nargs="?")
+    report = commands.add_parser("report")
+    report.add_argument("case_id")
+    commands.add_parser("doctor")
+    commands.add_parser("events")
+    backup = commands.add_parser("backup")
+    backup.add_argument("destination")
+    restore = commands.add_parser("restore")
+    restore.add_argument("source")
+    restore.add_argument("--overwrite", action="store_true")
     return parser
 
 
@@ -88,6 +103,8 @@ def main(argv=None):
             result = run_watch(config)
             _print_json(result)
             return 0 if result.get("status") == "succeeded" else 1
+        elif args.command == "watch" and args.watch_command == "runs":
+            _print_json(recent_watch_runs(config))
         elif args.command == "case" and args.case_command == "import":
             _print_json(import_case(config, args.path))
         elif args.command == "product" and args.product_command == "add":
@@ -105,6 +122,18 @@ def main(argv=None):
             _print_json(history_for_case(config, args.case_id))
         elif args.command == "status":
             _print_json(case_status(config, args.case_id) if args.case_id else procurement_status(config))
+        elif args.command == "report":
+            _print_json({"path": str(report_case(config, args.case_id))})
+        elif args.command == "doctor":
+            result = doctor(config)
+            _print_json(result)
+            return 0 if result["ok"] else 1
+        elif args.command == "events":
+            _print_json(current_events(config))
+        elif args.command == "backup":
+            _print_json({"path": str(backup_database(config, args.destination))})
+        elif args.command == "restore":
+            _print_json({"path": str(restore_database(config, args.source, args.overwrite))})
     except Exception as error:
         print(f"procurement_watch: {error}", file=sys.stderr)
         return 1
