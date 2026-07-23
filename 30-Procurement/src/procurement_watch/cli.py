@@ -21,6 +21,7 @@ from .services import (
     recent_watch_runs,
     report_case,
     run_watch,
+    run_live_watch,
 )
 
 
@@ -35,6 +36,8 @@ def _parser():
     watch = commands.add_parser("watch")
     watch_commands = watch.add_subparsers(dest="watch_command", required=True)
     watch_commands.add_parser("run")
+    live = watch_commands.add_parser("live")
+    live.add_argument("case_id")
     watch_commands.add_parser("runs")
     case = commands.add_parser("case")
     case_commands = case.add_subparsers(dest="case_command", required=True)
@@ -101,6 +104,10 @@ def main(argv=None):
             _print_json(migrate_database(config))
         elif args.command == "watch" and args.watch_command == "run":
             result = run_watch(config)
+            _print_json(result)
+            return 0 if result.get("status") == "succeeded" else 1
+        elif args.command == "watch" and args.watch_command == "live":
+            result = run_live_watch(config, args.case_id)
             _print_json(result)
             return 0 if result.get("status") == "succeeded" else 1
         elif args.command == "watch" and args.watch_command == "runs":

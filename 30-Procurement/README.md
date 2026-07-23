@@ -32,6 +32,7 @@ python -m procurement_watch db init
 python -m procurement_watch db status
 python -m procurement_watch migrate
 python -m procurement_watch watch run
+python -m procurement_watch watch live PC-0001
 python -m procurement_watch watch runs
 python -m procurement_watch status
 python -m procurement_watch doctor
@@ -47,11 +48,13 @@ python -m procurement_watch backup C:\HDC\Backups\procurement.db
 python -m procurement_watch restore C:\HDC\Backups\procurement.db
 ```
 
-Ohne konfigurierte Händlerquellen führt `watch run` einen kontrollierten Foundation-Lauf aus. Echte Quellen sind Bestandteil späterer Work Orders.
+Ohne konfigurierte Händlerquellen führt `watch run` einen kontrollierten Foundation-Lauf aus. `watch live PC-0001` verwendet die in `config/sources.yaml` hinterlegten öffentlichen Quellen.
 
 Jede manuelle oder strukturierte Angebotserfassung erzeugt eine neue unveränderliche `PriceObservation`. Preis- oder Verfügbarkeitskorrekturen werden als neue Beobachtung gespeichert; die Historie wird nicht überschrieben.
 
 ## Lokale Pfade
+
+Der produktive Einstiegspunkt `watch live PC-0001` verwendet die konfigurierten öffentlichen Quellen aus `30-Procurement/config/sources.yaml`. Er beobachtet und empfiehlt nur; Kaufentscheidung und Bestellung bleiben beim Project Owner.
 
 Die Pfade können über `HDC_PROCUREMENT_DB`, `HDC_PROCUREMENT_LOGS` und `HDC_PROCUREMENT_REPORTS` überschrieben werden. Ein Repository-Versionslabel kann über `HDC_REPOSITORY_VERSION` gesetzt werden; ansonsten wird der letzte Git-Tag oder `unreleased` verwendet.
 

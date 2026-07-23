@@ -1,37 +1,67 @@
 case_id: PC-0001
-title: Router-USV für geplanten Stromausfall
+title: USV für Internet-Gateway
 status: evaluating
-priority: high
+priority: critical
 
 need:
-  description: Internetzugang während eines geplanten Stromausfalls möglichst aufrechterhalten
+  description: Absicherung von Router und später Firewall gegen einen geplanten Stromausfall
 
 device:
   name: Telekom Speedport Smart 4
+  load_assumptions:
+    speedport_smart_4_watts: 15
+    planned_firewall_watts: 25
+    design_load_watts: 40
+    sizing_margin_percent: 50
+  desired_runtime_hours: 4
+
+required_by_date: 2026-08-03
+preferred_shipping_purchase_by: 2026-07-31
+shipping_purchase_exception_date: 2026-08-01
 
 budget:
   currency: EUR
-  maximum_total_price: 50.00
+  target_price: 80.00
+  maximum_total_price: 100.00
+  absolute_maximum_total_price: 120.00
 
 requirements:
   target_runtime_hours:
     value: 4
     status: open
-  automatic_failover:
+  line_interactive:
     value: required
     status: open
-  automatic_return_to_mains:
+  automatic_voltage_regulation:
     value: required
     status: open
-  standalone_operation:
+  usb_data_interface:
     value: required
     status: open
-  cloud_dependency:
-    value: prohibited
+  linux_monitoring:
+    value: required
     status: open
-  local_monitoring:
+  nut_compatible:
+    value: required
+    status: open
+  battery_backed_outputs_minimum:
+    value: 2
+    status: open
+  router_firewall_dimensioning:
+    value: required
+    status: open
+  germany_230v:
+    value: required
+    status: open
+  new_with_warranty:
+    value: required
+    status: open
+  replaceable_battery:
     value: preferred
     status: open
-  hdc_os_asset_handover:
-    value: required
+  schuko_outputs:
+    value: strongly_preferred
+    status: open
+  manufacturer_linux_usb_documentation:
+    value: strongly_preferred
     status: open

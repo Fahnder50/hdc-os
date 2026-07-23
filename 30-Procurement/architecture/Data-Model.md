@@ -79,4 +79,16 @@ Unbekannte Event-Typen oder Schweregrade sind ungültig. Die Klassifizierung wir
 
 ## Zuständigkeiten
 
+## WO-0019 Live-Angebotsdaten
+
+Live-Angebote speichern neben Preis und Verfügbarkeit die ursprüngliche Lieferangabe, frühestes und spätestes normalisiertes Lieferdatum, Lieferkonfidenz, Fristberechtigung, Fulfillment-Typ, Abholort und Quellen-URL. Diese Felder werden sowohl am aktuellen Angebot als auch an der unveränderlichen `PriceObservation` gespeichert. Unbekannte Versandkosten oder Lieferangaben bleiben unbekannt und werden nicht optimistisch ergänzt.
+
+Die Lieferbewertung unterscheidet `true`, `false` und `unknown`. Eine Abholung kann nach dem Versandstichtag fristgerecht bleiben, wenn lokale Verfügbarkeit und Standort dokumentiert sind. `BUY_CANDIDATE` entsteht nur bei erfüllten Pflichtanforderungen, verfügbarer fristgerechter Beschaffung und zulässigem Gesamtpreis; die endgültige Kaufentscheidung bleibt beim Project Owner.
+
 Der Case Loader verantwortet versionierte fachliche Ausgangsdaten. Der Collector erfasst Quelldaten und der Normalizer überführt sie in das kanonische Modell. Nach erfolgreicher Validierung veranlasst der Procurement Service die Speicherung der Beobachtungen über den Repository Layer. Der Rule Evaluator verantwortet Bewertungen, der Event Generator deren Ableitung und Klassifizierung. Der Project Owner verantwortet Kaufentscheidungen.
+## Product Evidence
+
+Technische Modelldaten werden in einem versionierten lokalen Produktkatalog
+geführt und beim Speichern einer Live-Beobachtung als Evidenz-Snapshot
+übernommen. Modellnummer und Region-Variante bilden eine strikte Identität;
+`unknown` bleibt unbekannt und wird nicht als positive Eigenschaft bewertet.

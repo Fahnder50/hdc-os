@@ -17,6 +17,10 @@ EVENT_TYPES = (
     "OFFER_CHANGED",
     "PRICE_TARGET_REACHED",
     "SOURCE_FAILED",
+    "DELIVERY_UNKNOWN",
+    "DELIVERY_TOO_LATE",
+    "OVER_BUDGET",
+    "OUT_OF_STOCK",
 )
 EVENT_DEFAULT_SEVERITY = {
     "BUY_CANDIDATE": "ACTION_REQUIRED",
@@ -33,6 +37,10 @@ EVENT_DEFAULT_SEVERITY = {
     "OFFER_CHANGED": "NOTICE",
     "PRICE_TARGET_REACHED": "ACTION_REQUIRED",
     "SOURCE_FAILED": "ERROR",
+    "DELIVERY_UNKNOWN": "WARNING",
+    "DELIVERY_TOO_LATE": "WARNING",
+    "OVER_BUDGET": "WARNING",
+    "OUT_OF_STOCK": "WARNING",
 }
 
 
@@ -61,9 +69,14 @@ def emit_evaluation_events(connection, case_db_id, offer_id, evaluations):
     for evaluation in evaluations:
         result = evaluation["result"]
         rule_id = evaluation["rule_id"]
-        if result == "FAIL" and rule_id == "TOTAL_PRICE_WITHIN_BUDGET":
-            emit_event(connection, case_db_id, "BUDGET_EXCEEDED", f"{case_db_id}:budget:{offer_id}", "Offer exceeds the case budget.")
+        if result in {"UNKNOWN", "REVIEW"} and rule_id == "DELIVERY_ELIGIBILITY":
+            emit_event(connection, case_db_id, "DELIVERY_UNKNOWN", f"{case_db_id}:delivery-unknown:{offer_id}", "Offer delivery cannot be verified against the deadline.")
+        elif result == "FAIL" and rule_id == "DELIVERY_ELIGIBILITY":
+            emit_event(connection, case_db_id, "DELIVERY_TOO_LATE", f"{case_db_id}:delivery-late:{offer_id}", "Offer cannot meet the procurement deadline.")
+        elif result == "FAIL" and rule_id in {"TOTAL_PRICE_WITHIN_BUDGET", "OVER_ABSOLUTE_BUDGET"}:
+            event_type = "OVER_BUDGET" if rule_id == "OVER_ABSOLUTE_BUDGET" else "BUDGET_EXCEEDED"
+            emit_event(connection, case_db_id, event_type, f"{case_db_id}:budget:{offer_id}:{rule_id}", "Offer exceeds the applicable case budget.")
         elif result == "FAIL" and rule_id == "PRODUCT_AVAILABLE":
             emit_event(connection, case_db_id, "PRODUCT_UNAVAILABLE", f"{case_db_id}:unavailable:{offer_id}", "Offer is not available.")
-        elif result == "UNKNOWN":
-            emit_event(connection, case_db_id, "REQUIREMENT_UNKNOWN", f"{case_db_id}:unknown:{offer_id}:{rule_id}", f"Requirement {rule_id} is unknown.")
+        elif result in {"UNKNOWN", "REVIEW"}:
+            emit_event(connection, case_db_id, "REQUIREMENT_UNKNOWN", f"{case_db_id}:unknown:{rule_id}", f"Requirement {rule_id} is unknown or requires review for one or more offers.")

@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from html import escape
+import json
 from pathlib import Path
 
 
@@ -12,6 +13,14 @@ def _list(items, empty="Keine Einträge."):
     return "<ul>" + "".join(f"<li>{escape(str(item))}</li>" for item in items) + "</ul>"
 
 
+def _evidence_label(row):
+    try:
+        evidence = json.loads(row.get("evidence_json") or "{}")
+        return "; ".join(item.get("source_url", "") for item in evidence.get("evidence", [])[:3]) or "keine Quelle"
+    except (TypeError, json.JSONDecodeError):
+        return "keine Quelle"
+
+
 def render_report(data, generated_at=None):
     generated_at = generated_at or datetime.now(timezone.utc).isoformat(timespec="seconds")
     status = data["status"]
@@ -20,14 +29,18 @@ def render_report(data, generated_at=None):
     evaluations = data["evaluations"]
     events = data["events"]
     watch_runs = data["watch_runs"]
+    ranking = status.get("ranking", [])
     offer_rows = "".join(
         "<tr>" + "".join(
             f"<td>{escape(str(value))}</td>" for value in (
-                row.get("offer_id"), row.get("product_name"), row.get("vendor_name"),
-                row.get("total_price"), row.get("currency"), row.get("availability"), row.get("observed_at"),
+                row.get("offer_id"), row.get("product_name"), row.get("vendor_name"), row.get("price"),
+                row.get("shipping"), row.get("total_price"), row.get("currency"), row.get("availability"),
+                row.get("delivery_text_raw"), row.get("delivery_date_latest"), row.get("fulfillment_type"),
+                row.get("delivery_eligibility"), row.get("model_number"), row.get("ean"), row.get("outlet_type"),
+                row.get("evidence_status"), _evidence_label(row), row.get("product_url"), row.get("observed_at"),
             )
         ) + "</tr>" for row in offers
-    ) or '<tr><td colspan="7">Keine Angebote.</td></tr>'
+    ) or '<tr><td colspan="14">Keine Angebote.</td></tr>'
     evaluation_rows = "".join(
         f"<tr><td>{escape(str(row['rule_id']))}</td><td>{escape(str(row['result']))}</td><td>{escape(str(row['reason'] or ''))}</td></tr>" for row in evaluations
     ) or '<tr><td colspan="3">Keine Bewertungen.</td></tr>'
@@ -49,12 +62,13 @@ def render_report(data, generated_at=None):
         "{{CHEAPEST_AVAILABLE}}": escape(str(status["cheapest_available_offer"])),
         "{{CHEAPEST_BUDGET_COMPLIANT}}": escape(str(status["cheapest_budget_compliant_offer"])),
         "{{REQUIREMENTS}}": _list(status["open_required_requirements"], "Keine offenen Pflichtanforderungen."),
-        "{{WARNINGS}}": _list(status["warnings"], "Keine Warnungen."),
+        "{{WARNINGS}}": _list(status["warnings"] + status.get("purchase_conditions", []), "Keine Warnungen."),
         "{{OFFER_ROWS}}": offer_rows,
         "{{HISTORY_ROWS}}": history_rows,
         "{{EVALUATION_ROWS}}": evaluation_rows,
         "{{EVENT_ROWS}}": event_rows,
         "{{WATCH_RUNS}}": _list([f"{row['watch_run_id']}: {row['status']} ({row['started_at']})" for row in watch_runs], "Keine Watch-Läufe."),
+        "{{RANKING}}": _list([f"#{row['rank']} {row['offer_id']} / {row['vendor_name']} / {row['total_price'] if row['total_price'] is not None else 'Gesamtpreis unbekannt'} EUR / Frist {row['delivery_eligibility']}" for row in ranking], "Keine rankbaren Angebote."),
     }
     template = TEMPLATE_PATH.read_text(encoding="utf-8")
     for token, value in values.items():

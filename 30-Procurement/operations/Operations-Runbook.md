@@ -21,6 +21,12 @@ Set-Location C:\HDC\Workspace
 ## Manueller Lauf
 
 ```powershell
+python -m procurement_watch watch live PC-0001
+```
+
+Der Live-Lauf verwendet Timeout und begrenzte Wiederholungen. Teilfehler werden als `SOURCE_FAILED` gespeichert; mindestens eine erfolgreiche Quelle lässt den Lauf technisch erfolgreich bleiben. Lieferdaten werden gegen den 03.08.2026 bewertet. Der Befehl bestellt niemals automatisch.
+
+```powershell
 .\30-Procurement\scripts\run-watch.ps1
 python -m procurement_watch status
 python -m procurement_watch report PC-0001

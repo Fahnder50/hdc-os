@@ -1,0 +1,32 @@
+manufacturer: APC
+model_number: BX500MI
+ean: "0731304435648"
+region_variant: EU-IEC
+product_name: APC Back-UPS 500VA 230V BX500MI
+topology: line_interactive
+avr: true
+rated_va: 500
+rated_watts: 300
+input_voltage: 230V
+outlet_type: IEC C13
+battery_backed_outlets: 3
+usb_data_interface: true
+linux_monitoring: unknown
+nut_compatibility: unknown
+replaceable_battery: true
+technical:
+  line_interactive: true
+  automatic_voltage_regulation: true
+  usb_data_interface: true
+  linux_monitoring: unknown
+  nut_compatible: unknown
+  battery_backed_outputs: 3
+  germany_230v: true
+  new_with_warranty: true
+  replaceable_battery: true
+  runtime_hours: unknown
+evidence:
+  - {requirement: identity_ean, source_url: "https://www.se.com/uk/en/product/BX500MI/apc-backups-500va-230v-avr-iec-sockets/", source_type: manufacturer, verified_at: "2026-07-23", confidence: verified_true}
+  - {requirement: avr_outlet_voltage, source_url: "https://www.se.com/uk/en/product/BX500MI/apc-backups-500va-230v-avr-iec-sockets/", source_type: manufacturer, verified_at: "2026-07-23", confidence: verified_true}
+  - {requirement: outlet_type, source_url: "https://www.se.com/pl/pl/product/BX500MI/zasilacz-apc-backups-500va-300w-wolnostoj%C4%85cy-230v-z-3-gniazdami-wyj%C5%9Bciowymi-typu-iec-c13/", source_type: manufacturer, verified_at: "2026-07-23", confidence: verified_true}
+  - {requirement: linux_monitoring, source_url: "https://networkupstools.org/historic/v2.8.3/docs/ChangeLog.pdf", source_type: nut, verified_at: "2026-07-23", confidence: unknown}

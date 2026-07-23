@@ -1,0 +1,14 @@
+watch:
+  enabled: true
+  request_timeout_seconds: 20
+  max_retries: 1
+  user_agent: HDC-Procurement-Watch/0.1
+rules:
+  required_by_date: 2026-08-03
+  preferred_shipping_purchase_by: 2026-07-31
+  shipping_exception_date: 2026-08-01
+  target_price: 80.00
+  maximum_total_price: 100.00
+  absolute_maximum_total_price: 120.00
+  unknown_is_pass: false
+  purchase_requires_human_approval: true

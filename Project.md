@@ -109,6 +109,8 @@ WO-0017 – PC-0001 Vertical Slice Accepted.
 
 WO-0018 – Operational Readiness in Umsetzung.
 
+WO-0019 – Live Procurement Watch Activation in Umsetzung.
+
 ---
 
 ## Aktive Prozesse

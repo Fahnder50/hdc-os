@@ -34,5 +34,9 @@ def apply_migrations(connection, repository_root, repository_version=None):
             "INSERT OR IGNORE INTO runtime_metadata(metadata_key, metadata_value, created_at) VALUES (?, ?, ?)",
             (key, value, metadata["created"]),
         )
+    connection.execute(
+        "UPDATE runtime_metadata SET metadata_value = ? WHERE metadata_key = 'schema_version'",
+        (metadata["schema_version"],),
+    )
     connection.commit()
     return metadata

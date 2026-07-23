@@ -37,7 +37,7 @@ def test_database_initialization_is_repeatable_and_tracks_repository(monkeypatch
     )
     first = init_database(config)
     second = init_database(config)
-    assert first["schema_version"] == "003"
+    assert first["schema_version"] == "005"
     assert second["repository_version"] == "knowledge-v1.2"
     connection = sqlite3.connect(config.database_path)
     metadata = dict(connection.execute("SELECT metadata_key, metadata_value FROM runtime_metadata").fetchall())
@@ -46,8 +46,8 @@ def test_database_initialization_is_repeatable_and_tracks_repository(monkeypatch
     assert len(metadata["repository_commit"]) == 40
     assert all(character in "0123456789abcdef" for character in metadata["repository_commit"])
     assert metadata["repository_version"] == "knowledge-v1.2"
-    assert metadata["schema_version"] == "003"
-    assert migration_count == 3
+    assert metadata["schema_version"] == "005"
+    assert migration_count == 5
 
 
 def test_foreign_keys_are_enforced(tmp_path):
@@ -72,7 +72,7 @@ def test_watch_run_completes_and_status_reads_it(tmp_path):
     assert result["ended_at"]
     assert status["last_watch_run"]["watch_run_id"] == result["watch_run_id"]
     assert status["last_watch_run"]["status"] == "succeeded"
-    assert status["schema_version"] == "003"
+    assert status["schema_version"] == "005"
     assert status["initialized"] is True
 
 
@@ -335,7 +335,7 @@ def test_database_backup_and_restore(tmp_path):
     config.database_path.unlink()
     restored = restore_database(config, backup)
     assert restored == config.database_path
-    assert schema_status(config)["schema_version"] == "003"
+    assert schema_status(config)["schema_version"] == "005"
 
 
 def test_event_classification_contract_is_persisted(tmp_path):

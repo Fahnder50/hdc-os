@@ -1,0 +1,31 @@
+manufacturer: APC
+model_number: BX750MI
+ean: "0731304410799"
+region_variant: EU-IEC
+product_name: APC Back-UPS 750VA 230V BX750MI
+topology: line_interactive
+avr: true
+rated_va: 750
+rated_watts: 410
+input_voltage: 230V
+outlet_type: IEC C13
+battery_backed_outlets: 4
+usb_data_interface: true
+linux_monitoring: unknown
+nut_compatibility: unknown
+replaceable_battery: true
+technical:
+  line_interactive: true
+  automatic_voltage_regulation: true
+  usb_data_interface: true
+  linux_monitoring: unknown
+  nut_compatible: unknown
+  battery_backed_outputs: 4
+  germany_230v: true
+  new_with_warranty: true
+  replaceable_battery: true
+  runtime_hours: unknown
+evidence:
+  - {requirement: identity_ean, source_url: "https://www.se.com/uk/en/product/BX750MI/apc-backups-750va-tower-230v-4-iec-c13-avr/", source_type: manufacturer, verified_at: "2026-07-23", confidence: verified_true}
+  - {requirement: avr_outlet_voltage, source_url: "https://www.se.com/uk/en/product/BX750MI/apc-backups-750va-tower-230v-4-iec-c13-avr/", source_type: manufacturer, verified_at: "2026-07-23", confidence: verified_true}
+  - {requirement: linux_monitoring, source_url: "https://networkupstools.org/historic/v2.8.3/docs/ChangeLog.pdf", source_type: nut, verified_at: "2026-07-23", confidence: unknown}

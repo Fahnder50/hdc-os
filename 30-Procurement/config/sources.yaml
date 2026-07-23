@@ -1,0 +1,11 @@
+sources:
+  - source_id: geizhals-apc-bx500mi
+    adapter: geizhals
+    case_id: PC-0001
+    url: https://geizhals.de/apc-back-ups-500va-bx500mi-a2748970.html
+    max_offers: 3
+  - source_id: geizhals-apc-bx750mi
+    adapter: geizhals
+    case_id: PC-0001
+    url: https://geizhals.de/apc-back-ups-750va-bx750mi-a2373265.html
+    max_offers: 3
