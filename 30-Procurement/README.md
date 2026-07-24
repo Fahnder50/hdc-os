@@ -10,6 +10,31 @@ classification: Workspace
 
 # Procurement Watch
 
+## Portfolio Operations CLI
+
+Der tägliche Portfolio-Lauf wird mit einem Befehl ausgeführt:
+
+```text
+python -m procurement_watch watch live --all
+```
+
+Alle Cases mit Status `WATCHING` werden sequentiell verarbeitet. Ein Fehler
+eines einzelnen Cases beendet die übrigen Läufe nicht; am Ende erscheint eine
+Portfolio-Zusammenfassung und bei Fehlern der Hinweis `Portfolio completed
+with warnings.`.
+
+Alle Case-Definitionen lassen sich automatisch importieren:
+
+```text
+python -m procurement_watch import --all
+```
+
+Der aktuelle Portfolio-Zustand ist abrufbar mit:
+
+```text
+python -m procurement_watch portfolio status
+```
+
 ## RWO-0012 – Live Source Activation
 
 PC-0002, PC-0004 und PC-0005 verwenden öffentliche Geizhals-Produktseiten

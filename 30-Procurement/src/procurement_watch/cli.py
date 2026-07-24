@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime
 import json
 from pathlib import Path
 import sys
@@ -22,6 +23,9 @@ from .services import (
     report_case,
     run_watch,
     run_live_watch,
+    import_all_cases,
+    portfolio_watch,
+    portfolio_status,
 )
 
 
@@ -37,12 +41,18 @@ def _parser():
     watch_commands = watch.add_subparsers(dest="watch_command", required=True)
     watch_commands.add_parser("run")
     live = watch_commands.add_parser("live")
-    live.add_argument("case_id")
+    live.add_argument("case_id", nargs="?")
+    live.add_argument("--all", action="store_true")
     watch_commands.add_parser("runs")
     case = commands.add_parser("case")
     case_commands = case.add_subparsers(dest="case_command", required=True)
     case_import = case_commands.add_parser("import")
     case_import.add_argument("path")
+    portfolio_import = commands.add_parser("import")
+    portfolio_import.add_argument("--all", action="store_true", required=True)
+    portfolio = commands.add_parser("portfolio")
+    portfolio_commands = portfolio.add_subparsers(dest="portfolio_command", required=True)
+    portfolio_commands.add_parser("status")
     product = commands.add_parser("product")
     product_commands = product.add_subparsers(dest="product_command", required=True)
     product_add = product_commands.add_parser("add")
@@ -107,6 +117,12 @@ def main(argv=None):
             _print_json(result)
             return 0 if result.get("status") == "succeeded" else 1
         elif args.command == "watch" and args.watch_command == "live":
+            if args.all:
+                result = portfolio_watch(config)
+                _print_portfolio_summary(result)
+                return 0 if result["status"] == "completed" else 1
+            if not args.case_id:
+                raise ValueError("watch live requires a case_id or --all")
             result = run_live_watch(config, args.case_id)
             _print_json(result)
             return 0 if result.get("status") == "succeeded" else 1
@@ -114,6 +130,11 @@ def main(argv=None):
             _print_json(recent_watch_runs(config))
         elif args.command == "case" and args.case_command == "import":
             _print_json(import_case(config, args.path))
+        elif args.command == "import":
+            result = import_all_cases(config)
+            _print_json(result)
+        elif args.command == "portfolio" and args.portfolio_command == "status":
+            _print_portfolio_status(portfolio_status(config))
         elif args.command == "product" and args.product_command == "add":
             try:
                 technical_source = Path(args.technical_json_file).read_text(encoding="utf-8-sig") if args.technical_json_file else args.technical_json
@@ -145,3 +166,42 @@ def main(argv=None):
         print(f"procurement_watch: {error}", file=sys.stderr)
         return 1
     return 0
+
+
+def _print_portfolio_summary(result):
+    print("=" * 50)
+    print("Portfolio Summary")
+    print("=" * 50)
+    for case in result["cases"]:
+        print(f"\n{case['case_id']}  {case['status']}")
+        print(f"{case['offers']} Angebote")
+        print(f"{case['sources']} Quellen")
+        if case.get("error"):
+            print(f"Fehler: {case['error']}")
+    print("\n" + "=" * 50)
+    print("Portfolio")
+    print(f"\n{result['case_count']} Cases")
+    print(f"\n{result['offer_count']} Angebote")
+    print(f"\n{result['source_count']} Quellen")
+    print(f"\n{result['error_count']} Fehler")
+    print("\n" + "=" * 50)
+    if result["status"] == "completed_with_warnings":
+        print("Portfolio completed with warnings.")
+    else:
+        print("Portfolio completed.")
+
+
+def _print_portfolio_status(result):
+    print("Portfolio\n")
+    print(f"{result['active_cases']} aktive Cases\n")
+    print(f"{result['statuses'].get('CONDITIONAL_BUY', 0)} CONDITIONAL_BUY")
+    print(f"{result['statuses'].get('REVIEW', 0)} REVIEW")
+    print(f"{result['statuses'].get('BLOCKED', 0)} BLOCKED")
+    last_run = result.get("last_run")
+    print("\nLetzter Lauf:")
+    if last_run and last_run.get("ended_at"):
+        timestamp = datetime.fromisoformat(last_run["ended_at"].replace("Z", "+00:00"))
+        print(timestamp.strftime("%d.%m.%Y %H:%M"))
+    else:
+        print("—")
+    print("\nNächster Lauf:\n—")

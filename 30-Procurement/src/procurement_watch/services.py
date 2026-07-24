@@ -345,6 +345,102 @@ def import_case(config, path):
     return {"case_id": document["case_id"], "title": document["title"], "status": "imported", "source": str(case_path)}
 
 
+def portfolio_case_paths(config):
+    cases_path = config.repository_root / "30-Procurement" / "cases"
+    return sorted(cases_path.glob("PC-*.yaml"))
+
+
+def import_all_cases(config):
+    imported = []
+    for path in portfolio_case_paths(config):
+        imported.append(import_case(config, path))
+    return {"imported": imported, "count": len(imported)}
+
+
+def portfolio_watch(config):
+    initialize(config)
+    connection = connect(config)
+    try:
+        case_ids = [row["case_id"] for row in connection.execute(
+            "SELECT case_id FROM procurement_cases WHERE status = 'WATCHING' ORDER BY case_id"
+        )]
+    finally:
+        connection.close()
+    source_document = load_yaml_config(config.sources_path)
+    source_counts = {}
+    for source in source_document.get("sources", []):
+        case_id = source.get("case_id")
+        if case_id:
+            source_counts[case_id] = source_counts.get(case_id, 0) + 1
+    results = []
+    for case_id in case_ids:
+        try:
+            result = run_live_watch(config, case_id)
+            results.append({
+                "case_id": case_id,
+                "status": result.get("recommendation_status", "UNKNOWN"),
+                "offers": result.get("offers_processed", 0),
+                "sources": source_counts.get(case_id, 0),
+                "errors": result.get("failed_sources", 0),
+                "watch_status": result.get("status"),
+            })
+        except Exception as error:
+            results.append({
+                "case_id": case_id,
+                "status": "FAILED",
+                "offers": 0,
+                "sources": source_counts.get(case_id, 0),
+                "errors": 1,
+                "watch_status": "failed",
+                "error": str(error),
+            })
+    errors = sum(item["errors"] for item in results)
+    return {
+        "cases": results,
+        "case_count": len(results),
+        "offer_count": sum(item["offers"] for item in results),
+        "source_count": sum(item["sources"] for item in results),
+        "error_count": errors,
+        "status": "completed_with_warnings" if errors else "completed",
+    }
+
+
+def portfolio_status(config):
+    result = schema_status(config)
+    if not result["reachable"]:
+        return {"initialized": False, "active_cases": 0, "statuses": {}, "last_run": None}
+    connection = connect(config)
+    try:
+        rows = connection.execute(
+            "SELECT status, COUNT(*) AS count FROM procurement_cases WHERE status = 'WATCHING' GROUP BY status"
+        ).fetchall()
+        statuses = {row["status"]: row["count"] for row in rows}
+        last_run = connection.execute(
+            "SELECT watch_run_id, status, started_at, ended_at FROM watch_runs ORDER BY started_at DESC LIMIT 1"
+        ).fetchone()
+        active_cases = connection.execute(
+            "SELECT COUNT(*) FROM procurement_cases WHERE status = 'WATCHING'"
+        ).fetchone()[0]
+        recommendations = connection.execute(
+            "SELECT procurement_cases.case_id FROM procurement_cases WHERE procurement_cases.status = 'WATCHING'"
+        ).fetchall()
+    finally:
+        connection.close()
+    recommendation_counts = {}
+    for row in recommendations:
+        try:
+            recommendation = case_status(config, row["case_id"])["recommendation_status"]
+        except Exception:
+            recommendation = "BLOCKED"
+        recommendation_counts[recommendation] = recommendation_counts.get(recommendation, 0) + 1
+    return {
+        "initialized": True,
+        "active_cases": active_cases,
+        "statuses": recommendation_counts,
+        "last_run": dict(last_run) if last_run else None,
+    }
+
+
 def _money_to_cents(value):
     try:
         return int((Decimal(str(value)) * 100).quantize(Decimal("1")))

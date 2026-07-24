@@ -1,6 +1,6 @@
 case_id: PC-0001
 title: USV für Internet-Gateway
-status: evaluating
+status: WATCHING
 priority: critical
 
 need:
