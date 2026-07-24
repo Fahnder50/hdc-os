@@ -175,7 +175,8 @@ def _print_portfolio_summary(result):
     for case in result["cases"]:
         print(f"\n{case['case_id']}  {case['status']}")
         print(f"{case['offers']} Angebote")
-        print(f"{case['sources']} Quellen")
+        source_label = "Quelle" if case["sources"] == 1 else "Quellen"
+        print(f"{case['sources']} {source_label}")
         if case.get("error"):
             print(f"Fehler: {case['error']}")
     print("\n" + "=" * 50)
@@ -184,6 +185,12 @@ def _print_portfolio_summary(result):
     print(f"\n{result['offer_count']} Angebote")
     print(f"\n{result['source_count']} Quellen")
     print(f"\n{result['error_count']} Fehler")
+    print(f"\n{result['duration_seconds']:.3f} Sekunden")
+    health = result["health"]
+    print(f"\nWATCHING: {health['watching']}")
+    print(f"CONDITIONAL_BUY: {health['conditional_buy']}")
+    print(f"REVIEW: {health['review']}")
+    print(f"BLOCKED: {health['blocked']}")
     print("\n" + "=" * 50)
     if result["status"] == "completed_with_warnings":
         print("Portfolio completed with warnings.")

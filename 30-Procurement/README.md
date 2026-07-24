@@ -35,6 +35,37 @@ Der aktuelle Portfolio-Zustand ist abrufbar mit:
 python -m procurement_watch portfolio status
 ```
 
+## Runtime
+
+Die Runtime liegt standardmäßig unter `30-Procurement/runtime/` und wird beim
+ersten Initialisieren automatisch angelegt:
+
+```text
+runtime/
+├── database.sqlite
+├── journals/
+├── logs/
+├── cache/
+└── observations/
+```
+
+Dieses Verzeichnis enthält ausschließlich lokale Betriebsdaten und ist über
+`.gitignore` vollständig vom Repository getrennt. Der Pfad kann mit
+`HDC_PROCUREMENT_RUNTIME` überschrieben werden; Datenbank, Logs und Journals
+können weiterhin separat über ihre bisherigen Umgebungsvariablen gesetzt
+werden.
+
+Für Backups wird die CLI verwendet:
+
+```powershell
+python -m procurement_watch backup C:\HDC\Backups\procurement.db
+python -m procurement_watch restore C:\HDC\Backups\procurement.db
+```
+
+Bei einer leeren Runtime legt `db init` die Verzeichnisse, SQLite-Datenbank
+und das aktuelle Schema automatisch an. Ein frischer Clone benötigt keine
+manuelle Runtime-Erstellung.
+
 ## RWO-0012 – Live Source Activation
 
 PC-0002, PC-0004 und PC-0005 verwenden öffentliche Geizhals-Produktseiten

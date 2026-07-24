@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 import json
 from pathlib import Path
+from time import perf_counter
 import uuid
 
 from .config import load_yaml_config
@@ -358,6 +359,7 @@ def import_all_cases(config):
 
 
 def portfolio_watch(config):
+    started = perf_counter()
     initialize(config)
     connection = connect(config)
     try:
@@ -395,12 +397,23 @@ def portfolio_watch(config):
                 "error": str(error),
             })
     errors = sum(item["errors"] for item in results)
+    recommendations = [item["status"] for item in results]
+    health = {
+        "watching": len(results),
+        "conditional_buy": recommendations.count("CONDITIONAL_BUY"),
+        "review": recommendations.count("REVIEW"),
+        "blocked": recommendations.count("BLOCKED"),
+        "errors": errors,
+        "duration_seconds": round(perf_counter() - started, 3),
+    }
     return {
         "cases": results,
         "case_count": len(results),
         "offer_count": sum(item["offers"] for item in results),
         "source_count": sum(item["sources"] for item in results),
         "error_count": errors,
+        "duration_seconds": health["duration_seconds"],
+        "health": health,
         "status": "completed_with_warnings" if errors else "completed",
     }
 

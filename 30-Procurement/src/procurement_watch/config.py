@@ -7,6 +7,7 @@ import yaml
 
 @dataclass(frozen=True)
 class AppConfig:
+    runtime_path: Path
     database_path: Path
     logs_path: Path
     reports_path: Path
@@ -24,10 +25,12 @@ def resolve_config(environ=None, repository_root=None):
     values = os.environ if environ is None else environ
     root = Path(repository_root or Path(__file__).resolve().parents[3])
     default_config_root = root / "30-Procurement" / "config"
+    runtime_path = Path(values.get("HDC_PROCUREMENT_RUNTIME", root / "30-Procurement" / "runtime"))
     return AppConfig(
-        database_path=Path(values.get("HDC_PROCUREMENT_DB", r"C:\HDC\Data\procurement\procurement.db")),
-        logs_path=Path(values.get("HDC_PROCUREMENT_LOGS", r"C:\HDC\Data\procurement\logs")),
-        reports_path=Path(values.get("HDC_PROCUREMENT_REPORTS", r"C:\HDC\Data\procurement\reports")),
+        runtime_path=runtime_path,
+        database_path=Path(values.get("HDC_PROCUREMENT_DB", runtime_path / "database.sqlite")),
+        logs_path=Path(values.get("HDC_PROCUREMENT_LOGS", runtime_path / "logs")),
+        reports_path=Path(values.get("HDC_PROCUREMENT_REPORTS", runtime_path / "journals")),
         repository_root=root,
         repository_version=values.get("HDC_REPOSITORY_VERSION"),
         sources_path=Path(values.get("HDC_PROCUREMENT_SOURCES", default_config_root / "sources.yaml")),

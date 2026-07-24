@@ -52,6 +52,8 @@ def test_cli_watch_all_returns_warning_exit_code_without_aborting(monkeypatch, c
         "offer_count": 0,
         "source_count": 1,
         "error_count": 1,
+        "duration_seconds": 0.1,
+        "health": {"watching": 1, "conditional_buy": 0, "review": 0, "blocked": 0, "errors": 1},
         "status": "completed_with_warnings",
     })
     assert cli.main(["watch", "live", "--all"]) == 1

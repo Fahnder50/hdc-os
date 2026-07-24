@@ -14,3 +14,5 @@ reports/
 30-Procurement/logs/
 30-Procurement/reports/
 30-Procurement/.runtime/
+30-Procurement/runtime/
+30-Procurement/runtime/**

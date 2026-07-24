@@ -12,9 +12,12 @@ def connect(config: AppConfig):
 
 
 def initialize(config: AppConfig):
+    config.runtime_path.mkdir(parents=True, exist_ok=True)
     config.database_path.parent.mkdir(parents=True, exist_ok=True)
     config.logs_path.mkdir(parents=True, exist_ok=True)
     config.reports_path.mkdir(parents=True, exist_ok=True)
+    (config.runtime_path / "cache").mkdir(parents=True, exist_ok=True)
+    (config.runtime_path / "observations").mkdir(parents=True, exist_ok=True)
     connection = connect(config)
     try:
         metadata = apply_migrations(connection, config.repository_root, config.repository_version)
