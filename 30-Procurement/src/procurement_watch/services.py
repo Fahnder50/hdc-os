@@ -326,7 +326,7 @@ def import_case(config, path):
         case_db_id = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (document["case_id"],)).fetchone()[0]
         budget = document["budget"]
         _upsert_requirement(connection, case_db_id, "budget_currency", budget.get("currency"), "PASS")
-        for policy_key in ("required_by_date", "preferred_shipping_purchase_by", "shipping_purchase_exception_date"):
+        for policy_key in ("required_by_date", "target_date", "preferred_shipping_purchase_by", "shipping_purchase_exception_date"):
             if document.get(policy_key) is not None:
                 _upsert_requirement(connection, case_db_id, policy_key, document[policy_key], "PASS")
         _upsert_requirement(connection, case_db_id, "budget_target_price", budget.get("target_price"), "PASS")
@@ -676,7 +676,12 @@ def case_status(config, case_id):
         else:
             recommendation = "EVALUATING"
         required_open = [row[0] for row in connection.execute("SELECT requirement_id FROM requirements WHERE case_id = ? AND status IN ('OPEN', 'UNKNOWN')", (case["id"],)).fetchall()]
-        warnings = [f"{key[1]}: {value}" for key, value in latest_evaluations.items() if value in {"FAIL", "UNKNOWN"}]
+        warning_facts = {}
+        for (_, rule_id), result in latest_evaluations.items():
+            if result in {"FAIL", "UNKNOWN"}:
+                warning_facts[rule_id] = result
+        warnings = [f"{rule_id}: {result}" for rule_id, result in sorted(warning_facts.items())]
+        target_date = _requirement_value(connection, case["id"], "target_date")
         last_run = connection.execute("SELECT watch_run_id, status, started_at, ended_at, error_count FROM watch_runs ORDER BY started_at DESC LIMIT 1").fetchone()
         budget_compliant = connection.execute(
             "SELECT MIN(total_price_cents) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND offers.status = 'active' AND offers.availability IN ('available', 'in_stock', 'instock', 'in stock') AND (? IS NULL OR total_price_cents <= ?)",
@@ -714,6 +719,7 @@ def case_status(config, case_id):
                 row["vendor_name"],
             ),
         )
+        delivery_dates = [row["delivery_date_latest"] for row in ranking if row["delivery_date_latest"]]
         for index, row in enumerate(ranking, start=1):
             row["rank"] = index
             row["total_price"] = row["total_price_cents"] / 100 if row["total_price_cents"] is not None else None
@@ -723,6 +729,8 @@ def case_status(config, case_id):
             "budget_target": target_budget_cents / 100 if target_budget_cents is not None else None,
             "best_observed_price": best_observed_price / 100 if best_observed_price is not None else None,
             "budget_status": budget_status,
+            "target_date": target_date,
+            "earliest_observed_delivery": min(delivery_dates) if delivery_dates else None,
             "product_candidates": product_count, "active_offers": offer_count,
             "cheapest_available_offer": cheapest / 100 if cheapest is not None else None,
             "cheapest_budget_compliant_offer": budget_compliant / 100 if budget_compliant is not None else None,

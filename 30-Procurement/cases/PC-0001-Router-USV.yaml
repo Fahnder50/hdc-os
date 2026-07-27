@@ -16,6 +16,7 @@ device:
   desired_runtime_hours: 4
 
 required_by_date: 2026-08-03
+target_date: 2026-08-04
 preferred_shipping_purchase_by: 2026-07-31
 shipping_purchase_exception_date: 2026-08-01
 

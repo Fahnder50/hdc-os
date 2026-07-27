@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from html import escape
 from pathlib import Path
+from .decision_summary_adapter import build_procurement_decision_summary
 
 
 TEMPLATE_PATH = Path(__file__).resolve().parents[2] / "templates" / "procurement-report.html"
@@ -129,6 +130,7 @@ def render_report(data, generated_at=None):
         "{{GENERATED_AT}}": escape(_date(generated_at, True)),
         "{{RECOMMENDATION_STATUS}}": escape(decision),
         "{{RECOMMENDATION_REASON}}": escape(_operator_reason(status)),
+        "{{DECISION_SUMMARY}}": build_procurement_decision_summary(status, data, _money),
         "{{STAGE}}": escape(str(recommendation)),
         "{{TOP_MODEL}}": escape(str(top_offer.get("model_number") or top_offer.get("product_name") if top_offer else "Noch offen")),
         "{{TOP_PRICE}}": escape(_money(top_offer.get("total_price") or top_offer.get("price") if top_offer else None)),
