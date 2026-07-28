@@ -1,6 +1,20 @@
 case_id: PC-0002
 title: Rollbarer Netzwerkschrank
 status: WATCHING
+requirement_profile: profiles/PC-0002.yaml
+candidate_models:
+  - id: DN-48000
+    manufacturer: Digitus
+    model: DN-48000
+    status: active
+  - id: DN-48001
+    manufacturer: Digitus
+    model: DN-48001
+    status: active
+  - id: DN-48002
+    manufacturer: Digitus
+    model: DN-48002
+    status: active
 priority: high
 
 need:

@@ -1,0 +1,38 @@
+profile_id: PC-0002-rolling-network-cabinet
+base_profile: profiles/base.yaml
+version: '1.0'
+case_id: PC-0002
+name: Rollbarer Netzwerkschrank
+status: approved
+approved_at: '2026-07-28'
+requirements:
+  - {id: PC2-001, title: Freistehend, description: Freistehender Netzwerkschrank., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-002, title: Keine Wandmontage, description: Wandmontage ist ausgeschlossen., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-003, title: Rollbar, description: Der Netzwerkschrank ist rollbar., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-004, title: Maximale Höhe, description: Maximale Außenhöhe inklusive Rollen beträgt 90 cm., status: CONFIRMED, priority: MUST, validation_type: measurement, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-005, title: Außentiefe, description: Gewünschte Außentiefe liegt ungefähr zwischen 45 und 50 cm., status: CONFIRMED, priority: SHOULD, validation_type: measurement, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-006, title: Einbautiefe, description: Nutzbare Einbautiefe reicht für Komponenten, Stecker und Kabelradien., status: CONFIRMED, priority: MUST, validation_type: measurement, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-007, title: 19-Zoll-Standard, description: Schrank entspricht dem 19-Zoll-Standard., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-008, title: Arbeitszimmer, description: Geeignet für das etwa 3 x 5 m große Arbeitszimmer., status: CONFIRMED, priority: MUST, validation_type: decision, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-009, title: Umzugstauglich, description: Ohne bauliche Veränderungen umzugstauglich nutzbar., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-010, title: Zielkomponenten, description: Platz für Switch, Firewall, Compute, PDU und Rack-USV., status: CONFIRMED, priority: MUST, validation_type: measurement, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-011, title: Wartungszugang, description: Front- oder Rückzugang für Wartung und Verkabelung., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-012, title: Belüftung, description: Ausreichende passive Belüftungsmöglichkeiten., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-013, title: Standsicherheit, description: Standsicher und gegen unbeabsichtigtes Wegrollen sicherbar., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-014, title: Feststellbare Rollen, description: Mindestens zwei Rollen sind feststellbar., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-015, title: Traglast, description: Traglast reicht für die vollständige Zielkonfiguration einschließlich Rack-USV., status: CONFIRMED, priority: MUST, validation_type: measurement, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-016, title: Kabeldurchführungen, description: Kabeldurchführungen sind vorhanden., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-017, title: PDU-Montage, description: Montage einer PDU oder Steckdosenleiste ist möglich., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-018, title: Geräuscharm, description: Betrieb im Wohnraum ohne zwingend laute Racklüfter., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-019, title: Zielbudget, description: Zielbudget beträgt aktuell 120 EUR., status: CONFIRMED, priority: PREFERENCE, validation_type: price, source: {type: project_decision, reference: RWO-0019, approved_by: Project Owner}}
+  - {id: PC2-P01, title: Abschließbar, description: Abschließbare Fronttür., status: PROPOSED, priority: SHOULD, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC2-P02, title: Seitenteile, description: Abnehmbare Seitenteile., status: PROPOSED, priority: SHOULD, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC2-P03, title: Perforation, description: Perforierte Front- oder Rücktür., status: PROPOSED, priority: SHOULD, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC2-P04, title: Reservehöhen, description: Reserve von mindestens zwei Höheneinheiten., status: PROPOSED, priority: SHOULD, validation_type: measurement, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC2-P05, title: Erdung, description: Erdungsmöglichkeit bei metallischer Bauweise., status: PROPOSED, priority: SHOULD, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC2-P06, title: Rollenwechsel, description: Rollen sind austauschbar., status: PROPOSED, priority: SHOULD, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC2-O01, title: Höheneinheiten, description: Exakte Anzahl der Höheneinheiten ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC2-O02, title: Nutzbare Tiefe, description: Exakte nutzbare Einbautiefe ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: measurement, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC2-O03, title: Türart, description: Glastür oder perforierte Metalltür ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC2-O04, title: Traglastwert, description: Exakte erforderliche Traglast ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: measurement, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC2-O05, title: USV-Aufstellung, description: Fester Einbau oder Fachboden für die Rack-USV ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}

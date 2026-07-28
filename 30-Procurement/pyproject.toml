@@ -16,7 +16,12 @@ test = ["pytest>=8.0,<9"]
 procurement-watch = "procurement_watch.cli:main"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["src", ".."]
+include = ["procurement_watch*", "shared*"]
+
+[tool.setuptools.package-dir]
+procurement_watch = "src/procurement_watch"
+shared = "../shared"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

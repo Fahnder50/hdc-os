@@ -1,6 +1,12 @@
 case_id: PC-0004
 title: Managed Switch
 status: WATCHING
+requirement_profile: profiles/PC-0004.yaml
+candidate_models:
+  - id: TL-SG2218
+    manufacturer: TP-Link
+    model: TL-SG2218
+    status: active
 priority: high
 
 need:

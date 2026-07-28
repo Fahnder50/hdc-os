@@ -15,6 +15,7 @@ from .events import emit_event
 from .logging_utils import log_record
 from .journal import entries_for_case, record_entry
 from .reporting import write_case_report
+from .requirements import load_requirement_profile, parse_requirement_profile
 
 
 def utc_now():
@@ -41,6 +42,8 @@ def run_watch(config, simulate_failure=False):
         )
         database_run_id = connection.execute("SELECT id FROM watch_runs WHERE watch_run_id = ?", (run_id,)).fetchone()[0]
         for case in connection.execute("SELECT case_id FROM procurement_cases WHERE status NOT IN ('closed', 'cancelled')"):
+            case_db_id = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case["case_id"],)).fetchone()[0]
+            _quarantine_unmatched_offers(connection, case_db_id)
             evaluate_case(connection, case["case_id"], database_run_id)
         ended_at = utc_now()
         result_status = "failed" if simulate_failure else "succeeded"
@@ -75,6 +78,78 @@ def _requirement_value(connection, case_db_id, requirement_id, default=None):
         (case_db_id, requirement_id),
     ).fetchone()
     return json.loads(row[0]) if row else default
+
+
+def _candidate_model_ids(connection, case_db_id):
+    value = _requirement_value(connection, case_db_id, "candidate_models", [])
+    return tuple(item["id"] for item in value if isinstance(item, dict) and item.get("id"))
+
+
+def _validate_candidate_models(document):
+    if str(document.get("status", "")).upper() != "WATCHING":
+        return
+    candidates = document.get("candidate_models") or []
+    if not candidates:
+        raise ValueError(f"{document['case_id']} is WATCHING but defines no candidate models.")
+    identifiers = []
+    for candidate in candidates:
+        if not isinstance(candidate, dict) or not candidate.get("id"):
+            raise ValueError(f"{document['case_id']} defines a candidate model without an ID.")
+        if not candidate.get("manufacturer") or not candidate.get("model"):
+            raise ValueError(f"{document['case_id']} candidate {candidate['id']} requires manufacturer and model.")
+        if candidate["id"] == "OFFER-UNKNOWN":
+            raise ValueError(f"{document['case_id']} defines an invalid unknown candidate model.")
+        identifiers.append(candidate["id"])
+    if len(identifiers) != len(set(identifiers)):
+        raise ValueError(f"{document['case_id']} defines duplicate candidate model IDs.")
+
+
+def _quarantine_unmatched_offers(connection, case_db_id):
+    candidate_ids = set(_candidate_model_ids(connection, case_db_id))
+    rows = connection.execute(
+        """
+        SELECT offers.offer_id, COALESCE(products.model_number, products.model) AS model_number, products.product_name,
+            vendors.name AS vendor_name, offers.price_cents
+        FROM offers
+        JOIN products ON products.id = offers.product_id
+        JOIN vendors ON vendors.id = offers.vendor_id
+        JOIN case_products ON case_products.product_id = products.id
+        WHERE case_products.case_id = ? AND offers.status = 'active' AND case_products.status = 'proposed'
+        """,
+        (case_db_id,),
+    ).fetchall()
+    for row in rows:
+        if row["model_number"] in candidate_ids:
+            continue
+        connection.execute(
+            "UPDATE case_products SET status = 'unmatched' WHERE case_id = ? AND product_id = (SELECT product_id FROM offers WHERE offer_id = ?)",
+            (case_db_id, row["offer_id"]),
+        )
+        emit_event(connection, case_db_id, "UNMATCHED_OFFER", f"{case_db_id}:unmatched:{row['offer_id']}", "Nicht zuordenbare Beobachtung: Modell nicht in den kanonischen Kandidaten.")
+
+
+def _quarantine_invalid_prices(connection, case_db_id):
+    connection.execute(
+        """
+        UPDATE offers SET status = 'quarantined'
+        WHERE status = 'active' AND id IN (
+            SELECT offers.id FROM offers
+            JOIN case_products ON case_products.product_id = offers.product_id
+            WHERE case_products.case_id = ?
+              AND (offers.price_cents IS NULL OR offers.price_cents <= 0)
+        )
+        """,
+        (case_db_id,),
+    )
+    return
+    if False:
+        emit_event(
+            connection,
+            case_db_id,
+            "UNMATCHED_OFFER",
+            f"{case_db_id}:unmatched:{row['offer_id']}",
+            f"Nicht zuordenbare Beobachtung: Quelle=Runtime; Titel={row['product_name']}; Händler={row['vendor_name']}; Preis={row['price_cents'] / 100:.2f} EUR; Grund=Modell nicht in den kanonischen Kandidaten.",
+        )
 
 
 def _backfill_journal(config):
@@ -201,6 +276,9 @@ def run_live_watch(config, case_id):
         case = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
         if case is None:
             raise ValueError(f"Unknown case: {case_id}")
+        candidate_ids = set(_candidate_model_ids(connection, case[0]))
+        if not candidate_ids:
+            raise ValueError(f"{case_id} is WATCHING but defines no candidate models.")
         required_by_date = _requirement_value(connection, case[0], "required_by_date", "2026-08-03")
         preferred_shipping_purchase_by = _requirement_value(connection, case[0], "preferred_shipping_purchase_by", "2026-07-31")
         shipping_exception_date = _requirement_value(connection, case[0], "shipping_purchase_exception_date", "2026-08-01")
@@ -214,6 +292,24 @@ def run_live_watch(config, case_id):
             try:
                 records = collect_source(source, timeout=timeout, user_agent=user_agent, retries=retries)
                 for normalized in records:
+                    model_id = normalized.get("model") or normalized.get("mpn") or normalized.get("sku") or normalized.get("technical_reference")
+                    if model_id not in candidate_ids:
+                        emit_event(
+                            connection,
+                            case[0],
+                            "UNMATCHED_OFFER",
+                            f"{case[0]}:unmatched:{normalized.get('offer_id', source_id)}",
+                            f"Nicht zuordenbare Beobachtung: Quelle={source_id}; Titel={normalized.get('product_name')}; Händler={normalized.get('vendor_name')}; Preis={normalized.get('price')}; Grund=Modell nicht in den kanonischen Kandidaten.",
+                        )
+                        continue
+                    try:
+                        price_cents = _money_to_cents(normalized.get("price"))
+                    except ValueError:
+                        price_cents = None
+                    if price_cents is None or price_cents <= 0:
+                        emit_event(connection, case[0], "UNMATCHED_OFFER", f"{run_id}:invalid-price:{normalized.get('offer_id', source_id)}",
+                                    f"Beobachtung verworfen: Quelle={source_id}; Preis ist fehlend, ungültig oder nicht positiv.")
+                        continue
                     saved = _save_live_offer(connection, normalized, case[0], started_at, required_by_date, preferred_shipping_purchase_by, shipping_exception_date, database_run_id, config.repository_root)
                     offer_count += 1
                     observation_count += 1
@@ -303,13 +399,26 @@ def _upsert_requirement(connection, case_db_id, requirement_id, value, status="U
 
 def import_case(config, path):
     case_path = Path(path)
+    if not case_path.is_absolute() and not case_path.exists():
+        repository_path = config.repository_root / case_path
+        if repository_path.exists():
+            case_path = repository_path
     document = load_yaml_config(case_path)
-    required = ("case_id", "title", "status", "priority", "need", "budget", "requirements")
+    required = ("case_id", "title", "status", "priority", "need", "budget")
     missing = [field for field in required if field not in document]
     if missing:
         raise ValueError(f"Case missing required fields: {', '.join(missing)}")
-    if not isinstance(document["requirements"], dict):
-        raise ValueError("Case field requirements must be a mapping")
+    _validate_candidate_models(document)
+    profile_document = document.get("requirement_profile")
+    if isinstance(profile_document, str):
+        profile_path = config.repository_root / "30-Procurement" / profile_document
+        profile_document = load_yaml_config(profile_path)
+        base_path = profile_document.get("base_profile")
+        if base_path:
+            base_document = load_yaml_config(config.repository_root / "30-Procurement" / base_path)
+            profile_document = dict(profile_document)
+            profile_document["requirements"] = base_document.get("requirements", []) + profile_document.get("requirements", [])
+    profile = parse_requirement_profile(profile_document, document["case_id"])
     initialize(config)
     connection = connect(config)
     try:
@@ -324,19 +433,26 @@ def import_case(config, path):
             (document["case_id"], document["title"], document["status"], document["priority"], now, now),
         )
         case_db_id = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (document["case_id"],)).fetchone()[0]
+        connection.execute("DELETE FROM requirement_profiles WHERE case_id = ?", (case_db_id,))
+        connection.execute("DELETE FROM requirements WHERE case_id = ?", (case_db_id,))
+        connection.execute("DELETE FROM evaluations WHERE case_id = ?", (case_db_id,))
         budget = document["budget"]
         _upsert_requirement(connection, case_db_id, "budget_currency", budget.get("currency"), "PASS")
         for policy_key in ("required_by_date", "target_date", "preferred_shipping_purchase_by", "shipping_purchase_exception_date"):
             if document.get(policy_key) is not None:
                 _upsert_requirement(connection, case_db_id, policy_key, document[policy_key], "PASS")
+        _upsert_requirement(connection, case_db_id, "candidate_models", document.get("candidate_models", []), "PASS")
         _upsert_requirement(connection, case_db_id, "budget_target_price", budget.get("target_price"), "PASS")
         _upsert_requirement(connection, case_db_id, "budget_maximum_total_price", budget.get("maximum_total_price"), "PASS")
         _upsert_requirement(connection, case_db_id, "budget_absolute_maximum_total_price", budget.get("absolute_maximum_total_price"), "PASS")
-        for requirement_id, value in document["requirements"].items():
-            if isinstance(value, dict) and "value" in value:
-                _upsert_requirement(connection, case_db_id, requirement_id, value["value"], value.get("status", "UNKNOWN").upper())
-            else:
-                _upsert_requirement(connection, case_db_id, requirement_id, value)
+        if profile:
+            connection.execute(
+                "INSERT INTO requirement_profiles(case_id, profile_id, name, status, version, approved_at, criteria_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (case_db_id, profile.profile_id, profile.name, profile.status, profile.version, profile.approved_at, json.dumps(profile.requirements), now, now),
+            )
+        for requirement in (profile.requirements if profile else ()):
+            requirement_id = requirement.get("engine_key", requirement["id"])
+            _upsert_requirement(connection, case_db_id, requirement_id, requirement.get("value", requirement["description"]), requirement["status"])
         connection.commit()
     except Exception:
         connection.rollback()
@@ -454,6 +570,25 @@ def portfolio_status(config):
     }
 
 
+def requirement_profile_status(config):
+    _require_initialized(config)
+    connection = connect(config)
+    try:
+        result = []
+        for row in connection.execute("SELECT id, case_id FROM procurement_cases ORDER BY case_id"):
+            profile = load_requirement_profile(connection, row["id"])
+            counts = {status: 0 for status in ("CONFIRMED", "PROPOSED", "OPEN", "REJECTED")}
+            if profile:
+                for requirement in profile.requirements:
+                    counts[requirement["status"]] += 1
+            result.append({"case_id": row["case_id"], "profile_id": profile.profile_id if profile else None,
+                           "version": profile.version if profile else None, "status": profile.status if profile else "missing",
+                           "approved_at": profile.approved_at if profile else None, "counts": counts})
+        return result
+    finally:
+        connection.close()
+
+
 def _money_to_cents(value):
     try:
         return int((Decimal(str(value)) * 100).quantize(Decimal("1")))
@@ -510,21 +645,26 @@ def add_offer(config, offer_id, product_id, vendor_id, vendor_name, price, shipp
             (vendor_id, vendor_name, now, now),
         )
         vendor = connection.execute("SELECT id FROM vendors WHERE vendor_id = ?", (vendor_id,)).fetchone()
-        price_cents = _money_to_cents(price)
-        shipping_cents = _money_to_cents(shipping or 0)
-        total_cents = price_cents + shipping_cents
+        try:
+            price_cents = _money_to_cents(price)
+        except ValueError:
+            price_cents = None
+        valid_price = price_cents is not None and price_cents > 0
+        shipping_cents = _money_to_cents(shipping or 0) if valid_price else None
+        total_cents = price_cents + shipping_cents if valid_price else None
+        offer_status = "active" if valid_price else "quarantined"
         connection.execute(
             """
             INSERT INTO offers(offer_id, product_id, vendor_id, source_type, source_reference, price_cents, shipping_cents,
-                total_price_cents, currency, availability, delivery_note, observed_at, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                total_price_cents, currency, availability, status, delivery_note, observed_at, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(offer_id) DO UPDATE SET product_id = excluded.product_id, vendor_id = excluded.vendor_id,
                 source_type = excluded.source_type, source_reference = excluded.source_reference, price_cents = excluded.price_cents,
                 shipping_cents = excluded.shipping_cents, total_price_cents = excluded.total_price_cents,
                 currency = excluded.currency, availability = excluded.availability, delivery_note = excluded.delivery_note,
-                observed_at = excluded.observed_at, updated_at = excluded.updated_at
+                status = excluded.status, observed_at = excluded.observed_at, updated_at = excluded.updated_at
             """,
-            (offer_id, product[0], vendor[0], source_type, source_reference, price_cents, shipping_cents, total_cents, currency, availability, delivery_note, now, now, now),
+            (offer_id, product[0], vendor[0], source_type, source_reference, price_cents, shipping_cents, total_cents, currency, availability, offer_status, delivery_note, now, now, now),
         )
         offer_db_id = connection.execute("SELECT id FROM offers WHERE offer_id = ?", (offer_id,)).fetchone()[0]
         observation_id = f"OBS-{uuid.uuid4().hex[:12]}"
@@ -532,9 +672,9 @@ def add_offer(config, offer_id, product_id, vendor_id, vendor_name, price, shipp
             """
             INSERT INTO price_observations(observation_id, offer_id, price_cents, shipping_cents, total_price_cents,
                 currency, availability, observed_at, source_adapter, validation_status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'valid')
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (observation_id, offer_db_id, price_cents, shipping_cents, total_cents, currency, availability, now, source_type),
+            (observation_id, offer_db_id, price_cents, shipping_cents, total_cents, currency, availability, now, source_type, "valid" if valid_price else "quarantined"),
         )
         if case_id:
             case_db_id = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
@@ -550,13 +690,17 @@ def add_offer(config, offer_id, product_id, vendor_id, vendor_name, price, shipp
         raise
     finally:
         connection.close()
-    return {"offer_id": offer_id, "observation_id": observation_id, "total_price": f"{total_cents / 100:.2f}", "currency": currency}
+    return {"offer_id": offer_id, "observation_id": observation_id, "total_price": f"{total_cents / 100:.2f}" if total_cents is not None else None, "validation_status": "valid" if valid_price else "quarantined", "currency": currency}
 
 
 def offers_for_case(config, case_id):
     _require_initialized(config)
     connection = connect(config)
     try:
+        case = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
+        if case:
+            _quarantine_invalid_prices(connection, case["id"])
+            connection.commit()
         rows = connection.execute(
             """
         SELECT offers.offer_id, products.product_id, products.product_name, products.model_number, products.ean,
@@ -570,7 +714,8 @@ def offers_for_case(config, case_id):
             JOIN vendors ON vendors.id = offers.vendor_id
             JOIN case_products ON case_products.product_id = products.id
             JOIN procurement_cases ON procurement_cases.id = case_products.case_id
-            WHERE procurement_cases.case_id = ? AND offers.status = 'active'
+            WHERE procurement_cases.case_id = ? AND case_products.status = 'proposed' AND offers.status = 'active'
+              AND offers.price_cents > 0
             ORDER BY offers.total_price_cents
             """,
             (case_id,),
@@ -588,6 +733,10 @@ def history_for_case(config, case_id):
     _require_initialized(config)
     connection = connect(config)
     try:
+        case = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
+        if case:
+            _quarantine_invalid_prices(connection, case["id"])
+            connection.commit()
         rows = connection.execute(
             """
             SELECT offers.offer_id, products.model_number, price_observations.observation_id, price_observations.price_cents,
@@ -602,7 +751,8 @@ def history_for_case(config, case_id):
             JOIN products ON products.id = offers.product_id
             JOIN case_products ON case_products.product_id = offers.product_id
             JOIN procurement_cases ON procurement_cases.id = case_products.case_id
-            WHERE procurement_cases.case_id = ?
+            WHERE procurement_cases.case_id = ? AND case_products.status = 'proposed'
+              AND offers.status = 'active' AND price_observations.price_cents > 0
             ORDER BY price_observations.observed_at
             """,
             (case_id,),
@@ -623,9 +773,12 @@ def case_status(config, case_id):
         case = connection.execute("SELECT * FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
         if case is None:
             raise ValueError(f"Unknown case: {case_id}")
+        _quarantine_invalid_prices(connection, case["id"])
+        connection.commit()
+        profile = load_requirement_profile(connection, case["id"])
         product_count = connection.execute("SELECT COUNT(*) FROM case_products WHERE case_id = ?", (case["id"],)).fetchone()[0]
         offer_count = connection.execute(
-            "SELECT COUNT(*) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND offers.status = 'active'",
+            "SELECT COUNT(*) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND case_products.status = 'proposed' AND offers.status = 'active' AND offers.price_cents > 0",
             (case["id"],),
         ).fetchone()[0]
         budget = connection.execute("SELECT value_json FROM requirements WHERE case_id = ? AND requirement_id = 'budget_maximum_total_price'", (case["id"],)).fetchone()
@@ -633,7 +786,7 @@ def case_status(config, case_id):
         target_budget = connection.execute("SELECT value_json FROM requirements WHERE case_id = ? AND requirement_id = 'budget_target_price'", (case["id"],)).fetchone()
         target_budget_cents = int(json.loads(target_budget[0]) * 100) if target_budget else None
         cheapest = connection.execute(
-            "SELECT MIN(total_price_cents) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND offers.status = 'active' AND offers.availability IN ('available', 'in_stock', 'instock', 'in stock')",
+            "SELECT MIN(total_price_cents) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND case_products.status = 'proposed' AND offers.status = 'active' AND offers.price_cents > 0 AND offers.total_price_cents > 0 AND offers.availability IN ('available', 'in_stock', 'instock', 'in stock')",
             (case["id"],),
         ).fetchone()[0]
         evaluations = connection.execute(
@@ -642,7 +795,7 @@ def case_status(config, case_id):
             FROM evaluations
             JOIN offers ON offers.id = evaluations.offer_id
             JOIN case_products ON case_products.product_id = offers.product_id
-            WHERE case_products.case_id = ?
+            WHERE case_products.case_id = ? AND case_products.status = 'proposed'
             ORDER BY evaluations.evaluated_at
             """,
             (case["id"],),
@@ -652,7 +805,7 @@ def case_status(config, case_id):
         for (offer_id, rule_id), result in latest_evaluations.items():
             offer_results.setdefault(offer_id, {})[rule_id] = result
         live_mode = bool(connection.execute(
-            "SELECT 1 FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND offers.source_type = 'geizhals' LIMIT 1",
+            "SELECT 1 FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND case_products.status = 'proposed' AND offers.source_type = 'geizhals' LIMIT 1",
             (case["id"],),
         ).fetchone())
         conditional_buy = []
@@ -669,26 +822,34 @@ def case_status(config, case_id):
             recommendation = "REVIEW"
         elif conditional_buy:
             recommendation = "CONDITIONAL_BUY"
-        elif any(result == "UNKNOWN" for values in offer_results.values() for result in values.values()):
+        elif any(result in {"UNKNOWN", "NOT_VERIFIED"} for values in offer_results.values() for result in values.values()):
             recommendation = "WAIT"
         elif any(set(values.values()) == {"PASS"} and len(values) >= (22 if live_mode else 7) for values in offer_results.values()) and cheapest is not None and (budget_cents is None or cheapest <= budget_cents):
             recommendation = "BUY_CANDIDATE"
         else:
             recommendation = "EVALUATING"
         required_open = [row[0] for row in connection.execute("SELECT requirement_id FROM requirements WHERE case_id = ? AND status IN ('OPEN', 'UNKNOWN')", (case["id"],)).fetchall()]
+        requirement_facts = [
+            {"id": item["id"], "title": item["title"], "description": item["description"], "status": item["status"], "priority": item["priority"]}
+            for item in (profile.requirements if profile and profile.is_approved else ())
+            if item["status"] in {"OPEN", "PROPOSED"}
+        ]
         warning_facts = {}
         for (_, rule_id), result in latest_evaluations.items():
-            if result in {"FAIL", "UNKNOWN"}:
+            if result in {"FAIL", "UNKNOWN", "NOT_VERIFIED"}:
                 warning_facts[rule_id] = result
+        if target_runtime := _requirement_value(connection, case["id"], "target_runtime_hours"):
+            if not any(rule_id == "RUNTIME_TARGET_DOCUMENTED" for (_, rule_id) in latest_evaluations):
+                warning_facts["RUNTIME_TARGET_DOCUMENTED"] = "NOT_VERIFIED"
         warnings = [f"{rule_id}: {result}" for rule_id, result in sorted(warning_facts.items())]
         target_date = _requirement_value(connection, case["id"], "target_date")
         last_run = connection.execute("SELECT watch_run_id, status, started_at, ended_at, error_count FROM watch_runs ORDER BY started_at DESC LIMIT 1").fetchone()
         budget_compliant = connection.execute(
-            "SELECT MIN(total_price_cents) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND offers.status = 'active' AND offers.availability IN ('available', 'in_stock', 'instock', 'in stock') AND (? IS NULL OR total_price_cents <= ?)",
+            "SELECT MIN(total_price_cents) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND case_products.status = 'proposed' AND offers.status = 'active' AND offers.price_cents > 0 AND offers.total_price_cents > 0 AND offers.availability IN ('available', 'in_stock', 'instock', 'in stock') AND (? IS NULL OR total_price_cents <= ?)",
             (case["id"], budget_cents, budget_cents),
         ).fetchone()[0]
         best_observed_price = connection.execute(
-            "SELECT MIN(price_cents) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND offers.status = 'active'",
+            "SELECT MIN(total_price_cents) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND case_products.status = 'proposed' AND offers.status = 'active' AND offers.price_cents > 0 AND offers.total_price_cents > 0",
             (case["id"],),
         ).fetchone()[0]
         if best_observed_price is None:
@@ -706,7 +867,8 @@ def case_status(config, case_id):
             FROM offers
             JOIN vendors ON vendors.id = offers.vendor_id
             JOIN case_products ON case_products.product_id = offers.product_id
-            WHERE case_products.case_id = ? AND offers.status = 'active'
+            WHERE case_products.case_id = ? AND case_products.status = 'proposed' AND offers.status = 'active'
+              AND offers.price_cents > 0 AND offers.total_price_cents > 0
             """,
             (case["id"],),
         ).fetchall()
@@ -729,12 +891,23 @@ def case_status(config, case_id):
             "budget_target": target_budget_cents / 100 if target_budget_cents is not None else None,
             "best_observed_price": best_observed_price / 100 if best_observed_price is not None else None,
             "budget_status": budget_status,
+            "requirement_profile_status": "Freigegeben" if profile and profile.is_approved else "Nicht definiert",
+            "requirement_profile_name": profile.name if profile and profile.is_approved else None,
+            "requirement_profile_id": profile.profile_id if profile and profile.is_approved else None,
+            "requirement_profile_version": profile.version if profile and profile.is_approved else None,
+            "requirement_profile_approved_at": profile.approved_at if profile and profile.is_approved else None,
+            "requirement_profile_criteria_count": len(profile.requirements) if profile and profile.is_approved else 0,
+            "requirement_profile_confirmed_count": sum(item["status"] == "CONFIRMED" for item in profile.requirements) if profile and profile.is_approved else 0,
+            "requirement_profile_proposed_count": sum(item["status"] == "PROPOSED" for item in profile.requirements) if profile and profile.is_approved else 0,
+            "requirement_profile_open_count": sum(item["status"] == "OPEN" for item in profile.requirements) if profile and profile.is_approved else 0,
             "target_date": target_date,
             "earliest_observed_delivery": min(delivery_dates) if delivery_dates else None,
             "product_candidates": product_count, "active_offers": offer_count,
+            "candidate_exclusion_reason": "Kein passendes Kandidatenangebot wurde für diesen Beschaffungsfall beobachtet." if product_count == 0 else None,
             "cheapest_available_offer": cheapest / 100 if cheapest is not None else None,
             "cheapest_budget_compliant_offer": budget_compliant / 100 if budget_compliant is not None else None,
             "open_required_requirements": required_open,
+            "requirement_facts": requirement_facts,
             "warnings": warnings,
             "last_watch_run": dict(last_run) if last_run else None,
             "recommendation_status": recommendation,
@@ -824,7 +997,7 @@ def doctor(config):
     checks = {
         "python": {"ok": sys.version_info >= (3, 12), "detail": sys.version.split()[0]},
         "database": {"ok": db["reachable"], "detail": db["path"]},
-        "schema": {"ok": db["schema_version"] == "006", "detail": db["schema_version"]},
+        "schema": {"ok": db["schema_version"] == "008", "detail": db["schema_version"]},
         "logs_path": {"ok": config.logs_path.parent.exists(), "detail": str(config.logs_path)},
         "reports_path": {"ok": config.reports_path.parent.exists(), "detail": str(config.reports_path)},
         "sources": {"ok": config.sources_path.exists(), "detail": str(config.sources_path)},

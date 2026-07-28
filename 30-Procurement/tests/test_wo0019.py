@@ -74,7 +74,7 @@ def test_live_watch_isolates_one_source_failure_and_writes_report(monkeypatch, t
             "product_id": "FIXTURE-PRODUCT-001",
             "product_name": "Fixture UPS",
             "manufacturer": "Fixture",
-            "model": "F-001",
+                "model": "BX500MI",
             "vendor_id": "FIXTURE-VENDOR-001",
             "vendor_name": "Fixture Vendor",
             "product_url": "https://fixture/good",

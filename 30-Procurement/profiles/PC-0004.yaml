@@ -1,0 +1,38 @@
+profile_id: PC-0004-managed-switch
+base_profile: profiles/base.yaml
+version: '1.0'
+case_id: PC-0004
+name: Managed Switch
+status: approved
+approved_at: '2026-07-28'
+requirements:
+  - {id: PC4-001, title: Managed, description: Verwaltbarer Switch., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-002, title: VLAN, description: VLAN-Unterstützung., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-003, title: Ports, description: Ausreichende Portanzahl., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-004, title: Gigabit, description: Gigabit oder bessere Ports., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-005, title: Energie, description: Geringer Stromverbrauch., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-006, title: Lüfterlos, description: Lüfterloser Betrieb wird bevorzugt., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-007, title: Zielbudget, description: Gesamtpreis maximal 150 EUR., status: CONFIRMED, priority: MUST, validation_type: price, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-008, title: Managementzugang, description: Managementzugang ist dokumentiert., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-009, title: Managementprotokoll, description: Managementprotokoll ist dokumentiert., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-010, title: Konfiguration, description: Konfiguration kann nachvollziehbar gesichert werden., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-011, title: Statusinformationen, description: Betriebsstatus ist auslesbar., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-012, title: Firmware, description: Firmwarestand ist dokumentiert., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-013, title: Lüfterbetrieb, description: Lüftereigenschaften sind dokumentiert., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-014, title: Portgeschwindigkeit, description: Portgeschwindigkeiten werden je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-015, title: Porttyp, description: Porttypen werden je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-016, title: Stromversorgung, description: Stromversorgung wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-017, title: Rackfähigkeit, description: Rack- oder Tischmontage wird je Angebot erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-018, title: Hardwareversion, description: Hardwareversion wird je Angebot erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-019, title: Lieferbarkeit, description: Lieferbarkeit wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-020, title: Versandkosten, description: Versandkosten werden im Endpreis berücksichtigt., status: CONFIRMED, priority: MUST, validation_type: price, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-021, title: Garantie, description: Garantie oder Gewährleistung wird je Angebot erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-022, title: Geräusch, description: Geräuschentwicklung wird je Angebot erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC4-P01, title: PoE, description: PoE kann als Variante berücksichtigt werden., status: PROPOSED, priority: PREFERENCE, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC4-O01, title: Portanzahl, description: Exakte Ziel-Portanzahl ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC4-O02, title: PoE-Bedarf, description: PoE-Bedarf ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC4-O03, title: Uplink, description: Uplink-Anforderung ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC4-O04, title: Montage, description: Endgültige Montageart ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC4-O05, title: Reserveports, description: Gewünschte Portreserve ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC4-O06, title: Strombudget, description: Verbindliches Strombudget ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: measurement, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC4-O07, title: Firmwarepolitik, description: Firmwarepolitik ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}

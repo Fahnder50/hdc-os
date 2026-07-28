@@ -38,12 +38,15 @@ def _next_date(value):
 
 
 def _operator_reason(status):
+    if status["recommendation_status"] == "NO_CANDIDATE":
+        return status.get("candidate_exclusion_reason", "Kein passendes Kandidatenangebot ist vorhanden.")
     if status["recommendation_status"] == "BUY_CANDIDATE":
         return "Budget, Verfügbarkeit, Lieferfrist und dokumentierte Anforderungen sind erfüllt."
     reasons = []
     if status.get("active_offers"):
         reasons.append("Versandkosten fehlen; Endpreis bitte im Checkout prüfen.")
     if any("RUNTIME" in warning for warning in status.get("warnings", [])):
+        reasons.append("Die Vier-Stunden-Laufzeit ist NOT_VERIFIED und deshalb kaufblockierend.")
         reasons.append("Die gewünschte Laufzeit ist noch nicht eindeutig bestätigt.")
     if any("LINUX" in warning or "NUT" in warning for warning in status.get("warnings", [])):
         reasons.append("Linux-Monitoring konnte noch nicht eindeutig bestätigt werden.")
@@ -55,6 +58,8 @@ def _change_lines(changes):
         return ["Erster Beobachtungslauf."]
     lines = []
     for change in changes.get("price_changes", []):
+        if any(value is None or float(value) <= 0 for value in (change.get("before"), change.get("after"))):
+            continue
         lines.append(f"Preis {change['model']} bei {change['vendor']}: {_money(change['before'])} → {_money(change['after'])}")
     for change in changes.get("delivery_changes", []):
         lines.append(f"Lieferung {change['model']} bei {change['vendor']}: {_date(change['before'])} → {_date(change['after'])}")
@@ -71,8 +76,9 @@ def _operator_events(events):
         "SOURCE_FAILED": "Eine öffentliche Quelle war beim letzten Lauf nicht erreichbar.",
         "BUDGET_EXCEEDED": "Ein Angebot überschreitet das reguläre Budget.",
         "OVER_BUDGET": "Ein Angebot überschreitet das absolute Budget.",
+        "UNMATCHED_OFFER": None,
     }
-    return [labels.get(event.get("event_type"), "Eine Procurement-Änderung wurde erkannt.") for event in events]
+    return [event.get("message") if event.get("event_type") == "UNMATCHED_OFFER" else labels.get(event.get("event_type"), "Eine Procurement-Änderung wurde erkannt.") for event in events]
 
 
 def _offer_rows(offers):
@@ -144,7 +150,16 @@ def render_report(data, generated_at=None):
         "{{OFFER_ROWS}}": _offer_rows(data["offers"]),
         "{{PRICE_ROWS}}": _price_rows(data["history"]),
         "{{JOURNAL_ROWS}}": _journal_rows(entries),
-        "{{TECHNICAL_DETAILS}}": _list([_operator_reason(status)] + status.get("purchase_conditions", []), "Keine offenen technischen Hinweise."),
+        "{{TECHNICAL_DETAILS}}": _list(
+            [
+                f"Requirement Profile: {status.get('requirement_profile_status', 'Nicht definiert')}",
+                f"Profil-ID: {status.get('requirement_profile_id')} | Version: {status.get('requirement_profile_version')} | Freigegeben: {status.get('requirement_profile_approved_at')}",
+                f"Kriterien: CONFIRMED {status.get('requirement_profile_confirmed_count', 0)}, PROPOSED {status.get('requirement_profile_proposed_count', 0)}, OPEN {status.get('requirement_profile_open_count', 0)}" if status.get("requirement_profile_status") == "Freigegeben" else "Technische Bewertung: Nicht definiert",
+                f"Technische Bewertung: {status.get('requirement_profile_criteria_count', 0)} Kriterien ausgewertet" if status.get("requirement_profile_status") == "Freigegeben" else "Für diesen Beschaffungsfall wurde noch kein Requirement Profile freigegeben.",
+                "Eine technische Bewertung ist derzeit nicht möglich." if status.get("requirement_profile_status") != "Freigegeben" else _operator_reason(status),
+            ] + status.get("purchase_conditions", []),
+            "Keine offenen technischen Hinweise.",
+        ),
         "{{EVENT_ROWS}}": _list(_operator_events(data["events"]), "Keine offenen Events."),
         "{{RAW_DATA}}": escape(str({"offers": len(data["offers"]), "observations": len(data["history"]), "evaluations": len(data["evaluations"])})),
     }

@@ -3,6 +3,16 @@ title: USV für Internet-Gateway
 status: WATCHING
 priority: critical
 
+candidate_models:
+  - id: BX500MI
+    manufacturer: APC
+    model: BX500MI
+    status: active
+  - id: BX750MI
+    manufacturer: APC
+    model: BX750MI
+    status: active
+
 need:
   description: Absicherung von Router und später Firewall gegen einen geplanten Stromausfall
 
@@ -26,43 +36,4 @@ budget:
   maximum_total_price: 70.00
   absolute_maximum_total_price: 70.00
 
-requirements:
-  target_runtime_hours:
-    value: 4
-    status: open
-  line_interactive:
-    value: required
-    status: open
-  automatic_voltage_regulation:
-    value: required
-    status: open
-  usb_data_interface:
-    value: required
-    status: open
-  linux_monitoring:
-    value: required
-    status: open
-  nut_compatible:
-    value: required
-    status: open
-  battery_backed_outputs_minimum:
-    value: 2
-    status: open
-  router_firewall_dimensioning:
-    value: required
-    status: open
-  germany_230v:
-    value: required
-    status: open
-  new_with_warranty:
-    value: required
-    status: open
-  replaceable_battery:
-    value: preferred
-    status: open
-  schuko_outputs:
-    value: strongly_preferred
-    status: open
-  manufacturer_linux_usb_documentation:
-    value: strongly_preferred
-    status: open
+requirement_profile: profiles/PC-0001.yaml

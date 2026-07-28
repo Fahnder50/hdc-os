@@ -1,6 +1,12 @@
 case_id: PC-0005
 title: Rack-USV
 status: WATCHING
+requirement_profile: profiles/PC-0005.yaml
+candidate_models:
+  - id: OR1000ERM1U
+    manufacturer: CyberPower
+    model: OR1000ERM1U
+    status: active
 priority: high
 
 need:

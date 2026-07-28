@@ -1,0 +1,45 @@
+profile_id: PC-0003-firewall-appliance
+base_profile: profiles/base.yaml
+version: '1.0'
+case_id: PC-0003
+name: Intel N100 Firewall Appliance
+status: approved
+approved_at: '2026-07-28'
+requirements:
+  - {id: PC3-001, title: CPU, description: Intel Processor N100., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-002, title: Netzwerkcontroller, description: Mindestens vier Intel i226 Ports., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-003, title: Portgeschwindigkeit, description: 2,5-Gigabit-Ethernet., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-004, title: Architektur, description: x86-64., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-005, title: Firewall-Kompatibilität, description: pfSense- oder OPNsense-tauglich., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-006, title: VLAN, description: VLAN-Unterstützung., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-007, title: VPN, description: VPN-Unterstützung., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-008, title: 24/7-Betrieb, description: Für kontinuierlichen Betrieb geeignet., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC3-009, title: Leistungsaufnahme, description: Geringe Leistungsaufnahme., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC3-010, title: Lizenzmodell, description: Keine verpflichtenden laufenden Lizenzen., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-011, title: Zielbudget, description: Gesamtpreis maximal 220 EUR., status: CONFIRMED, priority: MUST, validation_type: price, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-012, title: Ausstattung, description: RAM, SSD, Netzteil und Betriebssystem werden je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-013, title: Physisch getrennte Interfaces, description: Mehrere physisch getrennte Interfaces sind vorhanden., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-014, title: Ethernet, description: Alle relevanten Ports sind 2,5-Gigabit-Ethernet., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-015, title: OEM-Varianten, description: OEM-Varianten werden getrennt nach Modell und Ausstattung erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-016, title: Hersteller, description: Hersteller oder Marke wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-017, title: Modell, description: Modellbezeichnung wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-018, title: Portzahl, description: Portzahl wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-019, title: Versand, description: Versandkosten werden im Gesamtpreis berücksichtigt oder als unbekannt markiert., status: CONFIRMED, priority: MUST, validation_type: price, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-020, title: Barebone, description: Barebone-Status wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-021, title: Netzteil, description: Netzteilstatus wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-022, title: Betriebssystem, description: Betriebssystemstatus wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-023, title: pfSense, description: pfSense-Kompatibilität wird durch Evidenz bestätigt., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-024, title: OPNsense, description: OPNsense-Kompatibilität wird durch Evidenz bestätigt., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-025, title: 24/7-Eignung, description: Eignung für 24/7-Betrieb wird belegt., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-026, title: Open-Source, description: Open-Source-Betrieb ist ohne laufende Pflichtlizenz möglich., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-027, title: Preisgrenze, description: Angebote über 220 EUR werden nicht als passend bewertet., status: CONFIRMED, priority: MUST, validation_type: price, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-028, title: Controller-Evidenz, description: Ein bloßer Produkttitel genügt nicht für die i226-Bestätigung., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-029, title: Variantenvergleich, description: Varianten werden hinsichtlich Ausstattung nicht vermischt., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0012A}}
+  - {id: PC3-P01, title: Lüfterlos, description: Lüfterloser Betrieb wird bevorzugt., status: PROPOSED, priority: SHOULD, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC3-P02, title: Varianten, description: Barebone und Komplettsystem werden verglichen., status: PROPOSED, priority: PREFERENCE, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC3-O01, title: RAM, description: Endgültiger RAM-Bedarf ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC3-O02, title: SSD, description: Endgültiger SSD-Bedarf ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC3-O03, title: Gehäuse, description: Bevorzugte Gehäuseausführung ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC3-O04, title: RAM-Ausbau, description: Maximaler RAM-Ausbau ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC3-O05, title: SSD-Ausbau, description: SSD-Ausbau ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC3-O06, title: Lieferumfang, description: Verbindlicher Lieferumfang ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}

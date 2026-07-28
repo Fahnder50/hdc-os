@@ -42,7 +42,10 @@ def _facts(warnings, purchase_conditions=()):
         if rule_id in BUDGET_RULES:
             continue
         fact = TECHNICAL_RULES.get(rule_id)
+        result = warning.split(":", 1)[1].strip() if ":" in warning else ""
         if fact:
+            if result == "NOT_VERIFIED":
+                fact = f"{fact} [NOT_VERIFIED]"
             if fact not in technical:
                 technical.append(fact)
             risk_fact = RISK_RULES.get(rule_id)
@@ -74,6 +77,7 @@ def build_procurement_decision_summary(status, data=None, money_formatter=None):
     offers = status.get("active_offers", 0)
     ranking = status.get("ranking", [])
     technical_facts, risk_facts = _facts(status.get("warnings", []), status.get("purchase_conditions", []))
+    nonblocking_facts = [f"{item['title']}: {item['description']}" for item in status.get("requirement_facts", [])]
     target_date = status.get("target_date")
     earliest_delivery = status.get("earliest_observed_delivery") or next(
         (item.get("delivery_date_latest") for item in ranking if item.get("delivery_date_latest")), None
@@ -95,9 +99,14 @@ def build_procurement_decision_summary(status, data=None, money_formatter=None):
     reasons.append(f"Budget: {budget_labels.get(budget_status, budget_status)}.")
     if technical_facts:
         reasons.append(f"Kaufkritische Technik bleibt offen: {len(technical_facts)} Sachverhalte.")
+    if nonblocking_facts:
+        reasons.append(f"Nicht blockierende offene oder vorgeschlagene Anforderungen: {len(nonblocking_facts)} Sachverhalte.")
     else:
         reasons.append("Es sind keine kaufkritischen technischen Sachverhalte offen.")
-    if buffer_days is not None and buffer_days >= 0:
+    if not target_date:
+        time_status = "Zeitbewertung nicht möglich"
+        time_detail = "Zieltermin nicht definiert · Puffer nicht berechenbar"
+    elif buffer_days is not None and buffer_days >= 0:
         time_status = "Lieferung vor Zieltermin"
         time_detail = f"Zieltermin: {_format_date(target_date)} · früheste Lieferung: {_format_date(earliest_delivery)} · Puffer: {buffer_days} Tage"
     elif earliest_delivery:
@@ -106,7 +115,9 @@ def build_procurement_decision_summary(status, data=None, money_formatter=None):
     else:
         time_status = "Liefertermin offen"
         time_detail = f"Zieltermin: {_format_date(target_date)} · früheste Lieferung: nicht beobachtet · Puffer: nicht berechenbar"
-    if buffer_days is not None:
+    if not target_date:
+        reasons.append("Zeit: Zeitbewertung nicht möglich; Zieltermin nicht definiert und Puffer nicht berechenbar.")
+    elif buffer_days is not None:
         reasons.append(f"Zeit: Früheste Lieferung vor dem Zieltermin mit {buffer_days} Tagen Puffer.")
     else:
         reasons.append("Zeit: Ein belastbarer Liefertermin ist noch offen.")
@@ -122,7 +133,7 @@ def build_procurement_decision_summary(status, data=None, money_formatter=None):
     summary = create_decision_summary([
         DecisionDimension("Markt", "Angebote vorhanden" if offers else "Keine Angebote", market_detail),
         DecisionDimension("Budget", budget_labels.get(budget_status, budget_status), f"Bestes beobachtetes Angebot: {money(status.get('best_observed_price'))}"),
-        DecisionDimension("Technik", f"{len(technical_facts)} offene Sachverhalte" if technical_facts else "Keine offenen Sachverhalte", "; ".join(technical_facts) or "Keine offenen technischen Punkte"),
+        DecisionDimension("Technik", f"{len(technical_facts) + len(nonblocking_facts)} offene Sachverhalte" if technical_facts or nonblocking_facts else "Keine offenen Sachverhalte", "; ".join(technical_facts + nonblocking_facts) or "Keine offenen technischen Punkte"),
         DecisionDimension("Zeit", time_status, time_detail),
         DecisionDimension("Risiko", f"{len(risk_facts)} offene Sachverhalte" if risk_facts else "Keine offenen Sachverhalte", "; ".join(risk_facts) or "Keine bekannten Risiken"),
     ], action, reasons, conditions, engine_status=recommendation)

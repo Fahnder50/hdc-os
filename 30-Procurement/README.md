@@ -175,3 +175,14 @@ Budgets werden als Anforderungen an die Rule Engine importiert.
 - Fehlt die virtuelle Umgebung, `install.ps1` erneut ausführen.
 - Prüfe bei Datenbankproblemen den Pfad mit `db status` und die Schreibrechte des Zielordners.
 - Prüfe die gespeicherte Herkunft einer Datenbank über die Tabelle `runtime_metadata`.
+## Installation
+
+Install the runtime in editable mode from the repository root before using it
+from `30-Procurement/src`:
+
+```powershell
+python -m pip install -e 30-Procurement
+```
+
+This installs both `procurement_watch` and the shared HDC-OS packages. Runtime
+data remains local and is not part of the installation or repository.

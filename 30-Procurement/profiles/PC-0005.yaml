@@ -1,0 +1,53 @@
+profile_id: PC-0005-rack-ups
+base_profile: profiles/base.yaml
+version: '1.0'
+case_id: PC-0005
+name: Rack-USV
+status: approved
+approved_at: '2026-07-28'
+requirements:
+  - {id: PC5-001, title: Rackmontage, description: Rackmontage ist erforderlich., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-002, title: Laufzeit, description: Ausreichende Laufzeit für das spätere Server-Rack., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-003, title: Monitoring, description: USB- oder Netzwerk-Monitoring., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-004, title: Linux, description: Linux-kompatibel., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-005, title: Erweiterbarkeit, description: Erweiterbarkeit ist erforderlich., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-006, title: Rackschutz, description: Schutz des späteren Server-Racks., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-007, title: Zielbudget, description: Gesamtpreis maximal 170 EUR., status: CONFIRMED, priority: MUST, validation_type: price, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-008, title: Ausgangsleistung, description: Ausgangsleistung wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-009, title: Steckertyp, description: Steckertyp und Ausgangsform werden erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-010, title: Eingangsversorgung, description: Eingangsversorgung wird erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-011, title: Batterietyp, description: Batterietyp wird erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-012, title: Batteriewechsel, description: Batteriewechsel wird erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-013, title: USB, description: USB-Monitoring wird erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-014, title: Netzwerk, description: Netzwerk-Monitoring wird erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-015, title: NUT, description: Linux-NUT-Kompatibilität wird erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-016, title: Abschaltung, description: Geordnetes Abschalten wird unterstützt., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-017, title: Überspannungsschutz, description: Schutzfunktionen werden erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-018, title: Überlastschutz, description: Überlastschutz wird erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-019, title: Laufzeitdaten, description: Laufzeitdaten werden durch Evidenz belegt., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-020, title: Lastkompatibilität, description: Eignung für das geplante Lastprofil wird erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-021, title: Rackhöhe, description: Rackhöhe wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: measurement, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-022, title: Racktiefe, description: Racktiefe wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: measurement, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-023, title: Gewicht, description: Gewicht wird je Angebot erfasst., status: CONFIRMED, priority: SHOULD, validation_type: measurement, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-024, title: Lieferumfang, description: Lieferumfang wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-025, title: Netzteil, description: Netzteilstatus wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-026, title: Garantie, description: Garantie oder Gewährleistung wird erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-027, title: Versandkosten, description: Versandkosten werden im Endpreis berücksichtigt., status: CONFIRMED, priority: MUST, validation_type: price, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-028, title: Lieferbarkeit, description: Lieferbarkeit wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-029, title: Geräusch, description: Geräuschentwicklung wird erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-030, title: Erweiterung, description: Erweiterungsmöglichkeiten werden erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-031, title: Austauschgerät, description: Austauschbarkeit wird erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
+  - {id: PC5-P01, title: Netzwerkmanagement, description: Netzwerkmanagement wird bevorzugt., status: PROPOSED, priority: SHOULD, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC5-P02, title: SNMP, description: SNMP wird bevorzugt., status: PROPOSED, priority: SHOULD, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC5-P03, title: Ersatzbatterie, description: Ersatzbatterie wird bevorzugt., status: PROPOSED, priority: SHOULD, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC5-P04, title: Hot-swap, description: Hot-swap wird bevorzugt., status: PROPOSED, priority: PREFERENCE, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC5-P05, title: Display, description: Lokales Display wird bevorzugt., status: PROPOSED, priority: PREFERENCE, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC5-P06, title: Kaltstart, description: Kaltstartfähigkeit wird bevorzugt., status: PROPOSED, priority: PREFERENCE, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
+  - {id: PC5-O01, title: Mindestlaufzeit, description: Exakte Mindestlaufzeit ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC5-O02, title: Lastprofil, description: Verbindliches Lastprofil ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: measurement, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC5-O03, title: Batterielebensdauer, description: Erwartete Batterielebensdauer ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC5-O04, title: Netzwerkmodul, description: Bedarf eines Netzwerkmoduls ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC5-O05, title: USV-Anordnung, description: Exakte Anordnung im Rack ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC5-O06, title: Reserveleistung, description: Reserveleistung ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: measurement, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC5-O07, title: Steckdosen, description: Exakte Ausgangsanzahl ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: measurement, source: {type: open_decision, reference: RWO-0019}}
+  - {id: PC5-O08, title: Installationszubehör, description: Installationszubehör ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}

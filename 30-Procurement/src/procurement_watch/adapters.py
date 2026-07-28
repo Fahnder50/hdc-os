@@ -78,6 +78,10 @@ def parse_json_ld(document, source_reference=None):
 
 def parse_json_ld_file(path):
     file_path = Path(path)
+    if not file_path.is_absolute() and not file_path.exists():
+        repository_path = Path.cwd().parent / file_path
+        if repository_path.exists():
+            file_path = repository_path
     return parse_json_ld(file_path.read_text(encoding="utf-8"), str(file_path))
 
 

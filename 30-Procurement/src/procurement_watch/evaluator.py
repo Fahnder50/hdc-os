@@ -2,6 +2,7 @@ import json
 import uuid
 
 from .events import emit_evaluation_events
+from .requirements import load_requirement_profile
 
 
 RULES = (
@@ -94,7 +95,7 @@ def _evaluate_rule(rule_id, offer, product, requirements, target_runtime):
     if rule_id == "RUNTIME_TARGET_DOCUMENTED":
         runtime = _technical_value(product, "runtime_hours")
         if runtime is None or target_runtime is None:
-            return "UNKNOWN", "Runtime target or documented runtime is missing."
+            return "NOT_VERIFIED", "Runtime target or documented runtime is not verified."
         return ("PASS", "Documented runtime meets target.") if float(runtime) >= float(target_runtime) else ("FAIL", "Documented runtime is below target.")
     if rule_id == "BATTERY_BACKED_OUTPUTS_MINIMUM":
         value = _technical_value(product, "battery_backed_outputs")
@@ -106,7 +107,7 @@ def _evaluate_rule(rule_id, offer, product, requirements, target_runtime):
     if key:
         value = _technical_value(product, key)
         if value is None:
-            return "UNKNOWN", "Technical information is missing."
+            return "NOT_VERIFIED", "Technical information is not verified."
         return ("PASS", "Technical capability is documented.") if _documented_boolean(value) else ("FAIL", "Technical capability is documented as unsupported.")
     return "NOT_APPLICABLE", "Rule is not applicable."
 
@@ -115,8 +116,13 @@ def evaluate_case(connection, case_id, watch_run_db_id=None):
     case = connection.execute("SELECT * FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
     if case is None:
         raise ValueError(f"Unknown case: {case_id}")
+    profile = load_requirement_profile(connection, case["id"])
+    if profile is None or not profile.is_approved:
+        return []
     requirement_rows = connection.execute("SELECT requirement_id, value_json FROM requirements WHERE case_id = ?", (case["id"],)).fetchall()
     requirements = {row["requirement_id"]: json.loads(row["value_json"]) for row in requirement_rows}
+    confirmed_keys = profile.confirmed_engine_keys
+    requirements = {key: value for key, value in requirements.items() if key in confirmed_keys or key.startswith("budget_")}
     target_runtime = requirements.get("target_runtime_hours")
     offers = connection.execute(
         """
@@ -125,11 +131,13 @@ def evaluate_case(connection, case_id, watch_run_db_id=None):
         FROM offers
         JOIN products ON products.id = offers.product_id
         JOIN case_products ON case_products.product_id = products.id
-        WHERE case_products.case_id = ? AND offers.status = 'active'
+        WHERE case_products.case_id = ? AND case_products.status = 'proposed' AND offers.status = 'active'
         """,
         (case["id"],),
     ).fetchall()
-    rule_set = RULES if any(row["source_type"] in {"geizhals", "json-ld-live"} for row in offers) else LEGACY_RULES
+    base_rules = RULES if any(row["source_type"] in {"geizhals", "json-ld-live"} for row in offers) else LEGACY_RULES
+    always_evaluated = {"WITHIN_TARGET_BUDGET", "WITHIN_MAXIMUM_BUDGET", "OVER_MAXIMUM_BUDGET", "TOTAL_PRICE_WITHIN_TARGET", "TOTAL_PRICE_WITHIN_BUDGET", "OVER_ABSOLUTE_BUDGET", "PRODUCT_AVAILABLE", "DELIVERY_ELIGIBILITY"}
+    rule_set = tuple(rule_id for rule_id in base_rules if rule_id in always_evaluated or rule_id in confirmed_keys or (rule_id == "RUNTIME_TARGET_DOCUMENTED" and target_runtime is not None) or (rule_id == "STANDALONE_OPERATION_DOCUMENTED" and "CLOUD_FREE_OPERATION_DOCUMENTED" in confirmed_keys))
     all_results = []
     for offer in offers:
         offer_results = []

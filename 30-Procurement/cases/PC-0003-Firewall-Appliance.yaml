@@ -1,6 +1,20 @@
 case_id: PC-0003
 title: Firewall Appliance
 status: WATCHING
+requirement_profile: profiles/PC-0003.yaml
+candidate_models:
+  - id: B0DJ8LPM62
+    manufacturer: OEM
+    model: Intel N100 Firewall Appliance 4x i226-V
+    status: active
+  - id: B0DNDPJNG3
+    manufacturer: OEM
+    model: Intel N100 Firewall Appliance 4x i226
+    status: active
+  - id: MINI-PC-BAREBONE-NETZWERK-PC-INTEL-N100-32GB-RAM
+    manufacturer: Mini-PC/Barebone
+    model: Intel N100 Network PC
+    status: active
 priority: high
 
 need:

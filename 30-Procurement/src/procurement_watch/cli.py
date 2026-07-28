@@ -26,6 +26,7 @@ from .services import (
     import_all_cases,
     portfolio_watch,
     portfolio_status,
+    requirement_profile_status,
 )
 
 
@@ -53,6 +54,10 @@ def _parser():
     portfolio = commands.add_parser("portfolio")
     portfolio_commands = portfolio.add_subparsers(dest="portfolio_command", required=True)
     portfolio_commands.add_parser("status")
+    portfolio_commands.add_parser("summary")
+    profile = commands.add_parser("profile")
+    profile_commands = profile.add_subparsers(dest="profile_command", required=True)
+    profile_commands.add_parser("status")
     product = commands.add_parser("product")
     product_commands = product.add_subparsers(dest="product_command", required=True)
     product_add = product_commands.add_parser("add")
@@ -135,6 +140,12 @@ def main(argv=None):
             _print_json(result)
         elif args.command == "portfolio" and args.portfolio_command == "status":
             _print_portfolio_status(portfolio_status(config))
+        elif args.command == "portfolio" and args.portfolio_command == "summary":
+            result = portfolio_watch(config)
+            _print_portfolio_summary(result)
+            return 0 if result["status"] == "completed" else 1
+        elif args.command == "profile" and args.profile_command == "status":
+            _print_json(requirement_profile_status(config))
         elif args.command == "product" and args.product_command == "add":
             try:
                 technical_source = Path(args.technical_json_file).read_text(encoding="utf-8-sig") if args.technical_json_file else args.technical_json
