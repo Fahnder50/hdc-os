@@ -36,7 +36,7 @@ def test_shipping_purchase_window_is_conservative_on_august_first():
 
 def test_geizhals_adapter_normalizes_multiple_real_offer_shapes():
     document = """
-    <script>const page={product: {name: 'APC Back-UPS',}, mpn: 'BX500MI', offers: [{"raw_price":70.68,"merchant_name":"shop-a.de","delivery_time":"Lieferzeit 1-2 Werktage"},
+    <script>const page={product: {name: 'APC Back-UPS',}, mpn: 'BX750MI-GR', offers: [{"raw_price":70.68,"merchant_name":"shop-a.de","delivery_time":"Lieferzeit 1-2 Werktage"},
       {"raw_price":80.00,"merchant_name":"shop-b.de","delivery_time":"Auf Lager"}
     ]}</script>
     """
@@ -74,7 +74,7 @@ def test_live_watch_isolates_one_source_failure_and_writes_report(monkeypatch, t
             "product_id": "FIXTURE-PRODUCT-001",
             "product_name": "Fixture UPS",
             "manufacturer": "Fixture",
-                "model": "BX500MI",
+                "model": "BX750MI-GR",
             "vendor_id": "FIXTURE-VENDOR-001",
             "vendor_name": "Fixture Vendor",
             "product_url": "https://fixture/good",

@@ -195,7 +195,7 @@ def test_pc001_import_products_offers_history_and_evaluation(tmp_path):
         "PROD-PC001-001",
         "Beispiel Router-USV",
         manufacturer="Beispielhersteller",
-            model="BX500MI",
+            model="BX750MI-GR",
         technical={
             "runtime_hours": 4,
             "automatic_failover": True,

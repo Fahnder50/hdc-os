@@ -62,7 +62,7 @@ def _production_journal_snapshot():
 def test_zero_price_never_ranked_or_budgeted(tmp_path):
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
-    add_product(config, "ZERO-PRODUCT", "Zero", model="BX500MI", case_id="PC-0001")
+    add_product(config, "ZERO-PRODUCT", "Zero", model="BX750MI-GR", case_id="PC-0001")
     result = add_offer(config, "ZERO-OFFER", "ZERO-PRODUCT", "ZERO-VENDOR", "Zero", "0", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
     status = case_status(config, "PC-0001")
     assert result["validation_status"] == "quarantined"
@@ -73,7 +73,7 @@ def test_zero_price_never_ranked_or_budgeted(tmp_path):
 def test_missing_price_never_recommended(tmp_path):
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
-    add_product(config, "MISSING-PRODUCT", "Missing", model="BX500MI", case_id="PC-0001")
+    add_product(config, "MISSING-PRODUCT", "Missing", model="BX750MI-GR", case_id="PC-0001")
     result = add_offer(config, "MISSING-OFFER", "MISSING-PRODUCT", "MISSING-VENDOR", "Missing", None, "0", "EUR", "in_stock", "manual", case_id="PC-0001")
     assert result["validation_status"] == "quarantined"
     assert case_status(config, "PC-0001")["recommendation_status"] != "BUY_CANDIDATE"
@@ -82,7 +82,7 @@ def test_missing_price_never_recommended(tmp_path):
 def test_pc0001_runtime_not_verified_blocks_technical_clearance(tmp_path):
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
-    add_product(config, "NO-RUNTIME", "No runtime", model="BX500MI", technical={"automatic_failover": True, "standalone_operation": True, "cloud_free_operation": True, "monitoring_capability": "local"}, case_id="PC-0001")
+    add_product(config, "NO-RUNTIME", "No runtime", model="BX750MI-GR", technical={"automatic_failover": True, "standalone_operation": True, "cloud_free_operation": True, "monitoring_capability": "local"}, case_id="PC-0001")
     add_offer(config, "NO-RUNTIME-OFFER", "NO-RUNTIME", "RUNTIME-VENDOR", "Runtime", "39.99", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
     run_watch(config)
     status = case_status(config, "PC-0001")
@@ -145,7 +145,7 @@ def test_all_five_reports_have_approved_profile(tmp_path):
 def test_pc0001_four_hour_requirement_rendered_not_verified(tmp_path):
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
-    add_product(config, "NO-RUNTIME-REPORT", "No runtime", model="BX500MI", case_id="PC-0001")
+    add_product(config, "NO-RUNTIME-REPORT", "No runtime", model="BX750MI-GR", case_id="PC-0001")
     add_offer(config, "NO-RUNTIME-REPORT-OFFER", "NO-RUNTIME-REPORT", "RUNTIME-REPORT-VENDOR", "Runtime", "39.99", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
     run_watch(config)
     report = report_case(config, "PC-0001").read_text(encoding="utf-8")
@@ -155,7 +155,7 @@ def test_pc0001_four_hour_requirement_rendered_not_verified(tmp_path):
 def test_pc0001_missing_runtime_evidence_is_blocking(tmp_path):
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
-    add_product(config, "NO-RUNTIME-BLOCK", "No runtime", model="BX500MI", case_id="PC-0001")
+    add_product(config, "NO-RUNTIME-BLOCK", "No runtime", model="BX750MI-GR", case_id="PC-0001")
     add_offer(config, "NO-RUNTIME-BLOCK-OFFER", "NO-RUNTIME-BLOCK", "RUNTIME-BLOCK-VENDOR", "Runtime", "39.99", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
     run_watch(config)
     report = report_case(config, "PC-0001").read_text(encoding="utf-8")
@@ -220,7 +220,7 @@ def test_observed_price_remains_visible_when_technical_eligibility_is_zero(tmp_p
     import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
     for index in range(6):
         product_id = f"OBSERVED-{index}"
-        add_product(config, product_id, product_id, model="BX500MI", case_id="PC-0001")
+        add_product(config, product_id, product_id, model="BX750MI-GR", case_id="PC-0001")
         add_offer(config, f"OBSERVED-OFFER-{index}", product_id, f"O-VENDOR-{index}", "O", f"{70 + index}.68", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
     status = case_status(config, "PC-0001")
     report = report_case(config, "PC-0001").read_text(encoding="utf-8")
@@ -234,7 +234,7 @@ def test_observed_price_remains_visible_when_technical_eligibility_is_zero(tmp_p
 def test_no_offer_and_ranked_prices_cannot_coexist(tmp_path):
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
-    add_product(config, "OBSERVED-ONLY", "Observed only", model="BX500MI", case_id="PC-0001")
+    add_product(config, "OBSERVED-ONLY", "Observed only", model="BX750MI-GR", case_id="PC-0001")
     add_offer(config, "OBSERVED-ONLY-OFFER", "OBSERVED-ONLY", "OBSERVED-VENDOR", "O", "70.68", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
     status = case_status(config, "PC-0001")
     report = report_case(config, "PC-0001").read_text(encoding="utf-8")
@@ -246,7 +246,7 @@ def test_no_offer_and_ranked_prices_cannot_coexist(tmp_path):
 def test_blocking_must_not_verified_prevents_conditional_buy(tmp_path):
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
-    add_product(config, "BLOCKING", "Blocking", model="BX500MI", case_id="PC-0001")
+    add_product(config, "BLOCKING", "Blocking", model="BX750MI-GR", case_id="PC-0001")
     add_offer(config, "BLOCKING-OFFER", "BLOCKING", "BLOCK-VENDOR", "B", "70.68", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
     run_watch(config)
     assert case_status(config, "PC-0001")["recommendation_status"] == "REVIEW"

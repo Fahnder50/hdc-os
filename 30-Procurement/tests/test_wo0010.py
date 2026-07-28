@@ -7,18 +7,14 @@ from procurement_watch.events import emit_evaluation_events
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_product_catalog_keeps_region_variants_separate():
+def test_product_catalog_contains_qualified_apc_region_variant():
     catalog = load_product_catalog(REPO_ROOT)
-    assert catalog["BX750MI"]["outlet_type"] == "IEC C13"
     assert catalog["BX750MI-GR"]["outlet_type"] == "Schuko"
-    assert catalog["BX750MI"]["ean"] != catalog["BX750MI-GR"]["ean"]
-    assert product_evidence(REPO_ROOT, "BX750MI")["model_number"] == "BX750MI"
+    assert product_evidence(REPO_ROOT, "BX750MI-GR")["model_number"] == "BX750MI-GR"
 
 
-def test_unknown_catalog_values_are_not_positive_evidence():
-    catalog = load_product_catalog(REPO_ROOT)
-    assert catalog["BX500MI"]["technical"]["linux_monitoring"] == "unknown"
-    assert catalog["BX500MI"]["technical"]["nut_compatible"] == "unknown"
+def test_unknown_qualified_model_has_no_positive_evidence():
+    assert product_evidence(REPO_ROOT, "UT1200EG") is None
 
 
 def test_requirement_unknown_events_are_aggregated():

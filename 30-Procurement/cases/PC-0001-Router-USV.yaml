@@ -4,14 +4,68 @@ status: WATCHING
 priority: critical
 
 candidate_models:
-  - id: BX500MI
-    manufacturer: APC
-    model: BX500MI
+  - id: 3S700D
+    manufacturer: Eaton
+    model: 3S700D
+    role: PRIMARY
+    exact_match: true
+    priority: 1
     status: active
-  - id: BX750MI
+  - id: BX750MI-GR
     manufacturer: APC
-    model: BX750MI
+    model: BX750MI-GR
+    role: SECONDARY
+    exact_match: true
+    priority: 2
     status: active
+  - id: UT1200EG
+    manufacturer: CyberPower
+    model: UT1200EG
+    role: RESERVE
+    exact_match: true
+    priority: 3
+    status: active
+
+qualified_models:
+  - {role: PRIMARY, manufacturer: Eaton, model: 3S700D, exact_match: true, priority: 1}
+  - {role: SECONDARY, manufacturer: APC, model: BX750MI-GR, exact_match: true, priority: 2}
+  - {role: RESERVE, manufacturer: CyberPower, model: UT1200EG, exact_match: true, priority: 3}
+
+historical_models:
+  - {manufacturer: Eaton, model: 3S700DIN, status: historical}
+
+exclude_models:
+  - 3S550D
+  - 3S550DIN
+  - BX750MI
+  - BX750MI-FR
+  - BX500MI
+  - UT1200EIG
+
+exclude_conditions:
+  - refurbished
+  - used
+  - open_box
+  - replacement_battery
+
+buy_target:
+  Eaton 3S700D:
+    max_price: 105.00
+  APC BX750MI-GR:
+    max_price: 90.00
+  CyberPower UT1200EG:
+    max_price: 115.00
+
+review_areas:
+  - price
+  - delivery
+  - technical_evidence
+  - condition
+  - total_price
+
+auto_buy: false
+technical_status:
+  required: CONFIRMED
 
 need:
   description: Absicherung von Router und später Firewall gegen einen geplanten Stromausfall
@@ -26,6 +80,7 @@ device:
   desired_runtime_hours: 4
 
 required_by_date: 2026-08-03
+required_before: 2026-08-03
 target_date: 2026-08-04
 preferred_shipping_purchase_by: 2026-07-31
 shipping_purchase_exception_date: 2026-08-01
