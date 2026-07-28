@@ -82,7 +82,15 @@ def _requirement_value(connection, case_db_id, requirement_id, default=None):
 
 def _candidate_model_ids(connection, case_db_id):
     value = _requirement_value(connection, case_db_id, "candidate_models", [])
-    return tuple(item["id"] for item in value if isinstance(item, dict) and item.get("id"))
+    identifiers = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        for key in ("id", "model"):
+            identifier = item.get(key)
+            if identifier and identifier not in identifiers:
+                identifiers.append(identifier)
+    return tuple(identifiers)
 
 
 def _validate_candidate_models(document):
@@ -114,12 +122,16 @@ def _quarantine_unmatched_offers(connection, case_db_id):
         JOIN products ON products.id = offers.product_id
         JOIN vendors ON vendors.id = offers.vendor_id
         JOIN case_products ON case_products.product_id = products.id
-        WHERE case_products.case_id = ? AND offers.status = 'active' AND case_products.status = 'proposed'
+        WHERE case_products.case_id = ? AND offers.status = 'active' AND case_products.status IN ('proposed', 'unmatched')
         """,
         (case_db_id,),
     ).fetchall()
     for row in rows:
         if row["model_number"] in candidate_ids:
+            connection.execute(
+                "UPDATE case_products SET status = 'proposed' WHERE case_id = ? AND product_id = (SELECT product_id FROM offers WHERE offer_id = ?)",
+                (case_db_id, row["offer_id"]),
+            )
             continue
         connection.execute(
             "UPDATE case_products SET status = 'unmatched' WHERE case_id = ? AND product_id = (SELECT product_id FROM offers WHERE offer_id = ?)",
@@ -494,10 +506,13 @@ def portfolio_watch(config):
     for case_id in case_ids:
         try:
             result = run_live_watch(config, case_id)
+            current = case_status(config, case_id)
             results.append({
                 "case_id": case_id,
                 "status": result.get("recommendation_status", "UNKNOWN"),
-                "offers": result.get("offers_processed", 0),
+                "offers": current.get("valid_offers", 0),
+                "observed_offers": current.get("observed_offers", 0),
+                "technically_eligible_offers": current.get("technically_eligible_offers", 0),
                 "sources": source_counts.get(case_id, 0),
                 "errors": result.get("failed_sources", 0),
                 "watch_status": result.get("status"),
@@ -776,7 +791,13 @@ def case_status(config, case_id):
         _quarantine_invalid_prices(connection, case["id"])
         connection.commit()
         profile = load_requirement_profile(connection, case["id"])
-        product_count = connection.execute("SELECT COUNT(*) FROM case_products WHERE case_id = ?", (case["id"],)).fetchone()[0]
+        _quarantine_unmatched_offers(connection, case["id"])
+        connection.commit()
+        product_count = connection.execute("SELECT COUNT(*) FROM case_products WHERE case_id = ? AND status = 'proposed'", (case["id"],)).fetchone()[0]
+        observed_offers = connection.execute(
+            "SELECT COUNT(*) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND offers.status = 'active' AND offers.price_cents > 0",
+            (case["id"],),
+        ).fetchone()[0]
         offer_count = connection.execute(
             "SELECT COUNT(*) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND case_products.status = 'proposed' AND offers.status = 'active' AND offers.price_cents > 0",
             (case["id"],),
@@ -801,8 +822,25 @@ def case_status(config, case_id):
             (case["id"],),
         ).fetchall()
         latest_evaluations = {(row["offer_id"], row["rule_id"]): row["result"] for row in evaluations}
+        canonical_offer_ids = {
+            row[0] for row in connection.execute(
+                "SELECT offers.id FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND case_products.status = 'proposed' AND offers.status = 'active' AND offers.price_cents > 0",
+                (case["id"],),
+            )
+        }
+        offer_evaluation_results = {}
+        for (offer_id, rule_id), result in latest_evaluations.items():
+            offer_evaluation_results.setdefault(offer_id, {})[rule_id] = result
+        technically_eligible_ids = {
+            offer_id for offer_id in canonical_offer_ids
+            if offer_id in offer_evaluation_results
+            and not any(result in {"FAIL", "REVIEW", "UNKNOWN", "NOT_VERIFIED"} for result in offer_evaluation_results[offer_id].values())
+        }
+        technically_eligible_offers = len(technically_eligible_ids)
         offer_results = {}
         for (offer_id, rule_id), result in latest_evaluations.items():
+            if offer_id not in canonical_offer_ids:
+                continue
             offer_results.setdefault(offer_id, {})[rule_id] = result
         live_mode = bool(connection.execute(
             "SELECT 1 FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND case_products.status = 'proposed' AND offers.source_type = 'geizhals' LIMIT 1",
@@ -811,13 +849,17 @@ def case_status(config, case_id):
         conditional_buy = []
         if live_mode:
             for offer_id, values in offer_results.items():
+                if offer_id not in technically_eligible_ids:
+                    continue
                 if values.get("PRODUCT_AVAILABLE") == "PASS" and values.get("DELIVERY_ELIGIBILITY") == "PASS" and not any(value == "FAIL" for value in values.values()):
                     offer_reference = connection.execute("SELECT offer_id FROM offers WHERE id = ?", (offer_id,)).fetchone()
                     conditional_buy.append(offer_reference[0] if offer_reference else offer_id)
         if product_count == 0:
             recommendation = "NO_CANDIDATE"
-        elif offer_count == 0 or not offer_results:
+        elif offer_count == 0:
             recommendation = "EVALUATING"
+        elif technically_eligible_offers == 0:
+            recommendation = "REVIEW"
         elif any(result in {"FAIL", "REVIEW"} for values in offer_results.values() for result in values.values()):
             recommendation = "REVIEW"
         elif conditional_buy:
@@ -849,7 +891,7 @@ def case_status(config, case_id):
             (case["id"], budget_cents, budget_cents),
         ).fetchone()[0]
         best_observed_price = connection.execute(
-            "SELECT MIN(total_price_cents) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND case_products.status = 'proposed' AND offers.status = 'active' AND offers.price_cents > 0 AND offers.total_price_cents > 0",
+            "SELECT MIN(CASE WHEN total_price_cents > 0 THEN total_price_cents ELSE price_cents END) FROM offers JOIN case_products ON case_products.product_id = offers.product_id WHERE case_products.case_id = ? AND case_products.status = 'proposed' AND offers.status = 'active' AND offers.price_cents > 0",
             (case["id"],),
         ).fetchone()[0]
         if best_observed_price is None:
@@ -862,7 +904,7 @@ def case_status(config, case_id):
             budget_status = "OVER_MAXIMUM_BUDGET"
         ranking_rows = connection.execute(
             """
-            SELECT offers.offer_id, vendors.name AS vendor_name, offers.total_price_cents,
+            SELECT offers.id, offers.offer_id, vendors.name AS vendor_name, offers.total_price_cents,
                 offers.delivery_eligibility, offers.delivery_date_latest
             FROM offers
             JOIN vendors ON vendors.id = offers.vendor_id
@@ -873,7 +915,7 @@ def case_status(config, case_id):
             (case["id"],),
         ).fetchall()
         ranking = sorted(
-            [dict(row) for row in ranking_rows],
+            [dict(row) for row in ranking_rows if row["id"] in technically_eligible_ids],
             key=lambda row: (
                 {"true": 0, "unknown": 1, "false": 2}.get(row["delivery_eligibility"], 1),
                 row["total_price_cents"] if row["total_price_cents"] is not None else 10**12,
@@ -903,6 +945,10 @@ def case_status(config, case_id):
             "target_date": target_date,
             "earliest_observed_delivery": min(delivery_dates) if delivery_dates else None,
             "product_candidates": product_count, "active_offers": offer_count,
+            "observed_offers": observed_offers, "valid_offers": offer_count,
+            "canonical_offers": len(canonical_offer_ids),
+            "technically_eligible_offers": technically_eligible_offers,
+            "ranked_offers": len(ranking),
             "candidate_exclusion_reason": "Kein passendes Kandidatenangebot wurde für diesen Beschaffungsfall beobachtet." if product_count == 0 else None,
             "cheapest_available_offer": cheapest / 100 if cheapest is not None else None,
             "cheapest_budget_compliant_offer": budget_compliant / 100 if budget_compliant is not None else None,

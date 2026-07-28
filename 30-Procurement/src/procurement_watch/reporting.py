@@ -122,6 +122,8 @@ def render_report(data, generated_at=None):
     latest_run = status.get("last_watch_run") or {}
     ranked_offer_id = status.get("ranking", [None])[0].get("offer_id") if status.get("ranking") else None
     top_offer = next((offer for offer in data["offers"] if offer.get("offer_id") == ranked_offer_id), None)
+    ranked_offer_ids = {item.get("offer_id") for item in status.get("ranking", [])}
+    report_offers = [offer for offer in data["offers"] if offer.get("offer_id") in ranked_offer_ids]
     recommendation = status["recommendation_status"]
     if recommendation == "BUY_CANDIDATE":
         decision = "JETZT KAUFEN"
@@ -147,12 +149,13 @@ def render_report(data, generated_at=None):
         "{{BUDGET_BEST}}": escape(_money(status.get("best_observed_price"))),
         "{{BUDGET_STATUS}}": escape(str(status.get("budget_status", "NO_OFFER"))),
         "{{CHANGE_LINES}}": _list(_change_lines(changes)),
-        "{{OFFER_ROWS}}": _offer_rows(data["offers"]),
+        "{{OFFER_ROWS}}": _offer_rows(report_offers),
         "{{PRICE_ROWS}}": _price_rows(data["history"]),
         "{{JOURNAL_ROWS}}": _journal_rows(entries),
         "{{TECHNICAL_DETAILS}}": _list(
             [
                 f"Requirement Profile: {status.get('requirement_profile_status', 'Nicht definiert')}",
+                f"Beobachtete Angebote: {status.get('observed_offers', 0)} | Valide Angebote: {status.get('valid_offers', 0)} | Technisch freigegeben: {status.get('technically_eligible_offers', 0)} | Kaufbare Preisbasis: {'vorhanden' if status.get('technically_eligible_offers', 0) else 'Keine'}",
                 f"Profil-ID: {status.get('requirement_profile_id')} | Version: {status.get('requirement_profile_version')} | Freigegeben: {status.get('requirement_profile_approved_at')}",
                 f"Kriterien: CONFIRMED {status.get('requirement_profile_confirmed_count', 0)}, PROPOSED {status.get('requirement_profile_proposed_count', 0)}, OPEN {status.get('requirement_profile_open_count', 0)}" if status.get("requirement_profile_status") == "Freigegeben" else "Technische Bewertung: Nicht definiert",
                 f"Technische Bewertung: {status.get('requirement_profile_criteria_count', 0)} Kriterien ausgewertet" if status.get("requirement_profile_status") == "Freigegeben" else "Für diesen Beschaffungsfall wurde noch kein Requirement Profile freigegeben.",

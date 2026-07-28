@@ -25,7 +25,9 @@ def resolve_config(environ=None, repository_root=None):
     values = os.environ if environ is None else environ
     root = Path(repository_root or Path(__file__).resolve().parents[3])
     default_config_root = root / "30-Procurement" / "config"
-    runtime_path = Path(values.get("HDC_PROCUREMENT_RUNTIME", root / "30-Procurement" / "runtime"))
+    database_override = values.get("HDC_PROCUREMENT_DB")
+    default_runtime = Path(database_override).parent if database_override else root / "30-Procurement" / "runtime"
+    runtime_path = Path(values.get("HDC_PROCUREMENT_RUNTIME", default_runtime))
     return AppConfig(
         runtime_path=runtime_path,
         database_path=Path(values.get("HDC_PROCUREMENT_DB", runtime_path / "database.sqlite")),

@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 
 from procurement_watch.config import load_yaml_config
 from procurement_watch.requirements import parse_requirement_profile
@@ -43,7 +44,19 @@ def test_invalid_profile_requirements_are_rejected():
 
 def _runtime_config(tmp_path):
     from procurement_watch.config import resolve_config
-    return resolve_config(environ={"HDC_PROCUREMENT_DB": str(tmp_path / "procurement.db")}, repository_root=ROOT)
+    return resolve_config(environ={"HDC_PROCUREMENT_RUNTIME": str(tmp_path / "runtime")}, repository_root=ROOT)
+
+
+def _copied_production_config(tmp_path):
+    runtime = tmp_path / "runtime"
+    runtime.mkdir()
+    shutil.copy2(ROOT / "30-Procurement/runtime/database.sqlite", runtime / "database.sqlite")
+    return _runtime_config(tmp_path)
+
+
+def _production_journal_snapshot():
+    journal_dir = ROOT / "30-Procurement/runtime/journals"
+    return {path.name: path.read_bytes() for path in journal_dir.glob("PC-*.html")}
 
 
 def test_zero_price_never_ranked_or_budgeted(tmp_path):
@@ -156,3 +169,141 @@ def test_no_candidate_report_explains_candidate_exclusion(tmp_path):
     report = report_case(config, "PC-0001").read_text(encoding="utf-8")
     assert case_status(config, "PC-0001")["recommendation_status"] == "NO_CANDIDATE"
     assert "Kein passendes Kandidatenangebot" in report
+
+
+def test_quarantined_offer_never_appears_in_report(tmp_path):
+    config = _runtime_config(tmp_path)
+    import_case(config, ROOT / "30-Procurement/cases/PC-0003-Firewall-Appliance.yaml")
+    add_product(config, "QUARANTINED", "Quarantined", model="not-a-candidate", case_id="PC-0003")
+    add_offer(config, "QUARANTINED-OFFER", "QUARANTINED", "Q-VENDOR", "Q", "0", "0", "EUR", "in_stock", "manual", case_id="PC-0003")
+    report = report_case(config, "PC-0003").read_text(encoding="utf-8")
+    assert "QUARANTINED-OFFER" not in report
+    assert "Technisch freigegeben: 0" in report
+
+
+def test_noncanonical_offer_never_ranked(tmp_path):
+    config = _runtime_config(tmp_path)
+    import_case(config, ROOT / "30-Procurement/cases/PC-0003-Firewall-Appliance.yaml")
+    add_product(config, "NONCANONICAL", "Noncanonical", model="not-a-candidate", case_id="PC-0003")
+    add_offer(config, "NONCANONICAL-OFFER", "NONCANONICAL", "N-VENDOR", "N", "10", "0", "EUR", "in_stock", "manual", case_id="PC-0003")
+    status = case_status(config, "PC-0003")
+    assert status["canonical_offers"] == 0
+    assert status["ranked_offers"] == 0
+
+
+def test_cli_and_report_offer_count_match(tmp_path):
+    config = _runtime_config(tmp_path)
+    import_case(config, ROOT / "30-Procurement/cases/PC-0003-Firewall-Appliance.yaml")
+    add_product(config, "CANONICAL", "Canonical", model="B0DJ8LPM62", case_id="PC-0003")
+    add_offer(config, "CANONICAL-OFFER", "CANONICAL", "C-VENDOR", "C", "10", "0", "EUR", "in_stock", "manual", case_id="PC-0003")
+    status = case_status(config, "PC-0003")
+    report = report_case(config, "PC-0003").read_text(encoding="utf-8")
+    assert f"Valide Angebote: {status['valid_offers']}" in report
+
+
+def test_cli_and_report_use_same_valid_offer_set(tmp_path):
+    config = _runtime_config(tmp_path)
+    import_case(config, ROOT / "30-Procurement/cases/PC-0003-Firewall-Appliance.yaml")
+    add_product(config, "VALID", "Valid", model="B0DJ8LPM62", case_id="PC-0003")
+    add_product(config, "INVALID", "Invalid", model="not-a-candidate", case_id="PC-0003")
+    add_offer(config, "VALID-OFFER", "VALID", "V-VENDOR", "V", "10", "0", "EUR", "in_stock", "manual", case_id="PC-0003")
+    add_offer(config, "INVALID-OFFER", "INVALID", "I-VENDOR", "I", "10", "0", "EUR", "in_stock", "manual", case_id="PC-0003")
+    status = case_status(config, "PC-0003")
+    report = report_case(config, "PC-0003").read_text(encoding="utf-8")
+    assert status["valid_offers"] == 1
+    assert "Valide Angebote: 1" in report
+    assert "INVALID-OFFER" not in report
+
+
+def test_observed_price_remains_visible_when_technical_eligibility_is_zero(tmp_path):
+    config = _runtime_config(tmp_path)
+    import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    for index in range(6):
+        product_id = f"OBSERVED-{index}"
+        add_product(config, product_id, product_id, model="BX500MI", case_id="PC-0001")
+        add_offer(config, f"OBSERVED-OFFER-{index}", product_id, f"O-VENDOR-{index}", "O", f"{70 + index}.68", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
+    status = case_status(config, "PC-0001")
+    report = report_case(config, "PC-0001").read_text(encoding="utf-8")
+    assert status["valid_offers"] == 6
+    assert status["technically_eligible_offers"] == 0
+    assert "6 valide Angebote" in report
+    assert "Kaufbare Preisbasis: Keine" in report
+    assert "Bestes beobachtetes Angebot: 70.68" in report
+
+
+def test_no_offer_and_ranked_prices_cannot_coexist(tmp_path):
+    config = _runtime_config(tmp_path)
+    import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    add_product(config, "OBSERVED-ONLY", "Observed only", model="BX500MI", case_id="PC-0001")
+    add_offer(config, "OBSERVED-ONLY-OFFER", "OBSERVED-ONLY", "OBSERVED-VENDOR", "O", "70.68", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
+    status = case_status(config, "PC-0001")
+    report = report_case(config, "PC-0001").read_text(encoding="utf-8")
+    assert status["technically_eligible_offers"] == 0
+    assert status["ranked_offers"] == 0
+    assert "Keine Preisbasis" in report or "Kaufbare Preisbasis: Keine" in report
+
+
+def test_blocking_must_not_verified_prevents_conditional_buy(tmp_path):
+    config = _runtime_config(tmp_path)
+    import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    add_product(config, "BLOCKING", "Blocking", model="BX500MI", case_id="PC-0001")
+    add_offer(config, "BLOCKING-OFFER", "BLOCKING", "BLOCK-VENDOR", "B", "70.68", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
+    run_watch(config)
+    assert case_status(config, "PC-0001")["recommendation_status"] == "REVIEW"
+
+
+def test_recommended_offer_matches_ranking_or_has_explanation(tmp_path):
+    config = _runtime_config(tmp_path)
+    import_case(config, ROOT / "30-Procurement/cases/PC-0002-Rollbarer-Netzwerkschrank.yaml")
+    report = report_case(config, "PC-0002").read_text(encoding="utf-8")
+    status = case_status(config, "PC-0002")
+    assert not status["ranking"] or "Nicht das günstigste Angebot gewählt" in report or "Empfohlenes Angebot" not in report
+
+
+def test_pc0003_current_fixture_has_zero_valid_offers(tmp_path):
+    config = _copied_production_config(tmp_path)
+    status = case_status(config, "PC-0003")
+    assert status["valid_offers"] == 0
+    assert status["best_observed_price"] is None
+
+
+def test_pc0001_current_fixture_has_six_observed_and_zero_eligible_offers(tmp_path):
+    config = _copied_production_config(tmp_path)
+    status = case_status(config, "PC-0001")
+    assert status["observed_offers"] == 6
+    assert status["valid_offers"] == 6
+    assert status["technically_eligible_offers"] == 0
+
+
+def test_tests_use_isolated_runtime_directory(tmp_path):
+    config = _runtime_config(tmp_path)
+    production_runtime = (ROOT / "30-Procurement/runtime").resolve()
+    assert config.runtime_path.resolve() == (tmp_path / "runtime").resolve()
+    assert config.runtime_path.resolve() != production_runtime
+    assert config.reports_path.resolve() != (production_runtime / "journals").resolve()
+
+
+def test_tests_never_write_production_journals(tmp_path):
+    before = _production_journal_snapshot()
+    config = _runtime_config(tmp_path)
+    import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    report_case(config, "PC-0001")
+    assert _production_journal_snapshot() == before
+
+
+def test_live_watch_reports_survive_pytest(tmp_path):
+    before = _production_journal_snapshot()
+    config = _runtime_config(tmp_path)
+    import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    run_watch(config)
+    assert (config.reports_path / "PC-0001.html").exists()
+    assert _production_journal_snapshot() == before
+
+
+def test_live_report_contains_no_fixture_candidate_ids(tmp_path):
+    fixture_ids = ("BLOCKING-OFFER", "VALID-OFFER", "FIXTURE-OFFER-001")
+    config = _runtime_config(tmp_path)
+    import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    run_watch(config)
+    content = (config.reports_path / "PC-0001.html").read_text(encoding="utf-8")
+    assert not any(fixture_id in content for fixture_id in fixture_ids)

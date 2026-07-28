@@ -86,6 +86,7 @@ def build_procurement_decision_summary(status, data=None, money_formatter=None):
     if target_date and earliest_delivery:
         buffer_days = (date.fromisoformat(str(target_date)) - date.fromisoformat(str(earliest_delivery))).days
     budget_status = status.get("budget_status", "NO_OFFER")
+    purchase_basis = status.get("technically_eligible_offers", 0) > 0
     budget_labels = {
         "WITHIN_TARGET_BUDGET": "Innerhalb Zielbudget",
         "WITHIN_MAXIMUM_BUDGET": "Über Zielbudget, aber zulässig",
@@ -94,7 +95,7 @@ def build_procurement_decision_summary(status, data=None, money_formatter=None):
     }
     recommendation = status["recommendation_status"]
     action = {"BUY_CANDIDATE": "JETZT KAUFEN", "CONDITIONAL_BUY": "NOCH WARTEN"}.get(recommendation, "NICHT KAUFEN")
-    market_detail = f"{offers} auswertbare Angebote" if offers else "Keine auswertbaren Angebote"
+    market_detail = f"{offers} valide Angebote · technisch freigegeben: {status.get('technically_eligible_offers', 0)}" if offers else "Keine auswertbaren Angebote"
     reasons = []
     reasons.append(f"Budget: {budget_labels.get(budget_status, budget_status)}.")
     if technical_facts:
@@ -132,7 +133,7 @@ def build_procurement_decision_summary(status, data=None, money_formatter=None):
         conditions.append("Wenn ein belastbarer Liefertermin vor dem Zieltermin vorliegt, kann die Zeitbewertung abgeschlossen werden.")
     summary = create_decision_summary([
         DecisionDimension("Markt", "Angebote vorhanden" if offers else "Keine Angebote", market_detail),
-        DecisionDimension("Budget", budget_labels.get(budget_status, budget_status), f"Bestes beobachtetes Angebot: {money(status.get('best_observed_price'))}"),
+        DecisionDimension("Budget", budget_labels.get(budget_status, budget_status), f"Bestes beobachtetes Angebot: {money(status.get('best_observed_price'))} · Kaufbare Preisbasis: {'vorhanden' if purchase_basis else 'Keine'}"),
         DecisionDimension("Technik", f"{len(technical_facts) + len(nonblocking_facts)} offene Sachverhalte" if technical_facts or nonblocking_facts else "Keine offenen Sachverhalte", "; ".join(technical_facts + nonblocking_facts) or "Keine offenen technischen Punkte"),
         DecisionDimension("Zeit", time_status, time_detail),
         DecisionDimension("Risiko", f"{len(risk_facts)} offene Sachverhalte" if risk_facts else "Keine offenen Sachverhalte", "; ".join(risk_facts) or "Keine bekannten Risiken"),
