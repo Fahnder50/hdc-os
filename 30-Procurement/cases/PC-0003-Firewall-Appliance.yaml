@@ -1,44 +1,208 @@
 case_id: PC-0003
 title: Firewall Appliance
 status: WATCHING
-requirement_profile: profiles/PC-0003.yaml
-candidate_models:
-  - id: B0DJ8LPM62
-    manufacturer: OEM
-    model: Intel N100 Firewall Appliance 4x i226-V
-    status: active
-  - id: B0DNDPJNG3
-    manufacturer: OEM
-    model: Intel N100 Firewall Appliance 4x i226
-    status: active
-  - id: MINI-PC-BAREBONE-NETZWERK-PC-INTEL-N100-32GB-RAM
-    manufacturer: Mini-PC/Barebone
-    model: Intel N100 Network PC
-    status: active
 priority: high
+architecture_reference: 20-Operations/Network-Design-v0.1.md
+architecture_version: "0.1"
+architecture_status: Accepted
+requirement_profile: profiles/PC-0003.yaml
+decision_document: cases/PC-0003-Firewall-Appliance-Decision.md
+evaluated_at: "2026-07-31"
+decision_model_revision: WO-0033-R1
 
 need:
-  description: Energiearme Firewall Appliance für VPN, VLAN und 24/7-Homeoffice-Betrieb.
+  description: Dedizierte, lokal betreibbare OPNsense-Appliance als Sicherheitsgrenze zwischen Speedport Smart 4 und HDC-OS-LAN.
+  success_path: Speedport LAN -> physischer WAN-Port -> OPNsense -> physischer LAN-Port -> Managed Switch.
+
+recommendation:
+  decision_class: BUDGET_RECOMMENDATION
+  manufacturer: HUNSN
+  model: RJ42 N100
+  model_id: RJ42-N100-00
+  status: WAIT_FOR_QUALIFIED_OFFER
+  rationale: Wirtschaftlichste Architektur-Zielplattform für den frühen Ausbauschritt; Budgetreserve bleibt für Switch, Rack, USV und Access Point verfügbar.
+  purchase_condition: Exaktes Neugerät mit mindestens 8GB RAM, 128GB NVMe, vier Intel i226-V 2.5GbE-Ports, EU-Netzteil, Gewährleistung, Lieferbarkeit und bekanntem Gesamtpreis bis 300 EUR.
+  fallback: Deciso DEC697 bis 700 EUR nur bei bestätigtem Sofortbedarf und fehlendem qualifiziertem Budgetangebot.
+  approval_required: Project Owner
+  auto_buy: false
+
+decision_classes:
+  technical_reference:
+    model_id: DEC740
+    maximum_total_price: 800.00
+    purchase_rule: Nur bei nachgewiesenem 10GbE- oder Mehrleistungsbedarf und separater Ausnahmefreigabe.
+  best_value_recommendation:
+    model_id: DEC697
+    maximum_total_price: 700.00
+    purchase_rule: Fallback bei bestätigtem Sofortbedarf, wenn kein qualifiziertes Budgetangebot verfügbar ist.
+  budget_recommendation:
+    model_id: RJ42-N100-00
+    maximum_total_price: 300.00
+    purchase_rule: Bevorzugte aktuelle Beschaffung, sobald sämtliche Architektur- und Angebotsnachweise PASS sind.
+
+candidate_models:
+  - id: DEC697
+    manufacturer: Deciso
+    model: DEC697
+    role: PRIMARY
+    exact_match: true
+    priority: 1
+    status: active
+    configuration: 8GB DDR3, 256GB NVMe, OPNsense preinstalled
+  - id: DEC740
+    manufacturer: Deciso
+    model: DEC740
+    role: PERFORMANCE_ALTERNATIVE
+    exact_match: true
+    priority: 2
+    status: active
+    configuration: 4GB DDR4, 128GB solid-state storage, OPNsense preinstalled
+  - id: VP3210
+    manufacturer: Protectli
+    model: Vault Pro VP3210
+    role: SUPPORTED_BAREBONE_ALTERNATIVE
+    exact_match: true
+    priority: 3
+    status: active
+    configuration: Intel N100, 2x i226-V; RAM, NVMe and OS option-dependent
+  - id: RJ42-N100-00
+    manufacturer: HUNSN
+    model: RJ42 N100
+    role: BUDGET_ALTERNATIVE
+    exact_match: true
+    priority: 4
+    status: watch_only
+    configuration: Barebone, Intel N100, 4x i226-V; RAM and NVMe required
+
+qualified_models:
+  - {role: PRIMARY, manufacturer: Deciso, model: DEC697, exact_match: true, priority: 1}
+  - {role: PERFORMANCE_ALTERNATIVE, manufacturer: Deciso, model: DEC740, exact_match: true, priority: 2}
+
+conditional_models:
+  - manufacturer: Protectli
+    model: Vault Pro VP3210
+    condition: Angebot muss mindestens 8GB RAM, 128GB NVMe, EU-Netzkabel und OPNsense-kompatible Konfiguration enthalten.
+  - manufacturer: HUNSN
+    model: RJ42 N100
+    condition: Exakte Modellnummer, 8GB oder mehr RAM, 128GB oder mehr NVMe, EU-Netzteil, Gewährleistung und Lieferbarkeit müssen im Einzelangebot bestätigt sein.
+
+exclude_conditions:
+  - used
+  - refurbished
+  - open_box
+  - no_warranty
+  - cloud_required
+  - fewer_than_2_physical_ethernet_ports
+  - shared_or_usb_ethernet_for_wan_lan
+  - no_opnsense_evidence
+  - no_eu_power_cord
+  - unknown_total_price
+  - unknown_exact_model
 
 budget:
   currency: EUR
-  target_price: 220.00
-  maximum_total_price: 220.00
-  absolute_maximum_total_price: 220.00
+  target_price: 250.00
+  maximum_total_price: 300.00
+  absolute_maximum_total_price: 300.00
+  target_price_basis: Budget Recommendation HUNSN RJ42 als vollständige 8GB/128GB-Konfiguration; höhere Modellgrenzen sind dokumentierte, freigabepflichtige Ausnahmen.
+
+buy_target:
+  Deciso DEC697:
+    max_total_price: 700.00
+    preferred_total_price: 650.00
+  Deciso DEC740:
+    max_total_price: 800.00
+    preferred_total_price: 750.00
+    approval_exception_required: true
+  Protectli Vault Pro VP3210:
+    max_total_price: 500.00
+    preferred_total_price: 425.00
+    configuration_required: 8GB RAM, 128GB NVMe, EU power cable
+  HUNSN RJ42 N100:
+    max_total_price: 300.00
+    preferred_total_price: 250.00
+    configuration_required: 8GB RAM, 128GB NVMe, EU power supply
+
+architecture_gates:
+  opnsense_support:
+    status: PASS
+    evidence: Deciso liefert DEC697 mit OPNsense vorinstalliert; Open-Source-Lizenz plus ein Jahr Business Edition.
+  physical_wan_lan:
+    status: PASS
+    evidence: Vier unabhängige 2.5GbE-RJ45-Ports erlauben getrennte WAN- und LAN-Zuordnung.
+  vlan_802_1q:
+    status: PASS
+    evidence: Hersteller dokumentiert bis zu 4093 virtuelle 802.1Q-Interfaces.
+  dsl_performance_with_reserve:
+    status: PASS
+    evidence: 5Gbps Firewall-, 2.3Gbps Port-to-Port- und 600Mbps IPsec-Durchsatz liegen deutlich oberhalb eines DSL-Anschlusses.
+  local_no_cloud:
+    status: PASS
+    evidence: OPNsense Open Source ist vorinstalliert; keine Cloud oder laufende Lizenz ist für den Regelbetrieb erforderlich.
+  local_console:
+    status: PASS
+    evidence: Dedizierter Console-Port und Konfigurationskabel sind dokumentiert.
+  rack_compatibility:
+    status: PASS
+    evidence: Desktopgerät 22x185x134mm, 0.6kg; Betrieb auf belüftetem Rackboden. PC-0002 muss einen geeigneten Fachboden bereitstellen.
+  rack_ups_compatibility:
+    status: PASS
+    evidence: 100-240VAC, 50-60Hz, maximal 0.4A, typisch 13W; passendes EU-Netzkabel ist Kaufbedingung und die Last ist in PC-0005 einzurechnen.
+  local_backup_restore:
+    status: PASS
+    evidence: OPNsense-Konfigurationsbackup und lokale Konsole sind Bestandteil des Plattform- und Migrationsdesigns; Umsetzung erfolgt außerhalb dieses Cases.
+  vpn_ready:
+    status: PASS
+    evidence: Hersteller dokumentiert 600Mbps IPsec AES256GCM16.
 
 requirements:
-  vpn: {value: required, status: open}
-  vlan: {value: required, status: open}
-  low_power_consumption: {value: required, status: open}
-  continuous_24_7_operation: {value: required, status: open}
-  homeoffice_suitable: {value: required, status: open}
-  open_source_friendly: {value: required, status: open}
-  no_unnecessary_license_costs: {value: required, status: open}
-  monitoring_possible: {value: required, status: open}
-  cpu: {value: Intel Processor N100, status: required}
-  network_controller: {value: Intel i226, status: required}
-  network_ports: {value: "at least 4 x 2.5GbE", status: required}
-  architecture: {value: x86-64, status: required}
-  firewall_compatibility: {value: "pfSense or OPNsense", status: required}
-  fanless_preferred: {value: preferred, status: open}
-  hardware_license: {value: "no mandatory recurring hardware or cloud license", status: required}
+  opnsense: {value: required, status: confirmed}
+  architecture: {value: x86-64 compatible OPNsense appliance, status: confirmed}
+  network_ports: {value: at least 2 physically independent Ethernet ports, status: confirmed}
+  wan_lan_separation: {value: required, status: confirmed}
+  vlan: {value: IEEE 802.1Q required, status: confirmed}
+  vpn: {value: required, status: confirmed}
+  continuous_24_7_operation: {value: required, status: confirmed}
+  local_operation: {value: required, status: confirmed}
+  cloud_dependency: {value: prohibited, status: confirmed}
+  mandatory_recurring_license: {value: prohibited, status: confirmed}
+  console_access: {value: required, status: confirmed}
+  rack_installation: {value: desktop appliance on ventilated rack shelf, status: confirmed}
+  rack_ups: {value: EU mains input and documented load required, status: confirmed}
+  minimum_memory: {value: 8GB for recommended appliance, status: confirmed}
+  minimum_storage: {value: 128GB solid-state storage, status: confirmed}
+
+watch:
+  enabled: true
+  cadence: daily
+  review_areas:
+    - exact_model
+    - technical_evidence
+    - new_condition
+    - availability
+    - price
+    - shipping
+    - total_price
+    - eu_power_cord
+    - warranty
+  buy_candidate_rules:
+    - exact model is qualified or all conditional model requirements pass
+    - architecture gates are PASS
+    - condition is new
+    - offer is available
+    - total price including shipping is known
+    - total price is within the model-specific maximum
+    - EU power cord or compatible EU power supply is included
+    - Project Owner approval remains required
+  events:
+    target_reached: BUY_CANDIDATE
+    price_above_maximum: PRICE_THRESHOLD
+    unavailable: AVAILABILITY_CHANGED
+    evidence_missing: REQUIREMENT_FAILED
+    source_failure: SOURCE_FAILED
+  auto_buy: false
+
+technical_status:
+  required: CONFIRMED
+  architecture_compliance: PASS
+  recommendation: WAIT_FOR_QUALIFIED_BUDGET_OFFER

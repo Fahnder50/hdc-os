@@ -24,27 +24,39 @@ sources:
     case_id: PC-0005
     url: https://geizhals.de/cyberpower-office-rackmount-1000va-1he-or1000erm1u-a2531829.html
     max_offers: 3
-  - source_id: pc3-pczinophyte-public
+  - source_id: pc3-opnsense-dec697
     adapter: json-ld
     case_id: PC-0003
-    url: https://www.handyhuellen.berlin/products/pczinophyte-micro-firewall-appliance-n100-firewall-router-pc-upgraded-version-lufterloser-mini-pc-4x-i226-v-2-5g-solid-computer-proxmox-esxi-opnsense
+    url: https://shop.opnsense.com/product/dec697-opnsense-desktop-security-appliance/
     max_offers: 1
+    canonical_model_id: DEC697
     variant: complete-system
+    vendor_name: OPNsense Shop
+    evidence: "Exact DEC697; OPNsense; 4x2.5GbE; 8GB RAM; 256GB NVMe; 802.1Q; 5Gbps firewall; 600Mbps IPsec; 13W; price 678 EUR observed 2026-07-31."
+  - source_id: pc3-opnsense-dec740
+    adapter: json-ld
+    case_id: PC-0003
+    url: https://shop.opnsense.com/product/dec740-opnsense-desktop-security-appliance/
+    max_offers: 1
+    canonical_model_id: DEC740
+    variant: complete-system
+    vendor_name: OPNsense Shop
+    evidence: "Exact DEC740; OPNsense; 3x2.5GbE and 2x10GbE; 4GB RAM; 128GB storage; 802.1Q; 10Gbps firewall; 1.2Gbps IPsec; 15W; price 878 EUR observed 2026-07-31."
+  - source_id: pc3-protectli-vp3210
+    adapter: json-ld
+    case_id: PC-0003
+    url: https://eu.protectli.com/product/vp3210/
+    max_offers: 1
+    canonical_model_id: VP3210
+    variant: configurable-system
+    vendor_name: Protectli EU
+    evidence: "Exact VP3210; Intel N100; 2x i226-V 2.5GbE; base price 299 EUR; RAM, NVMe, OS and power cable option-dependent; two-year warranty."
+  - source_id: pc3-hunsn-rj42-n100
+    adapter: json-ld
+    case_id: PC-0003
+    url: https://www.handyhuellen.berlin/products/hunsn-micro-firewall-appliance-mini-pc-vpn-router-pc-intel-alder-lake-n-12th-gen-n100-rj42-4-x-2-5gbe-i226-v-2-x-hdmi-dp-tf-type-c-barebone-no-ram-no-storage-no-system
+    max_offers: 1
+    canonical_model_id: RJ42-N100-00
+    variant: barebone
     vendor_name: handyhuellen.berlin
-    shipping: 0
-    evidence: "Intel N100; 4x Intel i226-V; 2.5G; fanless; OPNsense; 16GB/256GB listed by public product title; price 169.99 EUR; out of stock"
-  - source_id: pc3-netzshopping-public
-    adapter: json-ld
-    case_id: PC-0003
-    url: https://www.netzshopping.de/p/B0DNDPJNG3/
-    max_offers: 1
-    variant: complete-system
-    vendor_name: netzshopping.de
-    evidence: "Intel N100; 4x i226; 2.5G; fanless; pfSense/OPNsense; 16GB DDR4/256GB NVMe listed by public product title; price not exposed by parser"
-  - source_id: pc3-geizhals-mnboxconet-public
-    adapter: geizhals
-    case_id: PC-0003
-    url: https://geizhals.de/mini-pc-barebone-netzwerk-pc-intel-n100-a2926991.html
-    max_offers: 3
-    variant: barebone-or-complete
-    evidence: "Public Geizhals listing identifies N100 firewall variants with 4 or 6 Intel i226-V 2.5GbE ports; observed prices are above the 220 EUR target"
+    evidence: "Exact HUNSN RJ42-N100-00; 4x i226-V; OPNsense named; barebone; 240.99 EUR observed unavailable on 2026-07-31."

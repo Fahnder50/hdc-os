@@ -192,6 +192,9 @@ def collect_source(source, timeout=20, user_agent="HDC-Procurement-Watch/0.1", r
         return parse_geizhals(document, source["url"], int(source.get("max_offers", 5)))
     if adapter == "json-ld":
         normalized = parse_json_ld(document, source["url"])
+        canonical_model_id = source.get("canonical_model_id")
+        if canonical_model_id:
+            normalized["model"] = canonical_model_id
         source_host = urlparse(source["url"]).netloc.removeprefix("www.")
         vendor_name = normalized.get("vendor_name") or source.get("vendor_name") or source_host
         identity = normalized.get("sku") or normalized.get("mpn") or normalized.get("technical_reference") or source.get("source_id", "offer")

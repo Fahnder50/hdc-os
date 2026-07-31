@@ -6,7 +6,7 @@ import procurement_watch.services as services_module
 from procurement_watch.config import load_yaml_config, resolve_config
 from procurement_watch.database import schema_status
 from procurement_watch.backup import backup_database, restore_database
-from procurement_watch.adapters import AdapterError, parse_json_ld_file
+from procurement_watch.adapters import AdapterError, collect_source, parse_json_ld_file
 from procurement_watch.events import EVENT_SEVERITIES, EVENT_TYPES, classify_event, emit_event
 from procurement_watch.services import add_offer, add_product, case_status, current_events, doctor, import_case, init_database, offers_for_case, procurement_status, recent_watch_runs, run_watch, history_for_case
 
@@ -256,6 +256,19 @@ def test_json_ld_adapter_allows_missing_optional_fields(tmp_path):
     parsed = parse_json_ld_file(fixture)
     assert parsed["product_name"] == "Partial"
     assert parsed["price"] is None
+
+
+def test_json_ld_source_can_bind_an_exact_canonical_model(monkeypatch):
+    document = (REPO_ROOT / "30-Procurement/tests/fixtures/router-ups-jsonld.html").read_text(encoding="utf-8")
+    monkeypatch.setattr("procurement_watch.adapters.fetch_url", lambda *args, **kwargs: document)
+    records = collect_source({
+        "adapter": "json-ld",
+        "url": "https://example.invalid/exact-product",
+        "source_id": "exact-product",
+        "canonical_model_id": "DEC697",
+        "vendor_name": "Vendor",
+    })
+    assert records[0]["model"] == "DEC697"
 
 
 def test_event_deduplication_for_unknown_requirements(tmp_path):

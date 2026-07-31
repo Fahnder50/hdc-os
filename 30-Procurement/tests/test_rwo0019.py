@@ -194,7 +194,7 @@ def test_noncanonical_offer_never_ranked(tmp_path):
 def test_cli_and_report_offer_count_match(tmp_path):
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0003-Firewall-Appliance.yaml")
-    add_product(config, "CANONICAL", "Canonical", model="B0DJ8LPM62", case_id="PC-0003")
+    add_product(config, "CANONICAL", "Canonical", model="DEC697", case_id="PC-0003")
     add_offer(config, "CANONICAL-OFFER", "CANONICAL", "C-VENDOR", "C", "10", "0", "EUR", "in_stock", "manual", case_id="PC-0003")
     status = case_status(config, "PC-0003")
     report = report_case(config, "PC-0003").read_text(encoding="utf-8")
@@ -204,7 +204,7 @@ def test_cli_and_report_offer_count_match(tmp_path):
 def test_cli_and_report_use_same_valid_offer_set(tmp_path):
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0003-Firewall-Appliance.yaml")
-    add_product(config, "VALID", "Valid", model="B0DJ8LPM62", case_id="PC-0003")
+    add_product(config, "VALID", "Valid", model="DEC697", case_id="PC-0003")
     add_product(config, "INVALID", "Invalid", model="not-a-candidate", case_id="PC-0003")
     add_offer(config, "VALID-OFFER", "VALID", "V-VENDOR", "V", "10", "0", "EUR", "in_stock", "manual", case_id="PC-0003")
     add_offer(config, "INVALID-OFFER", "INVALID", "I-VENDOR", "I", "10", "0", "EUR", "in_stock", "manual", case_id="PC-0003")

@@ -71,27 +71,28 @@ manuelle Runtime-Erstellung.
 PC-0002, PC-0004 und PC-0005 verwenden öffentliche Geizhals-Produktseiten
 über den bestehenden `geizhals`-Adapter. Die Beobachtungen werden ausschließlich
 lokal in SQLite gespeichert. Die freigegebenen Zielbudgets sind 120 EUR für
-PC-0002, 220 EUR für PC-0003, 150 EUR für PC-0004 und 170 EUR für PC-0005;
+PC-0002, 250 EUR für PC-0003, 150 EUR für PC-0004 und 170 EUR für PC-0005;
 die bestehenden absoluten Obergrenzen bleiben unverändert.
 
-PC-0003 beobachtet ausschließlich das freigegebene Produktprofil Intel N100
-mit mindestens vier Intel-i226-Ports und 2,5-Gigabit-Ethernet. Das Case bleibt
-`WATCHING`; die absolute und Zielobergrenze beträgt ausschließlich 220 EUR.
-Varianten werden nach Barebone/Komplettsystem, RAM, SSD und Netzteil getrennt
-dokumentiert. Andere CPUs, Realtek/i225, weniger als vier Ports und unklare
-Controller gelten nicht als passende Angebote.
+PC-0003 bewertet seit WO-0033 ausschließlich gegen WO-0032. Nach WO-0033-R1
+ist HUNSN RJ42 N100 die Budget Recommendation für die aktuelle Projektphase,
+DEC697 die Best-Value-Fallbackentscheidung und DEC740 die Technical Reference.
+Das Case bleibt `WATCHING`; regulärer Zielpreis und Obergrenze betragen 250
+beziehungsweise 300 EUR. Höhere modellbezogene Grenzen sind dokumentierte,
+freigabepflichtige Ausnahmen. Modell, Konfiguration, EU-Stromversorgung,
+Gewährleistung, Versand und Gesamtpreis müssen je Angebot eindeutig belegt sein.
 
-Aktiviert sind DIGITUS DN-48000/DN-48001/DN-48002 für PC-0002, drei öffentliche
+Aktiviert sind DIGITUS DN-48000/DN-48001/DN-48002 für PC-0002, vier öffentliche
 PC-0003-Quellen, TP-Link TL-SG2218 für PC-0004 und CyberPower OR1000ERM1U für
 PC-0005. Die Quellen sind öffentlich, loginfrei und secret-frei; automatische
 Bestellungen finden nicht statt.
 
 Die konkreten Marktseiten und ihre technische Evidenz sind in
-`config/sources.yaml` hinterlegt. Die aktuelle öffentliche Evidenz umfasst
-einen Komplettsystem-Treffer bei 169,99 EUR, der ausverkauft ist, einen
-Komplettsystem-Treffer ohne auslesbaren Preis sowie Geizhals-Varianten über
-220 EUR. Damit bleibt PC-0003 aktiv in `WATCHING`, aber es entsteht keine
-Kaufempfehlung außerhalb des freigegebenen Budgets.
+`config/sources.yaml` hinterlegt. Der isolierte WO-0033-Live-Test verarbeitete
+vier von vier Quellen ohne Quellenfehler und ordnete drei positive
+Preisbeobachtungen kanonischen Kandidaten zu. Fehlende maschinenlesbare
+Versand-/Gesamtpreise oder Kaufbedingungen halten den Runtime-Status korrekt
+auf `REVIEW`; automatische Bestellungen bleiben ausgeschlossen.
 
 ## Voraussetzungen
 

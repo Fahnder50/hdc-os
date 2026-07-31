@@ -9,7 +9,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 def test_initial_procurement_case_portfolio_has_watching_cases_and_budgets():
     expected = {
         "PC-0002": (120.0, 400.0),
-        "PC-0003": (220.0, 220.0),
+        "PC-0003": (250.0, 300.0),
         "PC-0004": (150.0, 220.0),
         "PC-0005": (170.0, 350.0),
     }
@@ -32,6 +32,8 @@ def test_rwo0012_activates_only_approved_public_sources():
     assert len(by_case["PC-0003"]) >= 2
     firewall = load_yaml_config(next((REPO_ROOT / "30-Procurement" / "cases").glob("PC-0003-*.yaml")))
     assert "market_observation" not in firewall
-    assert firewall["budget"]["absolute_maximum_total_price"] == 220.0
-    assert firewall["requirements"]["cpu"]["value"] == "Intel Processor N100"
-    assert firewall["requirements"]["network_controller"]["value"] == "Intel i226"
+    assert firewall["budget"]["absolute_maximum_total_price"] == 300.0
+    assert firewall["requirements"]["opnsense"]["value"] == "required"
+    assert firewall["requirements"]["wan_lan_separation"]["value"] == "required"
+    assert firewall["requirements"]["network_ports"]["value"] == "at least 2 physically independent Ethernet ports"
+    assert firewall["requirements"]["mandatory_recurring_license"]["value"] == "prohibited"
