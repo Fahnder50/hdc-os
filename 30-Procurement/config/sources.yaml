@@ -19,6 +19,33 @@ sources:
     case_id: PC-0004
     url: https://geizhals.de/tp-link-tl-sg2200-jetstream-rackmount-gigabit-smart-switch-tl-sg2218-a2519275.html
     max_offers: 3
+    canonical_model_id: SG2218
+    variant: V1.30
+    evidence: "Stärkere Referenz; 16x1GbE RJ45 plus 2x SFP; lüfterlos; 19-Zoll; kein PoE."
+  - source_id: pc4-geizhals-tplink-sg2008p-v3
+    adapter: geizhals
+    case_id: PC-0004
+    url: https://geizhals.de/tp-link-tl-sg2000-desktop-gigabit-smart-switch-tl-sg2008p-a2442436.html
+    max_offers: 5
+    canonical_model_id: TL-SG2008P-V3
+    variant: V3
+    evidence: "Empfehlung; exakte Hardwareversion V3 im konkreten Angebot erforderlich; 8x1GbE, davon 4x802.3af/at, 62W, lüfterlos."
+  - source_id: pc4-geizhals-tplink-sg2008-v4
+    adapter: geizhals
+    case_id: PC-0004
+    url: https://geizhals.de/tp-link-tl-sg20-desktop-gigabit-smart-switch-tl-sg2008-a1108239.html
+    max_offers: 3
+    canonical_model_id: TL-SG2008
+    variant: V4
+    evidence: "Wirtschaftlicher Omada-Kandidat ohne PoE; exakte Hardwareversion V4 im Angebot erforderlich."
+  - source_id: pc4-geizhals-zyxel-gs1900-8
+    adapter: geizhals
+    case_id: PC-0004
+    url: https://geizhals.de/zyxel-gs1900-desktop-gigabit-smart-switch-gs1900-8-eu0101f-gs1900-8-gb0101f-a1027658.html
+    max_offers: 3
+    canonical_model_id: GS1900-8
+    variant: EU
+    evidence: "Wirtschaftliche Alternative eines anderen Herstellers; 8x1GbE, lokal verwaltet, lüfterlos, ohne PoE. Exakte EU-SKU im Angebot erforderlich."
   - source_id: geizhals-cyberpower-or1000erm1u
     adapter: geizhals
     case_id: PC-0005

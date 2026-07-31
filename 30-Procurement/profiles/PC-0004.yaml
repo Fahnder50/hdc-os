@@ -1,38 +1,31 @@
 profile_id: PC-0004-managed-switch
 base_profile: profiles/base.yaml
-version: '1.0'
+version: '2.0'
 case_id: PC-0004
 name: Managed Switch
 status: approved
-approved_at: '2026-07-28'
+approved_at: '2026-07-31'
+reviewed_by: Lead Architect
+last_review: '2026-07-31'
 requirements:
-  - {id: PC4-001, title: Managed, description: Verwaltbarer Switch., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-002, title: VLAN, description: VLAN-Unterstützung., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-003, title: Ports, description: Ausreichende Portanzahl., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-004, title: Gigabit, description: Gigabit oder bessere Ports., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-005, title: Energie, description: Geringer Stromverbrauch., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-006, title: Lüfterlos, description: Lüfterloser Betrieb wird bevorzugt., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-007, title: Zielbudget, description: Gesamtpreis maximal 150 EUR., status: CONFIRMED, priority: MUST, validation_type: price, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-008, title: Managementzugang, description: Managementzugang ist dokumentiert., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-009, title: Managementprotokoll, description: Managementprotokoll ist dokumentiert., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-010, title: Konfiguration, description: Konfiguration kann nachvollziehbar gesichert werden., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-011, title: Statusinformationen, description: Betriebsstatus ist auslesbar., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-012, title: Firmware, description: Firmwarestand ist dokumentiert., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-013, title: Lüfterbetrieb, description: Lüftereigenschaften sind dokumentiert., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-014, title: Portgeschwindigkeit, description: Portgeschwindigkeiten werden je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-015, title: Porttyp, description: Porttypen werden je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-016, title: Stromversorgung, description: Stromversorgung wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-017, title: Rackfähigkeit, description: Rack- oder Tischmontage wird je Angebot erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-018, title: Hardwareversion, description: Hardwareversion wird je Angebot erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-019, title: Lieferbarkeit, description: Lieferbarkeit wird je Angebot erfasst., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-020, title: Versandkosten, description: Versandkosten werden im Endpreis berücksichtigt., status: CONFIRMED, priority: MUST, validation_type: price, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-021, title: Garantie, description: Garantie oder Gewährleistung wird je Angebot erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-022, title: Geräusch, description: Geräuschentwicklung wird je Angebot erfasst., status: CONFIRMED, priority: SHOULD, validation_type: evidence, source: {type: project_decision, reference: RWO-0019}}
-  - {id: PC4-P01, title: PoE, description: PoE kann als Variante berücksichtigt werden., status: PROPOSED, priority: PREFERENCE, validation_type: evidence, source: {type: architecture_proposal, reference: RWO-0019}}
-  - {id: PC4-O01, title: Portanzahl, description: Exakte Ziel-Portanzahl ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
-  - {id: PC4-O02, title: PoE-Bedarf, description: PoE-Bedarf ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
-  - {id: PC4-O03, title: Uplink, description: Uplink-Anforderung ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
-  - {id: PC4-O04, title: Montage, description: Endgültige Montageart ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
-  - {id: PC4-O05, title: Reserveports, description: Gewünschte Portreserve ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
-  - {id: PC4-O06, title: Strombudget, description: Verbindliches Strombudget ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: measurement, source: {type: open_decision, reference: RWO-0019}}
-  - {id: PC4-O07, title: Firmwarepolitik, description: Firmwarepolitik ist offen., status: OPEN, priority: INFORMATIONAL, validation_type: decision, source: {type: open_decision, reference: RWO-0019}}
+  - {id: AG01, title: Fully managed, description: Vollständig verwaltbar; unmanaged und ausschließlich cloudverwaltete Geräte sind ausgeschlossen., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: work_order, reference: WO-0034}}
+  - {id: AG02, title: VLAN capability, description: IEEE 802.1Q mit tagged und untagged VLANs, Trunk, portbasierter Zuordnung und separatem Managementzugang., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: architecture, reference: WO-0032}}
+  - {id: AG03, title: Local management, description: Lokale Konfiguration und Betrieb ohne Cloudkonto; Cloud nur optional., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: architecture, reference: WO-0032}}
+  - {id: AG04, title: Port count, description: Mindestens acht physische Ethernet-Ports aus sechs belegten beziehungsweise geplanten Ports plus zwei Reserveports., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: work_order, reference: WO-0034}, value: 8}
+  - {id: AG05, title: Link speed, description: Alle RJ45-Ports mindestens 1 Gbit/s; 2.5 Gbit/s ist optional., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: architecture, reference: WO-0032}}
+  - {id: AG06, title: PoE decision, description: PoE+ ist für Horizon 1 wirtschaftlich sinnvoll; mindestens 30 W je Port und 30 W Gesamtbudget, alternativ Nicht-PoE plus eingepreister Injector., status: CONFIRMED, priority: MUST, validation_type: decision, source: {type: work_order, reference: WO-0034}}
+  - {id: AG07, title: Rack compatibility, description: 19-Zoll-Montage oder definierte Rackablage; Maße, Gewicht, Kühlung und Zubehör sind zu dokumentieren., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: architecture, reference: WO-0032}}
+  - {id: AG08, title: Power and noise, description: Grund- und Maximalverbrauch, PoE-Zusatzlast, Lüfter und Geräusch sind dokumentiert; laute Geräte sind ausgeschlossen., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: work_order, reference: WO-0034}}
+  - {id: AG09, title: Configuration recovery, description: Lokales Backup und Restore oder reproduzierbare CLI/API-Konfiguration., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: architecture, reference: WO-0032}}
+  - {id: AG10, title: Segmentation readiness, description: VLAN-Segmentierung für Client, Server, Management, IoT und Guest ist ohne Aktivierung im ersten Schritt vorbereitbar., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: architecture, reference: WO-0032}}
+  - {id: PG01, title: Horizon 1 economy, description: Die wirtschaftlichste vollständig architekturkonforme Gesamtlösung ist Standardempfehlung., status: CONFIRMED, priority: MUST, validation_type: decision, source: {type: governance, reference: WO-0033-R2}}
+  - {id: PG02, title: System budget, description: Unverbrauchtes Budget wird bevorzugt in Rack, USV, Access Point und andere Systemkomponenten investiert., status: CONFIRMED, priority: MUST, validation_type: decision, source: {type: governance, reference: WO-0033-R2}}
+  - {id: PG03, title: No enterprise premium, description: Mehrpreis für ungenutzte Enterprise-Leistung oder Reserven ist in Horizon 1 nicht zulässig., status: CONFIRMED, priority: MUST, validation_type: decision, source: {type: governance, reference: WO-0033-R2}}
+  - {id: PG04, title: Optional Omada integration, description: Omada ist nur ein Integrationsvorteil und kein Architecture Gate., status: CONFIRMED, priority: MUST, validation_type: decision, source: {type: work_order, reference: WO-0034}}
+  - {id: OF01, title: Complete offer identity, description: Exaktes Modell und Hardwareversion müssen aus dem Angebot hervorgehen., status: CONFIRMED, priority: MUST, validation_type: offer, source: {type: work_order, reference: WO-0034}}
+  - {id: OF02, title: Complete total, description: Produktpreis, Versand, notwendiges Netzteil, Rackzubehör und gegebenenfalls Injector ergeben den Gesamtpreis., status: CONFIRMED, priority: MUST, validation_type: price, source: {type: work_order, reference: WO-0034}}
+  - {id: OF03, title: Seller and availability, description: Anbieter, Verfügbarkeit und Neuwarestatus müssen bekannt sein., status: CONFIRMED, priority: MUST, validation_type: offer, source: {type: work_order, reference: WO-0034}}
+  - {id: OF04, title: Warranty, description: Garantie oder gesetzliche Gewährleistung muss nachvollziehbar sein., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: work_order, reference: WO-0034}}
+  - {id: OF05, title: Manual approval, description: BUY_CANDIDATE entsteht ausschließlich nach Freigabe eines konkreten Angebots durch den Project Owner; keine automatische Bestellung., status: CONFIRMED, priority: MUST, validation_type: decision, source: {type: work_order, reference: WO-0034}}
+  - {id: XG01, title: Access point PoE cross-case gate, description: Der Access Point muss IEEE 802.3af/at und höchstens 30 W je Port unterstützen; andernfalls ist PC-0004 vor dem AP-Kauf neu zu bewerten., status: CONFIRMED, priority: MUST, validation_type: cross_case, source: {type: review_work_order, reference: WO-0034-R1}}
+  - {id: AS01, title: Rack shelf procurement and asset registration, description: Die Rackablage ist Bestandteil des vollständigen Gesamtangebots und wird nach Beschaffung als eigenes oder eindeutig zugeordnetes Rackzubehör in der Asset-Liste geführt., status: CONFIRMED, priority: MUST, validation_type: evidence, source: {type: review_work_order, reference: WO-0034-R1}}

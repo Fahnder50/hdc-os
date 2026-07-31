@@ -1,27 +1,120 @@
 case_id: PC-0004
 title: Managed Switch
 status: WATCHING
+document_status: ACCEPTED
+reviewed_by: Lead Architect
+last_review: '2026-07-31'
+work_order: WO-0034
+architecture_reference: WO-0032
+governance_reference: WO-0033-R2
 requirement_profile: profiles/PC-0004.yaml
-candidate_models:
-  - id: TL-SG2218
-    manufacturer: TP-Link
-    model: TL-SG2218
-    status: active
 priority: high
+current_horizon: Horizon 1
 
 need:
-  description: Geräuscharmer Managed Switch für VLAN und den späteren Ausbau des Netzwerks.
+  description: >-
+    Lokal verwalteter, lüfterloser VLAN-Switch zwischen OPNsense und produktiven
+    Clients sowie dem künftigen Access Point.
+  topology: Speedport -> OPNsense -> Managed Switch -> Clients / Access Point
+
+port_plan:
+  firewall_uplink: 1
+  ps5: 1
+  sky_box: 1
+  access_point: 1
+  hdc_os_host: 1
+  maintenance: 1
+  reserve: 2
+  minimum_physical_rj45_ports: 8
+
+poe_decision:
+  option: A
+  decision: PoE is economically sensible in Horizon 1
+  rationale: >-
+    Ein geplanter Access Point kann mit 802.3af/at zentral aus der Rack-USV
+    versorgt werden. Der beobachtete Mehrpreis der PoE-Variante gegenüber dem
+    günstigsten Nicht-PoE-Kandidaten ist kleiner als oder ähnlich hoch wie ein
+    separater qualifizierter PoE+-Injector einschließlich zusätzlicher
+    Stromversorgung. PoE ist kein Architecture Gate; bei einem günstigeren
+    Gesamtpreis bleibt Nicht-PoE plus Injector zulässig.
+  minimum_standard: IEEE 802.3af/at PoE+
+  minimum_per_port_watts: 30
+  minimum_total_budget_watts: 30
+  selected_budget_watts: 62
+  usable_poe_ports: 4
+  access_point_cross_case_gate:
+    required_standard: IEEE 802.3af/at
+    maximum_per_port_watts: 30
+    total_budget_watts: 62
+    failure_action: Re-evaluate PC-0004 before access point purchase
+
+candidate_models:
+  - id: TL-SG2008
+    manufacturer: TP-Link
+    model: TL-SG2008 V4
+    decision_class: economic_omada
+    status: active
+  - id: TL-SG2008P-V3
+    manufacturer: TP-Link
+    model: TL-SG2008P V3
+    decision_class: omada_poe
+    status: recommended
+  - id: GS1900-8
+    manufacturer: Zyxel
+    model: GS1900-8
+    decision_class: economic_other_vendor
+    status: active
+  - id: SG2218
+    manufacturer: TP-Link
+    model: SG2218 V1.30
+    decision_class: stronger_reference
+    status: reference
 
 budget:
   currency: EUR
   target_price: 150.00
   maximum_total_price: 220.00
   absolute_maximum_total_price: 220.00
+  decision_target_total_price: 100.00
+  decision_hard_total_price: 130.00
+  included_costs:
+    - switch
+    - shipping
+    - required_power_supply
+    - rack_shelf_or_mounting_accessory
+    - poe_injector_if_non_poe
+  rack_shelf:
+    required_in_complete_offer: true
+    asset_registration_required: true
+    asset_type: rack_accessory
+
+decision_policy:
+  horizon: Horizon 1
+  recommended_model: TL-SG2008P-V3
+  manual_buy_approval_required: true
+  strict_wait_on_incomplete_offer: true
+  no_automatic_order: true
+  states:
+    missing_architecture_gate: REJECT
+    missing_required_offer_information: WAIT
+    gates_pass_and_total_within_limit: REVIEW
+    owner_approves_specific_offer: BUY_CANDIDATE
 
 requirements:
-  managed: {value: required, status: open}
-  vlan: {value: required, status: open}
-  sufficient_ports: {value: required, status: open}
-  gigabit_or_better: {value: required, status: open}
-  fanless_preferred: {value: preferred, status: open}
-  low_power_consumption: {value: required, status: open}
+  architecture_gates_ag01_ag10: {value: required, status: confirmed}
+  fully_managed: {value: required, status: confirmed}
+  ieee_802_1q: {value: required, status: confirmed}
+  local_management: {value: required, status: confirmed}
+  minimum_ports: {value: 8, status: confirmed}
+  gigabit_rj45: {value: required, status: confirmed}
+  poe_decision: {value: economically_sensible, status: confirmed}
+  rack_compatibility: {value: rackmount_or_shelf, status: confirmed}
+  fanless: {value: required, status: confirmed}
+  config_backup_restore: {value: required, status: confirmed}
+  vlan_preparation_only: {value: required, status: confirmed}
+  exact_model_required: {value: required, status: confirmed}
+  offer_total_required: {value: required, status: confirmed}
+  availability_required: {value: required, status: confirmed}
+  vendor_and_warranty_required: {value: required, status: confirmed}
+  ap_ieee_802_3af_at_cross_case_gate: {value: required, status: confirmed}
+  rack_shelf_asset_registration: {value: required, status: confirmed}
