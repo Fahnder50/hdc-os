@@ -6,6 +6,7 @@ from procurement_watch.adapters import parse_geizhals
 from procurement_watch.config import resolve_config
 from procurement_watch.delivery import apply_purchase_window, normalize_delivery
 from procurement_watch.services import import_case, run_live_watch
+from watch_test_support import activate_case_for_engine_test
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -65,6 +66,7 @@ def test_live_watch_isolates_one_source_failure_and_writes_report(monkeypatch, t
         repository_root=REPO_ROOT,
     )
     import_case(config, "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    activate_case_for_engine_test(config)
 
     def collect(source, **kwargs):
         if source["source_id"] == "bad":

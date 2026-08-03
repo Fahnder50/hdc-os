@@ -7,6 +7,7 @@ import pytest
 
 from procurement_watch.config import resolve_config
 from procurement_watch.services import add_offer, add_product, import_case, report_case, run_watch
+from watch_test_support import activate_case_for_engine_test
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -37,6 +38,7 @@ def test_shared_import_and_live_all_work_from_src(tmp_path):
 def test_watching_case_without_candidates_fails_with_clear_error(tmp_path):
     source = (REPO_ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml").read_text(encoding="utf-8")
     invalid = tmp_path / "invalid.yaml"
+    source = source.replace("status: PURCHASED", "status: WATCHING", 1)
     invalid.write_text(source.replace("candidate_models:\n", "candidate_models_disabled:\n", 1), encoding="utf-8")
     with pytest.raises(ValueError, match="PC-0001 is WATCHING but defines no candidate models"):
         import_case(resolve_config(environ={"HDC_PROCUREMENT_DB": str(tmp_path / "procurement.db")}, repository_root=REPO_ROOT), invalid)
@@ -48,6 +50,7 @@ def test_unknown_offer_is_quarantined_from_report_and_budget(tmp_path):
         repository_root=REPO_ROOT,
     )
     import_case(config, REPO_ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    activate_case_for_engine_test(config)
     add_product(config, "PROD-UNKNOWN", "Unbewertetes Produkt", model="UNKNOWN-MODEL", case_id="PC-0001")
     add_offer(config, "OFFER-UNKNOWN", "PROD-UNKNOWN", "VENDOR-UNKNOWN", "Händler", "39.99", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
     run_watch(config)

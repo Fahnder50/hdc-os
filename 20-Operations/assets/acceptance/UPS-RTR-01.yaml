@@ -1,0 +1,32 @@
+schema_version: 1
+work_order: WO-0036
+asset_id: UPS-RTR-01
+product_name: Eaton 3S 850 DIN
+known_data:
+  manufacturer: Eaton
+  model: 3S850D
+  infrastructure: gateway
+  mounted_in_rack: false
+  procurement_case: PC-0001
+pending_data:
+  serial_number: PENDING_ACCEPTANCE
+  purchase_date: PENDING_ACCEPTANCE
+  warranty_end: PENDING_ACCEPTANCE
+external_loads:
+  - id: Speedport-Smart-4
+    name: Speedport Smart 4
+    registered_asset: false
+  - id: Telephone
+    name: Telefon
+    registered_asset: false
+  - id: Elspet-Automatic-Litter-Box
+    name: Elspet Automatic Litter Box
+    registered_asset: false
+acceptance_blockers:
+  - serial_number
+  - purchase_date
+  - warranty_end
+  - automatic_battery_operation
+  - mains_return
+  - acceptance_documentation
+production_transition_allowed: false

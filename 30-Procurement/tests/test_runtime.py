@@ -9,6 +9,7 @@ from procurement_watch.backup import backup_database, restore_database
 from procurement_watch.adapters import AdapterError, collect_source, parse_json_ld_file
 from procurement_watch.events import EVENT_SEVERITIES, EVENT_TYPES, classify_event, emit_event
 from procurement_watch.services import add_offer, add_product, case_status, current_events, doctor, import_case, init_database, offers_for_case, procurement_status, recent_watch_runs, run_watch, history_for_case
+from watch_test_support import activate_case_for_engine_test
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -189,6 +190,7 @@ def test_pc001_import_products_offers_history_and_evaluation(tmp_path):
     config = resolve_config(environ={"HDC_PROCUREMENT_DB": str(tmp_path / "procurement.db")}, repository_root=REPO_ROOT)
     case_path = "30-Procurement/cases/PC-0001-Router-USV.yaml"
     imported = import_case(config, case_path)
+    activate_case_for_engine_test(config)
     assert imported["case_id"] == "PC-0001"
     add_product(
         config,
@@ -274,6 +276,7 @@ def test_json_ld_source_can_bind_an_exact_canonical_model(monkeypatch):
 def test_event_deduplication_for_unknown_requirements(tmp_path):
     config = resolve_config(environ={"HDC_PROCUREMENT_DB": str(tmp_path / "procurement.db")}, repository_root=REPO_ROOT)
     import_case(config, "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    activate_case_for_engine_test(config)
     add_product(config, "PROD-UNKNOWN", "Unbewertetes Produkt", case_id="PC-0001")
     add_offer(config, "OFFER-UNKNOWN", "PROD-UNKNOWN", "VENDOR-UNKNOWN", "Händler", "39.99", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
     run_watch(config)
@@ -315,6 +318,7 @@ def test_watch_run_writes_report_and_structured_log(tmp_path):
         repository_root=REPO_ROOT,
     )
     import_case(config, "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    activate_case_for_engine_test(config)
     result = run_watch(config)
     report = config.reports_path / "PC-0001.html"
     log_file = config.logs_path / "procurement-watch.jsonl"

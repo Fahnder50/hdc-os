@@ -41,7 +41,7 @@ def run_watch(config, simulate_failure=False):
             (run_id, started_at, "running"),
         )
         database_run_id = connection.execute("SELECT id FROM watch_runs WHERE watch_run_id = ?", (run_id,)).fetchone()[0]
-        for case in connection.execute("SELECT case_id FROM procurement_cases WHERE status NOT IN ('closed', 'cancelled')"):
+        for case in connection.execute("SELECT case_id FROM procurement_cases WHERE status = 'WATCHING'"):
             case_db_id = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case["case_id"],)).fetchone()[0]
             _quarantine_unmatched_offers(connection, case_db_id)
             evaluate_case(connection, case["case_id"], database_run_id)
@@ -57,7 +57,7 @@ def run_watch(config, simulate_failure=False):
             (ended_at, result_status, int(simulate_failure), database_run_id),
         )
         connection.commit()
-        active_cases = [row["case_id"] for row in connection.execute("SELECT case_id FROM procurement_cases WHERE status NOT IN ('closed', 'cancelled')")]
+        active_cases = [row["case_id"] for row in connection.execute("SELECT case_id FROM procurement_cases WHERE status = 'WATCHING'")]
         for case_id in active_cases:
             report_data = case_report_data(config, case_id)
             write_case_report(config, report_data)
@@ -273,6 +273,17 @@ def _save_live_offer(connection, normalized, case_db_id, observed_at, required_b
 
 def run_live_watch(config, case_id):
     initialize(config)
+    status_connection = connect(config)
+    try:
+        case_status_row = status_connection.execute(
+            "SELECT status FROM procurement_cases WHERE case_id = ?", (case_id,)
+        ).fetchone()
+    finally:
+        status_connection.close()
+    if case_status_row is None:
+        raise ValueError(f"Unknown case: {case_id}")
+    if case_status_row["status"] != "WATCHING":
+        raise ValueError(f"{case_id} is not active for watching (status {case_status_row['status']}).")
     _backfill_journal(config)
     sources_document = load_yaml_config(config.sources_path)
     policy_document = load_yaml_config(config.policy_path) if config.policy_path.exists() else {}
@@ -285,7 +296,7 @@ def run_live_watch(config, case_id):
     offer_count = 0
     observation_count = 0
     try:
-        case = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
+        case = connection.execute("SELECT id, status FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
         if case is None:
             raise ValueError(f"Unknown case: {case_id}")
         candidate_ids = set(_candidate_model_ids(connection, case[0]))
@@ -435,6 +446,10 @@ def import_case(config, path):
     connection = connect(config)
     try:
         now = utc_now()
+        existing_case = connection.execute(
+            "SELECT id, status FROM procurement_cases WHERE case_id = ?", (document["case_id"],)
+        ).fetchone()
+        preserve_closed_history = existing_case is not None and document["status"] != "WATCHING"
         connection.execute(
             """
             INSERT INTO procurement_cases(case_id, title, status, priority, created_at, updated_at)
@@ -445,9 +460,10 @@ def import_case(config, path):
             (document["case_id"], document["title"], document["status"], document["priority"], now, now),
         )
         case_db_id = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (document["case_id"],)).fetchone()[0]
-        connection.execute("DELETE FROM requirement_profiles WHERE case_id = ?", (case_db_id,))
-        connection.execute("DELETE FROM requirements WHERE case_id = ?", (case_db_id,))
-        connection.execute("DELETE FROM evaluations WHERE case_id = ?", (case_db_id,))
+        if not preserve_closed_history:
+            connection.execute("DELETE FROM requirement_profiles WHERE case_id = ?", (case_db_id,))
+            connection.execute("DELETE FROM requirements WHERE case_id = ?", (case_db_id,))
+            connection.execute("DELETE FROM evaluations WHERE case_id = ?", (case_db_id,))
         budget = document["budget"]
         _upsert_requirement(connection, case_db_id, "budget_currency", budget.get("currency"), "PASS")
         for policy_key in ("required_by_date", "target_date", "preferred_shipping_purchase_by", "shipping_purchase_exception_date"):
@@ -457,7 +473,7 @@ def import_case(config, path):
         _upsert_requirement(connection, case_db_id, "budget_target_price", budget.get("target_price"), "PASS")
         _upsert_requirement(connection, case_db_id, "budget_maximum_total_price", budget.get("maximum_total_price"), "PASS")
         _upsert_requirement(connection, case_db_id, "budget_absolute_maximum_total_price", budget.get("absolute_maximum_total_price"), "PASS")
-        if profile:
+        if profile and not preserve_closed_history:
             connection.execute(
                 "INSERT INTO requirement_profiles(case_id, profile_id, name, status, version, approved_at, criteria_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (case_db_id, profile.profile_id, profile.name, profile.status, profile.version, profile.approved_at, json.dumps(profile.requirements), now, now),
@@ -870,6 +886,9 @@ def case_status(config, case_id):
             recommendation = "BUY_CANDIDATE"
         else:
             recommendation = "EVALUATING"
+        if case["status"] != "WATCHING":
+            recommendation = "CLOSED"
+            conditional_buy = []
         required_open = [row[0] for row in connection.execute("SELECT requirement_id FROM requirements WHERE case_id = ? AND status IN ('OPEN', 'UNKNOWN')", (case["id"],)).fetchall()]
         requirement_facts = [
             {"id": item["id"], "title": item["title"], "description": item["description"], "status": item["status"], "priority": item["priority"]}
@@ -929,6 +948,7 @@ def case_status(config, case_id):
             row["total_price"] = row["total_price_cents"] / 100 if row["total_price_cents"] is not None else None
         return {
             "case_id": case["case_id"], "title": case["title"], "priority": case["priority"],
+            "case_status": case["status"], "watch_enabled": case["status"] == "WATCHING",
             "budget": budget_cents / 100 if budget_cents is not None else None,
             "budget_target": target_budget_cents / 100 if target_budget_cents is not None else None,
             "best_observed_price": best_observed_price / 100 if best_observed_price is not None else None,

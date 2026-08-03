@@ -1,7 +1,17 @@
 case_id: PC-0001
 title: USV für Internet-Gateway
-status: WATCHING
+status: PURCHASED
 priority: critical
+closed_by_work_order: WO-0036
+closed_at: '2026-08-03'
+reviewed_by: Lead Architect
+last_review: '2026-08-03'
+watch_enabled: false
+recommendations_enabled: false
+operations_handover:
+  asset_id: UPS-RTR-01
+  asset_status: ACCEPTANCE
+  registry: 20-Operations/assets/registry.yaml
 
 candidate_models:
   - id: 3S700D

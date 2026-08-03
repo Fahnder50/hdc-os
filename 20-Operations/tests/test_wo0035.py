@@ -118,7 +118,7 @@ def test_router_ups_is_registered_in_acceptance_and_not_rack_infrastructure():
     )
     assert registry.lookup("UPS-RTR-01").status == "ACCEPTANCE"
     assert asset.infrastructure == "gateway" and asset.mounted_in_rack is False
-    assert asset.powers == ("Speedport-Smart-4",)
+    assert asset.powers == ("Speedport-Smart-4", "Telephone", "Elspet-Automatic-Litter-Box")
     assert blockers and not asset.acceptance.passed
     with pytest.raises(AssetValidationError, match="complete asset identity"):
         asset.transition("PRODUCTION", acceptance=passed_acceptance())

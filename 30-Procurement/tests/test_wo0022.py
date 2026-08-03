@@ -29,10 +29,10 @@ def test_portfolio_watch_continues_after_case_failure(monkeypatch, tmp_path):
 
     monkeypatch.setattr(services, "run_live_watch", fake_watch)
     result = portfolio_watch(config)
-    assert called == ["PC-0001", "PC-0002", "PC-0003", "PC-0004", "PC-0005"]
+    assert called == ["PC-0002", "PC-0003", "PC-0004", "PC-0005"]
     assert result["status"] == "completed_with_warnings"
     assert result["error_count"] == 1
-    assert result["cases"][3]["status"] == "FAILED"
+    assert result["cases"][2]["status"] == "FAILED"
 
 
 def test_portfolio_status_counts_active_case_recommendations(tmp_path):
@@ -40,8 +40,8 @@ def test_portfolio_status_counts_active_case_recommendations(tmp_path):
     import_case(config, REPO_ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
     result = portfolio_status(config)
     assert result["initialized"] is True
-    assert result["active_cases"] == 1
-    assert result["statuses"]["NO_CANDIDATE"] == 1
+    assert result["active_cases"] == 0
+    assert result["statuses"] == {}
     assert result["last_run"] is None
 
 

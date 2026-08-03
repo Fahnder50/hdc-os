@@ -5,6 +5,7 @@ from procurement_watch.config import load_yaml_config
 from procurement_watch.requirements import parse_requirement_profile
 from procurement_watch.decision_summary_adapter import build_procurement_decision_summary
 from procurement_watch.services import add_offer, add_product, case_status, import_all_cases, import_case, report_case, run_watch
+from watch_test_support import activate_case_for_engine_test
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -166,6 +167,7 @@ def test_pc0001_missing_runtime_evidence_is_blocking(tmp_path):
 def test_no_candidate_report_explains_candidate_exclusion(tmp_path):
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    activate_case_for_engine_test(config)
     report = report_case(config, "PC-0001").read_text(encoding="utf-8")
     assert case_status(config, "PC-0001")["recommendation_status"] == "NO_CANDIDATE"
     assert "Kein passendes Kandidatenangebot" in report
@@ -246,6 +248,7 @@ def test_no_offer_and_ranked_prices_cannot_coexist(tmp_path):
 def test_blocking_must_not_verified_prevents_conditional_buy(tmp_path):
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    activate_case_for_engine_test(config)
     add_product(config, "BLOCKING", "Blocking", model="BX750MI-GR", case_id="PC-0001")
     add_offer(config, "BLOCKING-OFFER", "BLOCKING", "BLOCK-VENDOR", "B", "70.68", "0", "EUR", "in_stock", "manual", case_id="PC-0001")
     run_watch(config)
@@ -295,6 +298,7 @@ def test_live_watch_reports_survive_pytest(tmp_path):
     before = _production_journal_snapshot()
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    activate_case_for_engine_test(config)
     run_watch(config)
     assert (config.reports_path / "PC-0001.html").exists()
     assert _production_journal_snapshot() == before
@@ -304,6 +308,7 @@ def test_live_report_contains_no_fixture_candidate_ids(tmp_path):
     fixture_ids = ("BLOCKING-OFFER", "VALID-OFFER", "FIXTURE-OFFER-001")
     config = _runtime_config(tmp_path)
     import_case(config, ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
+    activate_case_for_engine_test(config)
     run_watch(config)
     content = (config.reports_path / "PC-0001.html").read_text(encoding="utf-8")
     assert not any(fixture_id in content for fixture_id in fixture_ids)
