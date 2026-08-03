@@ -6,7 +6,9 @@ owner: Project Owner
 reviewed_by: Lead Architect
 last_review: "2026-08-03"
 work_order: WO-0036
-related_release: knowledge-v1.4.3
+release_reference: knowledge-v1.4.4
+last_updated: "2026-08-03"
+supersedes_release: knowledge-v1.4.3
 classification: Workspace
 ---
 

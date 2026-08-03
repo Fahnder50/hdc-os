@@ -1,3 +1,16 @@
+---
+document: PC-0004-Managed-Switch-Decision.md
+work_order: WO-0034-R1
+version: 1.1
+status: Accepted
+owner: Project Owner
+reviewed_by: Lead Architect
+last_review: "2026-07-31"
+release_reference: knowledge-v1.4.4
+last_updated: "2026-08-03"
+classification: Workspace
+---
+
 # PC-0004 – Managed Switch Decision
 
 | Feld | Wert |
@@ -281,9 +294,10 @@ VLAN-Aktivierung und Netzwerkumbau liegen ausdrücklich außerhalb dieses Cases.
 Es gibt keine impliziten Annahmen. Folgende Punkte bleiben explizit offen und
 werden als Angebots- beziehungsweise Cross-Case-Gates behandelt:
 
-1. Das konkrete Access-Point-Modell aus PC-0005 ist noch nicht festgelegt. Vor
-   dessen Kauf sind IEEE-Standard und Maximalleistung gegen 802.3af/at, 30 W je
-   Port und 62 W Gesamtbudget zu prüfen.
+1. Das konkrete Access-Point-Modell und der zugehörige Procurement Case sind
+   noch nicht festgelegt. Vor dessen Kauf sind IEEE-Standard und
+   Maximalleistung gegen 802.3af/at, 30 W je Port und 62 W Gesamtbudget zu
+   prüfen. PC-0005 bleibt ausschließlich der Rack-USV zugeordnet.
 2. Rackmodell und verfügbare Ablagefläche stammen aus PC-0002. Vor Freigabe muss
    eine Ablage mit mindestens 209×126 mm Stellfläche, ausreichender Traglast und
    Luftzirkulation bestätigt, im Gesamtangebot eingepreist und für die spätere

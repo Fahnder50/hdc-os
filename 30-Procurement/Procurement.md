@@ -1,280 +1,129 @@
-﻿---
+---
 document: Procurement.md
-version: 1.0
+version: 1.4.4-baseline
 status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
-last_review: "2026-07-10"
+last_review: "2026-08-03"
+release_reference: knowledge-v1.4.4
+last_updated: "2026-08-03"
 classification: Workspace
 ---
 
 # Procurement
 
-## M2.2-Architektur
+## Repository Baseline
 
-Die verbindliche Zielarchitektur und die Ausführungsverträge für den Procurement Watch sind in den folgenden Dokumenten beschrieben:
+| Feld | Stand |
+|---|---|
+| Release | `knowledge-v1.4.4` |
+| Sprint | Sprint 4 – First Deployment |
+| Abgeschlossene Grundlage | Procurement Foundation und Operations Transition für PC-0001 |
+| Aktueller Fokus | PC-0002 bis PC-0005 zur konkreten Horizon-1-Kaufentscheidung führen |
+
+## Zweck und Governance
+
+Procurement übersetzt die Accepted-Architektur in nachvollziehbare,
+wirtschaftliche Kaufentscheidungen. In Horizon 1 gilt die günstigste vollständig
+architekturkonforme Lösung als Standard. Ungenutzte Leistungsreserven,
+Enterprise-Klasse oder Herstellerstatus rechtfertigen keinen Mehrpreis.
+
+Der Watch beobachtet und bewertet; er bestellt nicht. Der Project Owner gibt ein
+konkretes Angebot frei. Mit `PURCHASED` endet Procurement. Danach ist
+ausschließlich die Asset Registry für Acceptance und Betriebsstatus maßgeblich.
+
+## Aktuelles Portfolio
+
+| Case | Status | Entscheidung / nächster Schritt |
+|---|---|---|
+| PC-0001 Router-USV | **PROCUREMENT COMPLETED (`PURCHASED`)** | Eaton 3S850D an `UPS-RTR-01` übergeben; kein Watch und keine neue Kaufempfehlung |
+| PC-0002 Rack | WATCHING | Digitus DN-48000/48001/48002; Requirements und Gesamtentscheidung noch offen |
+| PC-0003 Firewall | WATCHING | Horizon-1-Standard ist ein vollständig qualifiziertes HUNSN RJ42 N100-Angebot; andernfalls `WAIT` |
+| PC-0004 Managed Switch | WATCHING | TL-SG2008P V3 als Horizon-1-Standard; vollständiges Angebot abwarten |
+| PC-0005 Rack-USV | WATCHING | CyberPower OR1000ERM1U beobachtet; Requirements noch offen |
+
+PC-0001 bleibt mit Preis-, Händler-, Entscheidungs-, Report- und
+Beschaffungshistorie erhalten. Es wird nicht mehr ausgewertet. PC-0002 bis
+PC-0005 bilden das aktive Watch-Portfolio.
+
+## PC-0003 – Firewallstrategie
+
+Aktuelle Projektphase ist Horizon 1 – Initial Build. Standardempfehlung ist
+HUNSN RJ42 N100 als vollständiges Neugerät mit mindestens 8 GB RAM, 128 GB NVMe,
+vier Intel-i226-V-2.5GbE-Ports, EU-Netzteil, Gewährleistung, Lieferbarkeit und
+bekanntem Gesamtpreis.
+
+| Grenze | Wert |
+|---|---:|
+| Zielpreis | 250 EUR |
+| Reguläre harte Gesamtgrenze | 300 EUR |
+
+DEC697 ist nur ein dokumentierter Fallback bei bestätigtem Sofortbedarf und
+fehlendem qualifiziertem Budgetangebot. DEC740 ist Technical Reference. Höhere
+Leistung oder theoretische Reserven lösen in Horizon 1 keine Hochstufung aus.
+Verbindliche Details stehen in der
+[Firewall-Entscheidung](cases/PC-0003-Firewall-Appliance-Decision.md).
+
+## PC-0004 – Switchstrategie
+
+Horizon-1-Standard ist der lüfterlose TP-Link TL-SG2008P V3 mit acht
+Gigabit-Ports, lokaler Verwaltung und vier IEEE-802.3af/at-PoE+-Ports.
+
+| Grenze | Wert |
+|---|---:|
+| Entscheidungszielpreis einschließlich Pflichtzubehör | 100 EUR |
+| Harte Gesamtgrenze | 130 EUR |
+
+Rackablage, Versand und notwendiges Netzteil gehören zum Gesamtangebot und die
+Rackablage später in die Asset-Liste. Verbindliches Cross-Case-Gate: Der Access
+Point muss IEEE 802.3af/at unterstützen und innerhalb von 30 W je Port sowie
+62 W Gesamtbudget bleiben; andernfalls ist PC-0004 vor AP-Kauf neu zu bewerten.
+Details: [Managed-Switch-Entscheidung](cases/PC-0004-Managed-Switch-Decision.md).
+
+## PC-0005 – Rack-USV
+
+PC-0005 bleibt `WATCHING`. CyberPower OR1000ERM1U ist der aktuelle Kandidat;
+Zielpreis 170 EUR, maximale Gesamtgrenze 350 EUR. Rackmontage, Laufzeit,
+Monitoring, Linux-Kompatibilität, Erweiterbarkeit und reale Racklasten sind noch
+offene Requirements. Es gibt noch keine Kaufentscheidung.
+
+## Preis- und Entscheidungslogik
+
+1. Architecture Gates müssen vollständig PASS sein.
+2. Exaktes Modell, Neuware, Verfügbarkeit, Händler, Garantie, Versand,
+   Stromversorgung und Gesamtpreis müssen bekannt sein.
+3. Fehlendes Gate führt zu Ablehnung; fehlende Angebotsdaten zu `WAIT`.
+4. Ein vollständiges Angebot innerhalb der Grenze wird zur Review vorgelegt.
+5. Erst die Freigabe des konkreten Angebots durch den Project Owner macht es zum
+   Kaufkandidaten.
+6. Es gibt keine automatische Bestellung.
+
+Das Portfolio-Gesamtbudget beträgt 2.000 EUR. Freies Budget soll den
+Gesamtfortschritt – Rack, Switch, USV, AP, Storage und Monitoring – fördern,
+nicht einzelne Komponenten früh überdimensionieren.
+
+## Übergang zu Operations
+
+```text
+WATCHING → freigegebenes Angebot → PURCHASED
+                                      ↓
+                            Asset ACCEPTANCE → PRODUCTION
+```
+
+Der Übergang von PC-0001 ist in
+[WO-0036](../20-Operations/WO-0036-Procurement-to-Asset-Handover.md)
+dokumentiert. Assetzustände werden niemals aus Procurement abgeleitet.
+
+## Architektur und Runtime
 
 - [Procurement-Architektur](architecture/Procurement-Architecture.md)
 - [Datenmodell](architecture/Data-Model.md)
 - [Ausführungsmodell](architecture/Execution-Model.md)
-- [ADR-M2.2-Procurement-Foundation](../10-Engineering/Architecture/ADR-M2.2-Procurement-Foundation.md)
+- [Runtime-Betrieb](README.md)
 
-Die Dokumente sind der Architekturstand von WO-0015. Runtime-Code, Datenbank, Adapter, CLI und Reports sind darin nur als Folgearbeiten eingeordnet.
+## Historischer Hinweis
 
-## Zweck
-
-Dieses Dokument sammelt die in Sprint 1 bekannten Procurement-Erkenntnisse für HDC-OS.
-
-Es dokumentiert festgelegte Entscheidungen, provisorische Arbeitswerte, diskutierte Inhalte und offene Punkte getrennt voneinander. Es trifft keine neuen Beschaffungsentscheidungen.
-
----
-
-## Überwachte Produktgruppen
-
-| Produktgruppe | Status | Favorit oder bekannter Stand | Offene Modellwahl |
-|---------------|--------|------------------------------|-------------------|
-| Rack | Festgelegte Produktgruppe | Extralink 12U Rack als Favorit | konkretes Angebot bleibt zu prüfen |
-| Firewall-Appliance | Festgelegte Produktgruppe | Intel-N100-Appliance mit vier Intel-i226-Ports | konkretes Fabrikat offen |
-| Switch | Festgelegte Produktgruppe | TP-Link Omada SG2218 | für Horizon 1 als ausreichend bewertet |
-| Rack-USV | Festgelegte Produktgruppe | Versorgung der Kernkomponenten im Rack | konkretes Modell offen |
-| Router-USV | Festgelegte Produktgruppe | separate USV für Speedport Smart 4 | konkretes Modell offen |
-
-Diese Produktgruppen bilden die bekannte Hardware-Vorauswahl aus Sprint 1.
-
----
-
-## Provisorische Preisgrenzen
-
-Die folgenden Werte sind provisorische, noch nicht formal freigegebene Watch-Arbeitswerte.
-
-Sie sind keine verbindlichen Kaufpreise und keine automatische Kaufentscheidung.
-
-| Komponente | Zielpreis | Maximalpreis |
-|------------|----------:|-------------:|
-| Extralink Rack | 120 € | 150 € |
-| N100-Firewall | 220 € | 260 € |
-| TP-Link Omada SG2218 | 150 € | 180 € |
-| Rack-USV | 170 € | 220 € |
-| Router-USV | noch nicht festgelegt | noch nicht festgelegt |
-
-Zielpreis bedeutet: Kauf prüfen.
-
----
-
-## Gesamtbudget
-
-Das bekannte Horizon-1-Gesamtbudget beträgt maximal 2.000 €.
-
-Dieses Gesamtbudget wurde in Sprint 1 festgelegt.
-
-Teilbudgets sind nicht abschließend freigegeben.
-
-Die Firewall befindet sich voraussichtlich am oberen Rand ihres vorgesehenen Teilbudgets.
-
----
-
-## Technische Mindestanforderungen
-
-### Rack
-
-Status: festgelegte Mindestanforderungen aus Sprint 1.
-
-- ungefähr 12 HE
-- kompakt und wohnraumtauglich
-- keine zwingende Wandmontage
-- transportabel, idealerweise rollbar
-- Platz für Firewall, Switch, Kabelmanagement, USV und spätere Kernkomponenten
-- leise beziehungsweise ohne störende aktive Komponenten
-
-### Firewall
-
-Status: festgelegte Mindestanforderungen aus Sprint 1.
-
-- dedizierte Appliance
-- Intel N100 als Zielplattform
-- vier Intel-i226-Ethernetports
-- OPNsense-kompatibel
-- energieeffizient und leise
-- ausreichend für 200-Mbit/s-DSL einschließlich Sicherheitsdiensten und Reserven
-- VLAN- und VPN-fähig
-- NordVPN optional als VPN-Gateway nutzbar
-- kein dauerhaftes Firewall-Hosting auf einem täglich genutzten Laptop
-
-### Switch
-
-Status: festgelegte Mindestanforderungen aus Sprint 1.
-
-- managed
-- VLAN-fähig
-- Omada-Integration
-- ausreichende Portzahl für Firewall, PS5, Arbeitsgeräte, Access Points und Wachstum
-- SG2218 wurde für Horizon 1 als ausreichend bewertet
-
-### Rack-USV
-
-Status: festgelegte Mindestanforderungen aus Sprint 1.
-
-- Versorgung der Kernkomponenten im Rack
-- Überbrückung kurzer Stromausfälle
-- Unterstützung eines kontrollierten Herunterfahrens
-- wohnraumgeeignet
-- Monitoring beziehungsweise automatisierte Shutdown-Unterstützung erwünscht
-
-### Router-USV
-
-Status: festgelegte Mindestanforderungen aus Sprint 1.
-
-- separate kompakte USV am Routerstandort
-- möglichst unauffällige Installation
-- kompatibel mit Speedport Smart 4
-- Erhalt des Router- und Internetbetriebs bei kurzen Stromausfällen
-
----
-
-## Händlerregeln
-
-Status: in Sprint 1 verwendet, aber noch nicht als formale Procurement Policy freigegeben.
-
-Festgehalten:
-
-- Es gibt keine namentlich bevorzugten Händler.
-- Es gibt keine namentlich ausgeschlossenen Händler.
-- Seriöse Händler sind zu bevorzugen.
-- Gesamtangebote, Mengenrabatte, Gutscheine, Cashback und Versandkosten sind einzubeziehen.
-- Der niedrigste Einzelpreis ist nicht allein entscheidend.
-
-Ausschlusskriterien:
-
-- zweifelhafte Marktplatzanbieter
-- unklare Gewährleistung
-- nicht nachvollziehbare Importware
-- schlechte Rückgabe- oder Supportbedingungen
-- unklare Netzwerkkartenbestückung
-- unkalkulierbare Zoll- oder Versandkosten
-
----
-
-## Verworfene oder zurückgestellte Alternativen
-
-### Verworfen beziehungsweise nicht weiterverfolgt
-
-- wandmontiertes Rack
-- großes Rack als Horizon-1-Standard
-- Austausch des Speedport Smart 4
-- Solar beziehungsweise Balkonkraftwerk als früher Bestandteil
-- sofortiger Server- oder NAS-Kauf
-- Laptop als dauerhafte produktive Firewall
-
-### Noch offen
-
-- konkretes Fabrikat der N100-Firewall
-- konkretes Rack-USV-Modell
-- konkretes Router-USV-Modell
-- Omada-Access-Point und Anzahl der Access Points
-- Compute- und NAS-Hardware
-
----
-
-## Prüfintervall und Watch-Status
-
-Status: in Sprint 1 eingerichtet und verwendet.
-
-- Prüfung einmal täglich
-- bisheriger Lauf ungefähr 09:00 Uhr Europe/Berlin
-- Watch aktiviert
-- Benachrichtigungen und E-Mail-Ausgabe derzeit deaktiviert
-- letzter bekannter protokollierter Lauf: 9. Juli 2026
-
-Der Watch soll beobachten:
-
-- Preisrückgänge
-- Gutscheine
-- Cashback
-- Lieferbarkeit
-- seriöse Alternativangebote
-- gute Kaufzeitpunkte
-
----
-
-## Kaufregeln
-
-Die Drei-Ampel-Regel aus Sprint 1 lautet:
-
-1. Architektur passt.
-2. Technik erfüllt die Anforderungen.
-3. Wirtschaftlichkeit und Zeitpunkt sind sinnvoll.
-
-Zusätzlich gilt:
-
-- kein Impulskauf
-- kurzfristiger Bedarf muss bestehen
-- 2.000-€-Gesamtbudget muss eingehalten werden
-- niedriger Preis allein reicht nicht
-- Zielpreis bedeutet „Kauf prüfen“, nicht automatischer Kauf
-- finale Freigabe erfolgt durch den Project Owner
-- Gesamtbetriebskosten, Garantie, Händlerqualität und Zukunftsfähigkeit zählen mit
-- keine Beschaffung, die wichtigere Komponenten finanziell gefährdet
-
----
-
-## Reaktion auf Preisänderungen
-
-### Kleine Preisänderung
-
-Kleine Preisänderungen werden beobachtet und dokumentiert.
-
-Sie lösen keine Kaufempfehlung aus.
-
-### Deutliche Preissenkung
-
-Deutliche Preissenkungen werden als relevanter Watch-Hinweis behandelt.
-
-Sie können eine erneute Bewertung auslösen.
-
-### Zielpreis erreicht oder unterschritten
-
-Wenn ein Zielpreis erreicht oder unterschritten wird, darf ausschließlich der Status Buy Candidate beziehungsweise „Kauf prüfen“ vergeben werden.
-
-Ein automatischer Kauf ist ausgeschlossen.
-
-### Preisanstieg
-
-Preisanstiege werden beobachtet.
-
-Sie können die Bewertung des Kaufzeitpunkts verschlechtern.
-
-### Gutschein oder Cashback
-
-Gutscheine und Cashback werden in die Gesamtbewertung einbezogen.
-
-Entscheidend ist der nachvollziehbare Gesamtpreis einschließlich Versand und Bedingungen.
-
----
-
-## Fehlende Historie
-
-Die Watch wurde eingerichtet und ausgeführt.
-
-Mehrfach wurden keine außergewöhnlichen Preisbewegungen festgestellt.
-
-Es existiert keine belastbare Preiszeitreihe.
-
-Händlerpreise, Zeitstempel und historische Bestpreise wurden nicht strukturiert gespeichert.
-
-Die bisherige Historie ist deshalb nicht rekonstruierbar.
-
-### Zukünftige Mindestfelder einer Beobachtung
-
-Status: erkannte Anforderung für eine nachfolgende Procurement-Watch-Work-Order, nicht implementierte Funktion.
-
-- Datum
-- Komponente
-- genaues Produkt
-- Händler
-- Preis einschließlich Versand
-- Gutschein oder Cashback
-- Verfügbarkeit
-- bisheriger Tiefstpreis
-- Zielpreis
-- Empfehlung
-- Quelle
+Die frühere Sprint-1-Vorauswahl – insbesondere Extralink Rack, pauschaler
+Intel-N100-Favorit, SG2218 als Horizon-1-Switch und eine offene Router-USV – ist
+superseded. Historische Entscheidungsgrundlagen bleiben in Git, den Case-Dateien
+und den Sprint-/Knowledge-Dokumenten erhalten.

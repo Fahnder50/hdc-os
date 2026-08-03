@@ -1,289 +1,123 @@
-﻿---
+---
 document: Infrastructure.md
-version: 1.0
+version: 1.4.4-baseline
 status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
-last_review: "2026-07-10"
+last_review: "2026-08-03"
+release_reference: knowledge-v1.4.4
+last_updated: "2026-08-03"
 classification: Workspace
 ---
 
-# Infrastruktur
+# Operations und Infrastruktur
 
-## Zweck
+## Repository Baseline
 
-Dieses Dokument überführt die in Sprint 1 bekannten Infrastruktur-Erkenntnisse in den Workspace.
-
-Es trifft keine neuen Architekturentscheidungen. Festgelegte Grundsätze, diskutierte Inhalte und offene Detailentscheidungen werden getrennt dokumentiert.
-
----
+| Feld | Stand |
+|---|---|
+| Release | `knowledge-v1.4.4` |
+| Sprint | Sprint 4 – First Deployment |
+| Abgeschlossene Grundlage | Network Design, Infrastructure Core, Asset Lifecycle und erster Handover |
+| Aktueller Fokus | Router-USV-Acceptance und Vorbereitung des ersten realen Netzwerkpfads |
 
 ## Betriebsziel
 
-HDC-OS soll eine sichere, nachvollziehbare und langfristig erweiterbare IT-Infrastruktur unterstützen.
+HDC-OS baut in Horizon 1 einen kleinen, vollständig lokalen und sicher
+betreibbaren Infrastrukturpfad auf. Aktuelles Zwischenziel:
 
-Für Horizon 1 steht eine kleine, nutzbare und verständliche Grundlage im Vordergrund.
+> Ein Laptop nutzt per LAN oder WLAN hinter der OPNsense-Firewall sicher das
+> Internet; Speedport Smart 4 bleibt DSL-Gateway und Telefonie funktioniert
+> unverändert.
 
-Andere Haushaltsmitglieder sollen bei Ausfall der HDC-OS-Infrastruktur möglichst keine sichtbare Einschränkung erfahren.
+Die verbindliche Architektur steht im
+[Network Design v0.1](Network-Design-v0.1.md).
 
-Angestrebte maximale Ausfalldauer: 15 Minuten.
+## Aktueller physischer Zustand
 
----
+| Standort | Komponente | Status |
+|---|---|---|
+| Routerstandort außerhalb des Arbeitszimmers | Speedport Smart 4 und Telefonie | vorhanden und in Betrieb |
+| Routerstandort | Eaton 3S850D / `UPS-RTR-01` | geliefert, `ACCEPTANCE`, noch nicht produktiv freigegeben |
+| Verbindung zum Arbeitszimmer | ein Ethernet-Kabel | vorhanden; später OPNsense-WAN-Uplink |
+| Arbeitszimmer | unmanaged Netgear Switch | bestehender Ist-Zustand |
+| Arbeitszimmer | PS5, Sky Box, Laptop | vorhandene Clients |
+| Arbeitszimmer | Rack, OPNsense, Managed Switch, Rack-USV, AP | noch nicht beschafft beziehungsweise aufgebaut |
 
-## Grundtopologie
+Die Router-USV versorgt Speedport, Telefon und Elspet Automatic Litter Box. Die
+drei Verbraucher sind externe Lasten; nur die USV ist ein HDC-OS-Asset.
 
-Status: in Sprint 1 festgelegt.
+## Zielarchitektur
 
 ```text
-Internet
-  ↓
-Speedport Smart 4
-  ↓
-dedizierte OPNsense-Firewall
-  ↓
-TP-Link Omada SG2218
-  ↓
-Access Points, kabelgebundene Geräte und spätere Infrastruktur
+Telekom DSL
+  → Speedport Smart 4 (Telefonie bleibt hier)
+  → OPNsense WAN
+  → OPNsense LAN
+  → Managed Switch
+      → Laptop per LAN
+      → Access Point → Laptop per WLAN
+      → PS5 / Sky Box / HDC-OS Host
 ```
 
-Klarstellungen:
-
-- Die Grundtopologie wurde in Sprint 1 festgelegt.
-- Das technische Detaildesign ist noch offen.
-- Der Speedport Smart 4 bleibt bestehen.
-- OPNsense ist die Zielplattform der Firewall.
-- Der Switch SG2218 ist die vorgesehene Horizon-1-Komponente.
-
----
-
-## Erstes Product Increment
-
-Status: geplanter erster lauffähiger Infrastrukturschritt.
-
-> Ein Asset – voraussichtlich der Laptop des Project Owners – nutzt das Internet hinter der HDC-OS-Firewall.
-
-Dieses Product Increment beschreibt keinen vollständigen Zielbetrieb, sondern den ersten prüfbaren Betriebszustand.
-
----
-
-## Betriebsbedingungen
-
-Status: bekannte Rahmenbedingungen aus Sprint 1.
-
-- PS5 im Arbeitszimmer bleibt per LAN angebunden.
-- Router steht außerhalb des Arbeitszimmers nahe der Eingangstür.
-- Arbeitszimmer enthält bestehenden Switch, Laptop und PS5.
-- Wohnung umfasst ungefähr 88 m².
-- Gemischte Trockenbau- und Ziegelwände sind zu berücksichtigen.
-- WLAN soll die gesamte Wohnung zuverlässig versorgen.
-- Zwei bis drei Homeoffice-Laptops beziehungsweise Macs müssen stabil arbeiten.
-- Andere Haushaltsmitglieder sollen bei Ausfall der HDC-OS-Infrastruktur möglichst keine sichtbare Einschränkung erfahren.
-- Angestrebte maximale Ausfalldauer: 15 Minuten.
-
----
-
-## VLAN-Status
-
-### Festgelegt
-
-- VLANs werden von Beginn an vorgesehen.
-- Segmentierung ist ein Sicherheitsgrundsatz.
-
-### Diskutiert, aber nicht freigegeben
-
-- Management
-- Trusted/Home
-- Work/Homeoffice
-- Gaming
-- IoT/Smart Home
-- Gäste
-- Server/Services
-- Kameras
-
-### Offen
-
-- VLAN-IDs
-- verbindliche Zonennamen
-- Gerätezuordnung
-- Inter-VLAN-Regeln
-
----
-
-## IP-Konzept
-
-Status: tatsächlich offen.
-
-Offen sind:
-
-- RFC1918-Adressbereich
-- Subnetze
-- DHCP-Bereiche
-- statische Adressen
-- Reservierungen
-- DNS-Namen
-- Namensschema
-
----
-
-## Firewall-Grundsätze
-
-### Festgelegt
-
-- OPNsense als Zielplattform
-- Speedport bleibt vorgeschaltet
-- dedizierte Firewall-Appliance
-- segmentierter Zugriff beziehungsweise Default-deny als Sicherheitsprinzip
-- VLAN-Unterstützung
-- VPN-Unterstützung
-- NordVPN optional als ausgehendes Gateway beziehungsweise Policy Route
-- NordVPN ersetzt nicht die Firewall
-- Homeoffice-Kommunikation darf nicht pauschal durch Consumer-VPN geroutet werden
-- direkter Regelbetrieb von Geräten am Speedport ist nicht vorgesehen
-- kritische Änderungen bleiben unter menschlicher Kontrolle
-
-### Offen
-
-- Double NAT, Exposed Host oder PPPoE-Passthrough
-- konkrete Firewall-Regeln
-- DNS-Resolver
-- IDS/IPS
-- Geo- oder Reputation-Blocking
-- NordVPN-Routingregeln
-- Fail-open- beziehungsweise Fail-safe-Konzept
-- Notfallzugang
-
----
-
-## Sicherheitsprinzipien
-
-Sicherheit besitzt Vorrang vor Komfort.
-
-Kritische Änderungen bleiben unter menschlicher Kontrolle.
-
-Änderungen an sicherheitsrelevanten Komponenten müssen nachvollziehbar bleiben.
-
-Sicherheit, Nachvollziehbarkeit und Nachhaltigkeit bilden die bekannten Betriebsleitlinien.
-
----
-
-## Serverrollen und Virtualisierung
-
-Status: langfristig vorgesehene Rollen, noch nicht auf konkrete Hosts verteilt.
-
-- Knowledge Base
-- lokale KI
-- Monitoring
-- Automatisierung
-- Ticket- beziehungsweise Work-Management
-- NAS/Storage
-- Backup
-- optional Home Assistant
-- Omada Controller
-- Dokumentations- und Repository-Dienste
-
-Proxmox wurde als Virtualisierungsplattform diskutiert, aber nicht final beschlossen.
-
----
-
-## Storage
-
-Status: langfristiges Ziel mit offenen Detailentscheidungen.
-
-Festgehalten:
-
-- eigene NAS ist langfristiges Ziel
-- aktueller Speicherbedarf ist noch unbekannt
-- Bedarf soll vor einer Hardwareentscheidung ermittelt werden
-- kein vorschneller NAS- oder Festplattenkauf
-
-Offen bleiben:
-
-- Nutzkapazität
-- RAID/ZFS
-- SSD/HDD
-- Verschlüsselung
-- Snapshots
-- Datenklassen
-- Aufbewahrung
-
----
-
-## Backup-Anforderungen
-
-Status: Grundanforderungen bekannt, Detaildesign offen.
-
-Bekannte Anforderungen:
-
-- regelmäßige Backups
-- automatisierte Prüfung
-- nachgewiesene Wiederherstellbarkeit
-- Repository muss unabhängig vom Laptop gesichert sein
-- spätere Konfigurationen und Knowledge Base müssen einbezogen werden
-
-Offen:
-
-- 3-2-1-Design
-- Backupsoftware
-- Backupziele
-- Zeitpläne
-- Offsite-Ziel
-- Restore-Testverfahren
-- RPO und RTO je Service
-
----
-
-## Monitoring-Zielbild
-
-Status: geplante Überwachungsbereiche bekannt, Toolauswahl offen.
-
-Geplante Überwachungsbereiche:
-
-- Internetverfügbarkeit
-- Firewall
-- Switch
-- WLAN
-- USV
-- Backups
-- Updates
-- später Server, Storage, Sensoren und Raumwerte
-
-Offen:
-
-- Toolauswahl
-- Metriken
-- Alarmgrenzen
-- Benachrichtigungskanäle
-- Dashboards
-- Aufbewahrungsdauer
-
----
-
-## Bekannte Infrastrukturkomponenten
-
-In Sprint 1 wurden folgende Komponenten als relevante Ausgangsbasis benannt:
-
-- Speedport Smart 4
-- dedizierte OPNsense-Firewall
-- TP-Link Omada SG2218
-- Access Points
-- kabelgebundene Geräte
-- Rack
-- Rack-USV
-- Router-USV
-
-Diese Liste ist keine finale Beschaffungsliste.
-
----
-
-## Offene Punkte
-
-Nicht Bestandteil dieses Dokuments sind:
-
-- neues Netzwerkdesign
-- Festlegung von VLAN-IDs
-- Festlegung eines IP-Konzepts
-- Erstellung konkreter Firewall-Regeln
-- Auswahl von Monitoring- oder Backupsoftware
-- Infrastrukturaufbau
-
-Diese Themen bleiben Folgearbeiten für spätere Work Orders.
+Router-USV und Rack-USV bleiben getrennte Stromdomänen. Die Router-USV ist
+`infrastructure: gateway`, `mounted_in_rack: false`; Rackkomponenten werden
+durch die spätere Rack-USV versorgt.
+
+## Infrastructure Core
+
+Der neutrale Shared Core modelliert Komponenten, Rollen, Capabilities,
+Abhängigkeiten sowie den generischen Asset Lifecycle. Er besitzt keine
+Procurement-, Hersteller- oder Geräteabhängigkeit. Neue Assetklassen werden über
+Daten ergänzt, nicht über Core-Code.
+
+## Asset Lifecycle und Registry
+
+```text
+PLANNED → ORDERED → DELIVERED → ACCEPTANCE → PRODUCTION
+                                              ↓
+                                         MAINTENANCE → RETIRED
+```
+
+Die zentrale Registry liegt unter [`assets/registry.yaml`](assets/registry.yaml).
+Sie unterstützt Asset Lookup, Relationships, Dependency Graph und Power Graph.
+Details: [Asset Lifecycle & Registry](Asset-Lifecycle-and-Registry.md).
+
+## Acceptance
+
+Jedes Asset durchläuft:
+
+1. Sichtprüfung,
+2. Prüfung des Lieferumfangs,
+3. gerätespezifische Funktionsprüfung,
+4. dokumentierte Asset Acceptance.
+
+`PRODUCTION` ist erst nach vollständiger Acceptance zulässig. Für
+`UPS-RTR-01` fehlen noch Seriennummer, bestätigtes Kaufdatum, Garantieende,
+automatischer Batterietest, Netzrückkehr und Abschlussdokumentation. Maßgeblich
+ist die [Acceptance-Datei](assets/acceptance/UPS-RTR-01.yaml).
+
+## Procurement-Übergang
+
+PC-0001 ist `PURCHASED` und wird nicht mehr überwacht. Historische
+Procurement-Daten bleiben erhalten; der Betriebszustand wird ausschließlich aus
+der Asset Registry gelesen. Der vollständige Handover steht in
+[WO-0036](WO-0036-Procurement-to-Asset-Handover.md).
+
+## Aktueller Deploymentpfad
+
+1. Router-USV-Acceptance abschließen.
+2. PC-0002 bis PC-0005 zur konkreten Kaufentscheidung führen.
+3. Access Point gegen das IEEE-802.3af/at-Cross-Case-Gate auswählen.
+4. Jedes neue Gerät registrieren und akzeptieren.
+5. OPNsense, Switch und AP zunächst unsegmentiert aufbauen.
+6. Laptop-LAN, Laptop-WLAN, Internet und Telefonie validieren.
+7. VLANs erst nach stabilem Basisbetrieb aktivieren.
+
+## Historischer Hinweis
+
+Die frühere Sprint-1-Grundtopologie mit SG2218 als vorgesehenem Switch und
+„technischem Detaildesign offen“ ist superseded. Heute gelten Network Design
+v0.1 und die Accepted PC-0003-/PC-0004-Entscheidungen. Historische Anforderungen
+bleiben in [Infrastructure Requirements](Infrastructure-Requirements.md), den
+Sprintabschlüssen und Git erhalten.

@@ -1,14 +1,20 @@
 ---
 document: Vision.md
-version: 1.0
-status: Draft
+version: 1.4.4-baseline
+status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
-last_review: ""
+last_review: "2026-08-03"
+release_reference: knowledge-v1.4.4
+last_updated: "2026-08-03"
 classification: Workspace
 ---
 
 # Vision
+
+> **Repository Baseline:** `knowledge-v1.4.4`, Sprint 4 – First Deployment.
+> Foundation und Operations-Grundlage sind abgeschlossen; aktueller Fokus ist
+> der erste reale Laptop-Netzwerkpfad hinter OPNsense.
 
 ## Warum HDC-OS entsteht
 
@@ -20,7 +26,9 @@ Das System soll Menschen im Alltag entlasten, Wissen dauerhaft sichern und Entsc
 
 ## Langfristige Vision
 
-HDC-OS soll zu einer modularen Operations-Plattform wachsen, die Infrastruktur, Wissen, Automatisierung und AI Services zu einem gemeinsamen Arbeitsraum verbindet.
+HDC-OS soll zu einem vollständig lokalen Home Datacenter mit einer modularen,
+KI-gestützten Operations-Plattform wachsen, die Infrastruktur, Wissen,
+Automatisierung und AI Services zu einem gemeinsamen Arbeitsraum verbindet.
 
 Die Plattform soll nicht nur technische Zustände sichtbar machen, sondern auch helfen, diese einzuordnen und sinnvoll darauf zu reagieren.
 

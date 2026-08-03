@@ -5,6 +5,8 @@ status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
 last_review: "2026-08-03"
+release_reference: knowledge-v1.4.4
+last_updated: "2026-08-03"
 work_order: WO-0035
 classification: Workspace
 ---
@@ -87,15 +89,15 @@ gehört weder logisch noch elektrisch zur Rack-Infrastruktur.
 
 ## Erstes Asset: UPS-RTR-01
 
-`UPS-RTR-01` ist als `gateway_power` im Zustand `ACCEPTANCE` registriert und
-versorgt `Speedport-Smart-4`. Hersteller, exaktes Modell, Seriennummer,
-Kaufdatum und Garantieende sind im vorhandenen Knowledge-Stand nicht belegt und
-deshalb ausdrücklich mit `PENDING_ACCEPTANCE` markiert. Es wurden keine Werte
-aus dem früheren Procurement-Kandidatenvergleich übernommen.
+`UPS-RTR-01` ist als `gateway_power` im Zustand `ACCEPTANCE` registriert.
+Hersteller Eaton, Modell 3S850D und Produktbezeichnung Eaton 3S 850 DIN wurden
+mit WO-0036 sicher übernommen. Seriennummer, Kaufdatum und Garantieende bleiben
+`PENDING_ACCEPTANCE`. Das Asset versorgt als externe Lasten Speedport Smart 4,
+Telefon und Elspet Automatic Litter Box; diese Verbraucher sind keine Assets.
 
 Vor `PRODUCTION` müssen folgende Router-USV-Tests bestanden werden:
 
-- Umschaltung auf Batteriebetrieb,
+- automatischer Batteriebetrieb,
 - Rückkehr auf Netzbetrieb,
 - fehlerfreier Betrieb.
 

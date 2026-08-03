@@ -1,14 +1,22 @@
 ---
 document: Infrastructure-Requirements.md
-version: 1.0
-status: Draft
+version: 1.0-historical
+status: Historical
 owner: Project Owner
-reviewed_by: ""
-last_review: ""
+reviewed_by: Lead Architect
+last_review: "2026-07-31"
+release_reference: knowledge-v1.4.4
+last_updated: "2026-08-03"
 classification: Workspace
 ---
 
 # Infrastructure Requirements
+
+> **Historical / superseded baseline:** Dieses Dokument bewahrt die
+> Anforderungsaufnahme aus WO-0024. Soweit Architektur, Procurement- oder
+> Assetstatus später entschieden wurden, gelten Network Design v0.1,
+> Procurement.md und die Asset Registry. Offene, noch nicht entschiedene
+> Anforderungen bleiben als historische Herkunft erhalten.
 
 ## Zweck und Geltungsbereich
 
@@ -176,7 +184,7 @@ Dimensionen und Geräteentscheidungen bleiben offen.
 
 | Infrastrukturkomponente | Procurement Case | Status | Abhängigkeit | Später ergänzbar |
 |---|---|---|---|---|
-| Router-USV | PC-0001 | WATCHING | beeinflusst Verfügbarkeit des Internetzugangs | ja |
+| Router-USV | PC-0001 | PROCUREMENT COMPLETED / PURCHASED | an Asset `UPS-RTR-01` in ACCEPTANCE übergeben | ja |
 | rollbarer Netzwerkschrank | PC-0002 | WATCHING | beeinflusst Platz-, Strom- und Erweiterungsanforderungen | ja |
 | Firewall Appliance | PC-0003 | WATCHING | beeinflusst Sicherheits- und VPN-Fähigkeit; Produktprofil ist festgelegt | ja, Modellwahl offen |
 | Managed Switch | PC-0004 | WATCHING | beeinflusst Portreserve und Segmentierungsfähigkeit | ja |
@@ -189,6 +197,10 @@ Die Procurement-Cases beobachten den Markt unabhängig von dieser
 Anforderungsaufnahme. Eine Kaufempfehlung ersetzt keine Infrastrukturfreigabe.
 Die Architektur soll soweit möglich ohne konkrete Beschaffung fortschreiten;
 offene Modellentscheidungen dürfen jedoch nicht als entschieden angenommen werden.
+
+Aktuelle Klarstellung: Nur PC-0002 bis PC-0005 werden weiterhin beobachtet.
+PC-0003 und PC-0004 besitzen Accepted Horizon-1-Entscheidungen; ein konkreter
+Kauf bleibt angebots- und freigabeabhängig.
 
 ## 8. Open Questions
 

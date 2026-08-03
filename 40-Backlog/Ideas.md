@@ -1,10 +1,12 @@
 ---
 document: Ideas.md
-version: 1.0
-status: Draft
+version: 1.4.4-baseline
+status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
-last_review: ""
+last_review: "2026-08-03"
+release_reference: knowledge-v1.4.4
+last_updated: "2026-08-03"
 classification: Workspace
 ---
 

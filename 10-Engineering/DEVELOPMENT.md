@@ -4,11 +4,17 @@ version: 1.0
 status: Released
 owner: Project Owner
 reviewed_by: Lead Architect
-last_review: ""
+last_review: "2026-07-10"
+release_reference: knowledge-v1.4.4
+last_updated: "2026-08-03"
 classification: Workspace
 ---
 
 # Entwicklung
+
+> **Aktuelle Baseline:** `knowledge-v1.4.4`, Sprint 4 – First Deployment.
+> Foundation, Procurement- und Operations-Grundlagen sind abgeschlossen; der
+> Work-Order-/Review-/Commit-/Release-Prozess bleibt verbindlich.
 
 ## Zweck
 
