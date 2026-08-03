@@ -1,0 +1,41 @@
+schema_version: 1
+asset_classes:
+  - id: gateway_router
+    group: Gateway Infrastructure
+    infrastructure: gateway
+  - id: gateway_power
+    group: Gateway Infrastructure
+    infrastructure: gateway
+  - id: gateway_modem
+    group: Gateway Infrastructure
+    infrastructure: gateway
+  - id: rack
+    group: Rack Infrastructure
+    infrastructure: rack
+  - id: rack_power
+    group: Rack Infrastructure
+    infrastructure: rack
+  - id: firewall
+    group: Rack Infrastructure
+    infrastructure: rack
+  - id: managed_switch
+    group: Rack Infrastructure
+    infrastructure: rack
+  - id: hdc_os_host
+    group: Rack Infrastructure
+    infrastructure: rack
+  - id: access_point
+    group: Network Infrastructure
+    infrastructure: network
+  - id: network_switch
+    group: Network Infrastructure
+    infrastructure: network
+  - id: sensor
+    group: Peripheral Infrastructure
+    infrastructure: peripheral
+  - id: camera
+    group: Peripheral Infrastructure
+    infrastructure: peripheral
+  - id: smart_power
+    group: Peripheral Infrastructure
+    infrastructure: peripheral

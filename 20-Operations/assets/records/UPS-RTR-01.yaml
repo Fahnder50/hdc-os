@@ -1,0 +1,41 @@
+schema_version: 1
+asset_id: UPS-RTR-01
+asset_class: gateway_power
+manufacturer: PENDING_ACCEPTANCE
+model: PENDING_ACCEPTANCE
+serial_number: PENDING_ACCEPTANCE
+purchase_date: PENDING_ACCEPTANCE
+warranty_end: PENDING_ACCEPTANCE
+location: Router Location
+room: Outside Office
+infrastructure: gateway
+mounted_in_rack: false
+status: ACCEPTANCE
+acceptance_date: null
+production_date: null
+retirement_date: null
+powers:
+  - Speedport-Smart-4
+powered_by: []
+depends_on: []
+procurement_case: PC-0001
+acceptance:
+  model_correct: false
+  packaging_undamaged: false
+  serial_present: false
+  accessories_complete: false
+  documentation_present: false
+  functional_tests:
+    - battery_transfer
+    - mains_return
+    - error_free_operation
+  functional_test_passed: false
+  accepted_by: null
+  accepted_on: null
+acceptance_blockers:
+  - Capture manufacturer and exact model from delivered unit
+  - Capture serial number
+  - Capture purchase date and warranty end
+  - Complete visual inspection
+  - Confirm package contents and documentation
+  - Pass battery transfer, mains return and error-free operation tests

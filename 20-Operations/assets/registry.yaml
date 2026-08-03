@@ -1,0 +1,11 @@
+schema_version: 1
+status: ACCEPTED
+work_order: WO-0035
+reviewed_by: Lead Architect
+last_review: '2026-08-03'
+class_catalog: asset-classes.yaml
+external_components:
+  - Speedport-Smart-4
+assets:
+  - asset_id: UPS-RTR-01
+    record: records/UPS-RTR-01.yaml

@@ -1,5 +1,14 @@
 from dataclasses import dataclass
 
+from .assets import (
+    LIFECYCLE_STATES,
+    AcceptanceCheck,
+    Asset,
+    AssetRegistry,
+    AssetValidationError,
+    asset_from_mapping,
+)
+
 
 CAPABILITIES = frozenset({
     "routing", "firewall", "vpn", "switching", "wifi", "storage",
@@ -105,4 +114,6 @@ def render_status(infrastructure):
 __all__ = [
     "CAPABILITIES", "ROLES", "STATUSES", "VALID_CAPABILITIES", "VALID_ROLES", "VALID_STATUSES",
     "Component", "InfrastructureComponent", "Infrastructure", "InfrastructureValidationError", "render_status",
+    "LIFECYCLE_STATES", "AcceptanceCheck", "Asset", "AssetRegistry",
+    "AssetValidationError", "asset_from_mapping",
 ]
