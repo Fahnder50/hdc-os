@@ -536,13 +536,25 @@ def transition_case(config, case_id, target_status):
         ).fetchone()
         if row is None:
             raise ValueError(f"Unknown case: {case_id}")
-        target = transition_case_status(row["status"], target_status)
+        previous = row["status"]
+        target = transition_case_status(previous, target_status)
+        transitioned_at = utc_now()
         connection.execute(
             "UPDATE procurement_cases SET status = ?, updated_at = ? WHERE case_id = ?",
-            (target, utc_now(), case_id),
+            (target, transitioned_at, case_id),
         )
+        if is_completed(target) and not is_completed(previous):
+            case_db_id = connection.execute(
+                "SELECT id FROM procurement_cases WHERE case_id = ?", (case_id,)
+            ).fetchone()[0]
+            _upsert_requirement(connection, case_db_id, "completion_date", transitioned_at, "PASS")
+            record_entry(connection, case_db_id, None, transitioned_at, {
+                "status": {"recommendation_status": "CLOSED", "active_offers": 0},
+                "offers": [],
+                "events": [],
+            })
         connection.commit()
-        return {"case_id": case_id, "previous_status": row["status"], "status": target}
+        return {"case_id": case_id, "previous_status": previous, "status": target}
     except Exception:
         connection.rollback()
         raise
@@ -559,10 +571,16 @@ def portfolio_watch(config):
             f"SELECT case_id FROM procurement_cases WHERE status IN {ACTIVE_STATUS_SQL} ORDER BY case_id",
             ACTIVE_CASE_STATUSES,
         )]
-        completed = [dict(row) for row in connection.execute(
-            "SELECT case_id, title, status, updated_at FROM procurement_cases "
+        completed_rows = connection.execute(
+            "SELECT id, case_id, title, status, updated_at FROM procurement_cases "
             "WHERE status IN ('PURCHASED', 'CANCELLED') ORDER BY case_id"
-        )]
+        ).fetchall()
+        completed = [{
+            "case_id": row["case_id"],
+            "title": row["title"],
+            "status": row["status"],
+            "completion_date": _requirement_value(connection, row["id"], "completion_date", row["updated_at"]),
+        } for row in completed_rows]
     finally:
         connection.close()
     source_document = load_yaml_config(config.sources_path)
@@ -599,7 +617,8 @@ def portfolio_watch(config):
     errors = sum(item["errors"] for item in results)
     recommendations = [item["status"] for item in results]
     health = {
-        "watching": len(results),
+        "active": len(results),
+        "watching": recommendations.count("WATCHING"),
         "qualifying": recommendations.count("QUALIFYING"),
         "ready_for_review": recommendations.count("READY_FOR_REVIEW"),
         "buy_candidate": recommendations.count("BUY_CANDIDATE"),
@@ -612,6 +631,7 @@ def portfolio_watch(config):
     return {
         "cases": results,
         "completed_procurement": completed,
+        "completed_count": len(completed),
         "case_count": len(results),
         "offer_count": sum(item["offers"] for item in results),
         "source_count": sum(item["sources"] for item in results),
@@ -1139,6 +1159,10 @@ def case_report_data(config, case_id):
 
 
 def report_case(config, case_id):
+    status = case_status(config, case_id)
+    destination = config.reports_path / f"{case_id}.html"
+    if status.get("procurement_completed") and destination.exists():
+        return destination
     return write_case_report(config, case_report_data(config, case_id))
 
 

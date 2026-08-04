@@ -198,14 +198,17 @@ def _print_portfolio_summary(result):
     print(f"\n{result['error_count']} Fehler")
     print(f"\n{result['duration_seconds']:.3f} Sekunden")
     health = result["health"]
-    print(f"\nACTIVE: {health['watching']}")
+    print(f"\nACTIVE: {health.get('active', result['case_count'])}")
+    print(f"WATCHING: {health.get('watching', 0)}")
     print(f"QUALIFYING: {health.get('qualifying', 0)}")
     print(f"READY_FOR_REVIEW: {health.get('ready_for_review', 0)}")
     print(f"BUY_CANDIDATE: {health.get('buy_candidate', 0)}")
     print(f"BLOCKED: {health['blocked']}")
     print("\nCompleted Procurement")
+    print(f"{result.get('completed_count', len(result.get('completed_procurement', [])))} Cases")
     for case in result.get("completed_procurement", []):
-        print(f"{case['case_id']}  {case['status']}")
+        completion_date = case.get("completion_date") or "—"
+        print(f"{case['case_id']}  {case['status']}  {completion_date}")
     print("\n" + "=" * 50)
     if result["status"] == "completed_with_warnings":
         print("Portfolio completed with warnings.")
