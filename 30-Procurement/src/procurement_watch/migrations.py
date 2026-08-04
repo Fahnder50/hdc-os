@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .version import repository_metadata
+from .runtime_upgrade import reconcile_legacy_runtime
 
 
 def migration_directory():
@@ -38,5 +39,6 @@ def apply_migrations(connection, repository_root, repository_version=None):
         "UPDATE runtime_metadata SET metadata_value = ? WHERE metadata_key = 'schema_version'",
         (metadata["schema_version"],),
     )
+    metadata["runtime_upgrade"] = reconcile_legacy_runtime(connection, repository_root)
     connection.commit()
     return metadata

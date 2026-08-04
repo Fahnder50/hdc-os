@@ -277,10 +277,10 @@ def test_pc0003_current_fixture_has_zero_valid_offers(tmp_path):
     assert status["best_observed_price"] is None
 
 
-def test_pc0001_current_fixture_has_six_observed_and_zero_eligible_offers(tmp_path):
+def test_pc0001_completed_fixture_has_thirty_historical_and_zero_eligible_offers(tmp_path):
     config = _copied_production_config(tmp_path)
     status = case_status(config, "PC-0001")
-    assert status["observed_offers"] == 6
+    assert status["observed_offers"] == 30
     assert status["valid_offers"] == 6
     assert status["technically_eligible_offers"] == 0
 
