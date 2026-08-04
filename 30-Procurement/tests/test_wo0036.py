@@ -57,20 +57,20 @@ def test_reimporting_closed_case_preserves_procurement_history(tmp_path):
     connection.close()
 
 
-def test_asset_data_external_loads_and_acceptance_blockers_are_synchronized():
+def test_asset_data_external_loads_and_completed_acceptance_are_synchronized():
     asset = yaml.safe_load(ASSET.read_text(encoding="utf-8"))
     acceptance = yaml.safe_load(ACCEPTANCE.read_text(encoding="utf-8"))
     assert asset["manufacturer"] == "Eaton"
     assert asset["model"] == "3S850D"
     assert acceptance["product_name"] == "Eaton 3S 850 DIN"
-    assert asset["status"] == "ACCEPTANCE"
+    assert asset["status"] == "PRODUCTION"
     assert asset["mounted_in_rack"] is False and asset["infrastructure"] == "gateway"
     assert {item["name"] for item in acceptance["external_loads"]} == {
         "Speedport Smart 4", "Telefon", "Elspet Automatic Litter Box",
     }
     assert all(item["registered_asset"] is False for item in acceptance["external_loads"])
-    assert acceptance["production_transition_allowed"] is False
-    assert {"serial_number", "purchase_date", "warranty_end", "automatic_battery_operation", "mains_return", "acceptance_documentation"} == set(acceptance["acceptance_blockers"])
+    assert acceptance["production_transition_allowed"] is True
+    assert acceptance["acceptance_blockers"] == []
 
 
 def test_litter_box_is_external_and_not_registered_as_asset():

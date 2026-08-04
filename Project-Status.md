@@ -23,7 +23,7 @@ Das Projekt befindet sich in Sprint 4 – First Deployment.
 |---|---|
 | Was ist das Ziel? | Sicherer, lokaler und nachvollziehbarer Betrieb physischer und später virtueller Infrastruktur mit KI-Unterstützung. |
 | Was existiert technisch? | Repository, Procurement Watch, Network Design, Infrastructure Core, Asset Registry und Acceptance Workflow. |
-| Was existiert physisch neu? | Eaton 3S850D Router-USV, Asset `UPS-RTR-01`, Status `ACCEPTANCE`. |
+| Was existiert physisch neu? | Eaton 3S850D Router-USV, Asset `UPS-RTR-01`, Status `PRODUCTION`. |
 | Was wurde gekauft? | PC-0001 Router-USV; Procurement ist abgeschlossen. |
 | Was fehlt? | Rack, Firewall, Managed Switch, Rack-USV, Access Point und deren Deployment. |
 | Aktueller Sprint? | Sprint 4 – First Deployment. |
@@ -35,7 +35,7 @@ Das Projekt befindet sich in Sprint 4 – First Deployment.
 | Case/Asset | Status | Aktueller Stand |
 |---|---|---|
 | PC-0001 Router-USV | **PROCUREMENT COMPLETED / PURCHASED** | an Operations übergeben |
-| UPS-RTR-01 | **ACCEPTANCE** | Funktionstest und Identitätsdaten offen |
+| UPS-RTR-01 | **PRODUCTION** | Acceptance am 04.08.2026 erfolgreich abgeschlossen |
 | PC-0002 Rack | WATCHING | drei Digitus-Kandidaten; Entscheidung offen |
 | PC-0003 Firewall | WATCHING | Horizon-1-Standard: qualifizierte HUNSN RJ42 N100 bis 300 EUR; sonst WAIT |
 | PC-0004 Switch | WATCHING | TL-SG2008P V3; Ziel 100 EUR, harte Gesamtgrenze 130 EUR |
@@ -64,7 +64,7 @@ jedes Geräts als HDC-OS-Asset.
 | Physisch vorhanden | Status |
 |---|---|
 | Speedport Smart 4 | Production |
-| Router-USV | Acceptance |
+| Router-USV | Production |
 | Telefon | Production |
 | Netgear Switch | Production (Legacy) |
 | PS5 | Production |

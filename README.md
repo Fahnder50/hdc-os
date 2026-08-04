@@ -54,11 +54,11 @@ und Übergabeprozess existieren – nicht, dass alle Hardware gekauft wurde.
 - generischer Infrastructure Core,
 - generischer Asset Lifecycle und zentrale Asset Registry,
 - abgeschlossener Procurement-to-Operations-Übergang für PC-0001,
-- physisch vorhandene Eaton 3S850D Router-USV als `UPS-RTR-01` in `ACCEPTANCE`.
+- physisch vorhandene Eaton 3S850D Router-USV als `UPS-RTR-01` in `PRODUCTION`.
 
 Noch nicht beschafft oder produktiv aufgebaut sind Rack, OPNsense-Firewall,
-Managed Switch, Rack-USV und Access Point. `UPS-RTR-01` wird erst nach
-dokumentierter Acceptance nach `PRODUCTION` überführt.
+Managed Switch, Rack-USV und Access Point. Die Acceptance von `UPS-RTR-01`
+wurde mit WO-0038 am 04.08.2026 erfolgreich abgeschlossen.
 
 ## Einstieg und Dokumenthierarchie
 

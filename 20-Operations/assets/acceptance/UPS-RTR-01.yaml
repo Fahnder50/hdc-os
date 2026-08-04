@@ -1,17 +1,28 @@
 schema_version: 1
-work_order: WO-0036
+work_order: WO-0038
 asset_id: UPS-RTR-01
 product_name: Eaton 3S 850 DIN
 known_data:
   manufacturer: Eaton
+  product_series: Eaton 3S
   model: 3S850D
+  catalog_number: 3S850D
+  mfg_id: 9400-A303 Rev. 00
+  serial_number: GE67V13292
+  purchase_date: '2026-07-29'
+  purchase_price:
+    amount: 127.12
+    currency: EUR
+  location: Internet-Gateway / Speedport-Standort
   infrastructure: gateway
   mounted_in_rack: false
   procurement_case: PC-0001
 pending_data:
-  serial_number: PENDING_ACCEPTANCE
-  purchase_date: PENDING_ACCEPTANCE
-  warranty_end: PENDING_ACCEPTANCE
+  warranty_end: PENDING_CONFIRMATION
+warranty:
+  status: Manufacturer Warranty
+  scope: Herstellergarantie
+  end_date: PENDING_CONFIRMATION
 external_loads:
   - id: Speedport-Smart-4
     name: Speedport Smart 4
@@ -22,11 +33,39 @@ external_loads:
   - id: Elspet-Automatic-Litter-Box
     name: Elspet Automatic Litter Box
     registered_asset: false
-acceptance_blockers:
-  - serial_number
-  - purchase_date
-  - warranty_end
-  - automatic_battery_operation
-  - mains_return
-  - acceptance_documentation
-production_transition_allowed: false
+tests:
+  mains_operation:
+    status: PASS
+    result: USV arbeitet fehlerfrei im Normalbetrieb.
+  mains_failure:
+    status: PASS
+    procedure: Netzversorgung getrennt.
+    expected: Automatischer Batteriebetrieb.
+    result:
+      - Router blieb in Betrieb.
+      - Internetverbindung blieb aktiv.
+      - LED blinkte.
+      - Akustischer Alarm war aktiv.
+  mains_return:
+    status: PASS
+    procedure: Netzversorgung wiederhergestellt.
+    result:
+      - Automatische Rueckkehr in den Netzbetrieb.
+      - Router blieb ohne Unterbrechung aktiv.
+      - Internet blieb verfuegbar.
+      - Alarm wurde beendet.
+      - LED wechselte wieder in Dauerbetrieb.
+  visual_inspection:
+    status: PASS
+    confirmed:
+      - manufacturer
+      - model
+      - serial_number
+      - mfg_id
+acceptance:
+  completed: true
+  acceptance_date: '2026-08-04'
+  production_date: '2026-08-04'
+  result: PASS
+acceptance_blockers: []
+production_transition_allowed: true

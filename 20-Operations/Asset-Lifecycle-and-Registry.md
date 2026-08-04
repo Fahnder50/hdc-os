@@ -89,11 +89,12 @@ gehört weder logisch noch elektrisch zur Rack-Infrastruktur.
 
 ## Erstes Asset: UPS-RTR-01
 
-`UPS-RTR-01` ist als `gateway_power` im Zustand `ACCEPTANCE` registriert.
-Hersteller Eaton, Modell 3S850D und Produktbezeichnung Eaton 3S 850 DIN wurden
-mit WO-0036 sicher übernommen. Seriennummer, Kaufdatum und Garantieende bleiben
-`PENDING_ACCEPTANCE`. Das Asset versorgt als externe Lasten Speedport Smart 4,
-Telefon und Elspet Automatic Litter Box; diese Verbraucher sind keine Assets.
+`UPS-RTR-01` ist als `gateway_power` im Zustand `PRODUCTION` registriert.
+Hersteller Eaton, Modell 3S850D, Produktbezeichnung Eaton 3S 850 DIN,
+Seriennummer und Kaufdaten sind bestätigt. Das Garantieende bleibt bis zu einem
+belastbaren Nachweis `PENDING_CONFIRMATION`. Das Asset versorgt als externe
+Lasten Speedport Smart 4, Telefon und Elspet Automatic Litter Box; diese
+Verbraucher sind keine Assets.
 
 Vor `PRODUCTION` müssen folgende Router-USV-Tests bestanden werden:
 
@@ -101,5 +102,5 @@ Vor `PRODUCTION` müssen folgende Router-USV-Tests bestanden werden:
 - Rückkehr auf Netzbetrieb,
 - fehlerfreier Betrieb.
 
-Das Asset bleibt bis zur dokumentierten Durchführung dieser Schritte in
-`ACCEPTANCE`.
+Diese Prüfungen wurden mit WO-0038 am 04.08.2026 erfolgreich dokumentiert; das
+Asset wurde anschließend nach `PRODUCTION` überführt.

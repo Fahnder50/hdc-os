@@ -38,7 +38,7 @@ Die verbindliche Architektur steht im
 | Standort | Komponente | Status |
 |---|---|---|
 | Routerstandort außerhalb des Arbeitszimmers | Speedport Smart 4 und Telefonie | vorhanden und in Betrieb |
-| Routerstandort | Eaton 3S850D / `UPS-RTR-01` | geliefert, `ACCEPTANCE`, noch nicht produktiv freigegeben |
+| Routerstandort | Eaton 3S850D / `UPS-RTR-01` | Acceptance abgeschlossen, `PRODUCTION` |
 | Verbindung zum Arbeitszimmer | ein Ethernet-Kabel | vorhanden; später OPNsense-WAN-Uplink |
 | Arbeitszimmer | unmanaged Netgear Switch | bestehender Ist-Zustand |
 | Arbeitszimmer | PS5, Sky Box, Laptop | vorhandene Clients |
@@ -93,8 +93,9 @@ Jedes Asset durchläuft:
 4. dokumentierte Asset Acceptance.
 
 `PRODUCTION` ist erst nach vollständiger Acceptance zulässig. Für
-`UPS-RTR-01` fehlen noch Seriennummer, bestätigtes Kaufdatum, Garantieende,
-automatischer Batterietest, Netzrückkehr und Abschlussdokumentation. Maßgeblich
+`UPS-RTR-01` wurden Seriennummer, Kaufdaten, Sichtprüfung, automatischer
+Batteriebetrieb, Netzrückkehr und Abschlussdokumentation am 04.08.2026
+bestätigt. Das Garantieende bleibt bewusst `PENDING_CONFIRMATION`. Maßgeblich
 ist die [Acceptance-Datei](assets/acceptance/UPS-RTR-01.yaml).
 
 ## Procurement-Übergang
@@ -106,13 +107,12 @@ der Asset Registry gelesen. Der vollständige Handover steht in
 
 ## Aktueller Deploymentpfad
 
-1. Router-USV-Acceptance abschließen.
-2. PC-0002 bis PC-0005 zur konkreten Kaufentscheidung führen.
-3. Access Point gegen das IEEE-802.3af/at-Cross-Case-Gate auswählen.
-4. Jedes neue Gerät registrieren und akzeptieren.
-5. OPNsense, Switch und AP zunächst unsegmentiert aufbauen.
-6. Laptop-LAN, Laptop-WLAN, Internet und Telefonie validieren.
-7. VLANs erst nach stabilem Basisbetrieb aktivieren.
+1. PC-0002 bis PC-0005 zur konkreten Kaufentscheidung führen.
+2. Access Point gegen das IEEE-802.3af/at-Cross-Case-Gate auswählen.
+3. Jedes neue Gerät registrieren und akzeptieren.
+4. OPNsense, Switch und AP zunächst unsegmentiert aufbauen.
+5. Laptop-LAN, Laptop-WLAN, Internet und Telefonie validieren.
+6. VLANs erst nach stabilem Basisbetrieb aktivieren.
 
 ## Historischer Hinweis
 

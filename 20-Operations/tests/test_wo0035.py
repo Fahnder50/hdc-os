@@ -102,7 +102,7 @@ def test_acceptance_blocks_production_until_every_phase_passes():
     assert production.production_date == "2026-08-03"
 
 
-def test_router_ups_is_registered_in_acceptance_and_not_rack_infrastructure():
+def test_router_ups_is_registered_in_production_and_not_rack_infrastructure():
     registry_doc = yaml.safe_load((ASSETS / "registry.yaml").read_text(encoding="utf-8"))
     record_ref = registry_doc["assets"][0]["record"]
     record = yaml.safe_load((ASSETS / record_ref).read_text(encoding="utf-8"))
@@ -116,13 +116,13 @@ def test_router_ups_is_registered_in_acceptance_and_not_rack_infrastructure():
         external_components=registry_doc["external_components"],
         assets=[asset],
     )
-    assert registry.lookup("UPS-RTR-01").status == "ACCEPTANCE"
+    assert registry.lookup("UPS-RTR-01").status == "PRODUCTION"
     assert asset.infrastructure == "gateway" and asset.mounted_in_rack is False
     assert asset.powers == ("Speedport-Smart-4", "Telephone", "Elspet-Automatic-Litter-Box")
-    assert blockers and not asset.acceptance.passed
-    with pytest.raises(AssetValidationError, match="complete asset identity"):
-        asset.transition("PRODUCTION", acceptance=passed_acceptance())
-    assert PENDING_VALUE in {asset.manufacturer, asset.model, asset.serial_number}
+    assert blockers == [] and asset.acceptance.passed
+    assert asset.acceptance_date == "2026-08-04"
+    assert asset.production_date == "2026-08-04"
+    assert PENDING_VALUE not in {asset.manufacturer, asset.model, asset.serial_number}
 
 
 def test_core_has_no_procurement_or_device_dependency_and_creates_no_runtime_files():

@@ -28,8 +28,8 @@ Horizon-Schritten.
 | Sprint | Sprint 4 – First Deployment |
 | Horizon | Horizon 1 – Initial Build |
 | Reifegrad | Architektur-, Procurement- und Operations-Foundation abgeschlossen |
-| Physischer Stand | Router-USV geliefert und als Asset in `ACCEPTANCE` |
-| Deploymentfokus | Acceptance abschließen; Rack-, Firewall-, Switch-, USV- und AP-Aufbau vorbereiten |
+| Physischer Stand | Router-USV akzeptiert und als erstes Infrastruktur-Asset in `PRODUCTION` |
+| Deploymentfokus | Rack-, Firewall-, Switch-, Rack-USV- und AP-Aufbau vorbereiten |
 | Zwischenziel | Laptop hinter OPNsense per LAN oder WLAN sicher im Internet |
 
 ## Abgeschlossene Foundation
@@ -54,6 +54,7 @@ Relevante aktuelle Work Orders:
 | WO-0034 / R1 | Managed-Switch-Entscheidung und Cross-Case-Gate |
 | WO-0035 | Asset Lifecycle & Registry |
 | WO-0036 | PC-0001 geschlossen und an Asset Lifecycle übergeben |
+| WO-0038 | UPS-RTR-01-Acceptance abgeschlossen; Status `PRODUCTION` |
 
 ## Existierende Systeme
 
@@ -74,9 +75,9 @@ der Laptop. Neu beschafft wurde die Eaton 3S850D Router-USV. Sie versorgt real
 Speedport, Telefon und Elspet Automatic Litter Box; diese Verbraucher sind
 externe Lasten, keine neuen HDC-OS-Assets.
 
-`UPS-RTR-01` bleibt in `ACCEPTANCE`, bis Seriennummer, Kaufdatum, Garantie,
-automatischer Batteriebetrieb, Netzrückkehr und Abschlussdokumentation bestätigt
-sind.
+`UPS-RTR-01` ist seit dem 04.08.2026 in `PRODUCTION`. Seriennummer, Kaufdaten,
+Sichtprüfung, automatischer Batteriebetrieb und Netzrückkehr sind dokumentiert.
+Nur das Garantieende bleibt bis zum belastbaren Nachweis `PENDING_CONFIRMATION`.
 
 ## Aktueller Sprint: First Deployment
 
@@ -104,13 +105,12 @@ Migrationstest.
 
 ## Nächste Schritte
 
-1. Acceptance von `UPS-RTR-01` vollständig dokumentieren.
-2. PC-0002 Rack zur Kaufreife und Entscheidung führen.
-3. Qualifiziertes Horizon-1-Angebot für PC-0003 bewerten.
-4. PC-0004 Switch-Angebot inklusive Rackablage und AP-Cross-Case-Gate bewerten.
-5. PC-0005 Rack-USV vervollständigen.
-6. Access-Point-Case und Deployment Work Orders erstellen.
-7. Netzwerkpfad schrittweise mit dokumentiertem Rollback aufbauen und validieren.
+1. PC-0002 Rack zur Kaufreife und Entscheidung führen.
+2. Qualifiziertes Horizon-1-Angebot für PC-0003 bewerten.
+3. PC-0004 Switch-Angebot inklusive Rackablage und AP-Cross-Case-Gate bewerten.
+4. PC-0005 Rack-USV vervollständigen.
+5. Access-Point-Case und Deployment Work Orders erstellen.
+6. Netzwerkpfad schrittweise mit dokumentiertem Rollback aufbauen und validieren.
 
 ## Historische Baseline
 

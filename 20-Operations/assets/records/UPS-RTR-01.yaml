@@ -3,16 +3,16 @@ asset_id: UPS-RTR-01
 asset_class: gateway_power
 manufacturer: Eaton
 model: 3S850D
-serial_number: PENDING_ACCEPTANCE
-purchase_date: PENDING_ACCEPTANCE
-warranty_end: PENDING_ACCEPTANCE
-location: Router Location
+serial_number: GE67V13292
+purchase_date: '2026-07-29'
+warranty_end: PENDING_CONFIRMATION
+location: Internet-Gateway / Speedport-Standort
 room: Outside Office
 infrastructure: gateway
 mounted_in_rack: false
-status: ACCEPTANCE
-acceptance_date: null
-production_date: null
+status: PRODUCTION
+acceptance_date: '2026-08-04'
+production_date: '2026-08-04'
 retirement_date: null
 powers:
   - Speedport-Smart-4
@@ -23,20 +23,15 @@ depends_on: []
 procurement_case: PC-0001
 acceptance:
   model_correct: true
-  packaging_undamaged: false
-  serial_present: false
-  accessories_complete: false
-  documentation_present: false
+  packaging_undamaged: true
+  serial_present: true
+  accessories_complete: true
+  documentation_present: true
   functional_tests:
     - automatic_battery_operation
     - mains_return
     - error_free_operation
-  functional_test_passed: false
-  accepted_by: null
-  accepted_on: null
-acceptance_blockers:
-  - Capture serial number
-  - Capture purchase date and warranty end
-  - Complete visual inspection
-  - Confirm package contents and documentation
-  - Pass automatic battery operation, mains return and error-free operation tests
+  functional_test_passed: true
+  accepted_by: Project Owner
+  accepted_on: '2026-08-04'
+acceptance_blockers: []

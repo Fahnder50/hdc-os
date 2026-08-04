@@ -48,7 +48,7 @@ Basisbetrieb aktiviert.
 
 Aktuelle Arbeiten:
 
-- Acceptance von `UPS-RTR-01` abschließen,
+- Acceptance von `UPS-RTR-01` abgeschlossen; erstes Asset in `PRODUCTION`,
 - PC-0002 bis PC-0005 in konkrete Kaufentscheidungen überführen,
 - Access-Point-Anforderungen und Case festlegen,
 - Deployment Work Orders für Rack, Firewall, Switch, USV und AP vorbereiten.
