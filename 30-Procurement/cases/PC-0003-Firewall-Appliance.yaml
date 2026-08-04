@@ -1,6 +1,7 @@
 case_id: PC-0003
 title: Firewall Appliance
 status: WATCHING
+lifecycle_version: 2
 priority: high
 architecture_reference: 20-Operations/Network-Design-v0.1.md
 architecture_version: "0.1"

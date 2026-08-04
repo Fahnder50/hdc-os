@@ -21,10 +21,18 @@ aktiven Cases PC-0002 bis PC-0005 auf dem Weg zum ersten Deployment.
 
 ## Betriebsstand
 
-Die lokale Python-3.12-Runtime verarbeitet ausschließlich Cases mit Status
-`WATCHING`. Seit WO-0036 ist PC-0001 `PURCHASED`: Es wird nicht mehr beobachtet,
+Seit WO-0039 ist Procurement ein generischer Markt- und Entscheidungsdienst;
+ein Kauf muss kein HDC-OS-Asset werden. Die lokale Python-3.12-Runtime
+verarbeitet ausschließlich die aktiven Zustände `WATCHING`, `QUALIFYING`,
+`READY_FOR_REVIEW` und `BUY_CANDIDATE`. Seit WO-0036 ist PC-0001 `PURCHASED`:
+Es wird nicht mehr beobachtet,
 erzeugt keine neue Kaufempfehlung und bleibt nur als vollständige Historie
 erhalten. Aktiv sind PC-0002 bis PC-0005.
+
+Fachliche Abschlüsse sind ausschließlich `PURCHASED` oder `CANCELLED`;
+`CLOSED` ist ausschließlich eine abgeleitete, niemals persistierte
+schreibgeschützte Archivsicht. Details stehen im
+[Generic Procurement Lifecycle](architecture/Generic-Procurement-Lifecycle.md).
 
 Der Watch speichert Beobachtungen, Bewertungen, Journals und Reports lokal. Er
 bestellt niemals automatisch und leitet keinen Asset-Betriebsstatus ab.

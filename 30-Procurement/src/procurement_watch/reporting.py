@@ -38,8 +38,10 @@ def _next_date(value):
 
 
 def _operator_reason(status):
-    if status["recommendation_status"] == "NO_CANDIDATE":
-        return status.get("candidate_exclusion_reason", "Kein passendes Kandidatenangebot ist vorhanden.")
+    if status["recommendation_status"] == "CLOSED":
+        return "Procurement abgeschlossen; keine weitere Markt- oder Kaufbewertung."
+    if status["recommendation_status"] == "WATCHING":
+        return status.get("candidate_exclusion_reason") or "Kein passendes Kandidatenangebot ist vorhanden."
     if status["recommendation_status"] == "BUY_CANDIDATE":
         return "Budget, Verfügbarkeit, Lieferfrist und dokumentierte Anforderungen sind erfüllt."
     reasons = []
@@ -123,11 +125,16 @@ def render_report(data, generated_at=None):
     ranked_offer_id = status.get("ranking", [None])[0].get("offer_id") if status.get("ranking") else None
     top_offer = next((offer for offer in data["offers"] if offer.get("offer_id") == ranked_offer_id), None)
     ranked_offer_ids = {item.get("offer_id") for item in status.get("ranking", [])}
-    report_offers = [offer for offer in data["offers"] if offer.get("offer_id") in ranked_offer_ids]
+    report_offers = (
+        data["offers"] if status.get("procurement_completed")
+        else [offer for offer in data["offers"] if offer.get("offer_id") in ranked_offer_ids]
+    )
     recommendation = status["recommendation_status"]
-    if recommendation == "BUY_CANDIDATE":
+    if recommendation == "CLOSED":
+        decision = "PROCUREMENT ABGESCHLOSSEN"
+    elif recommendation == "BUY_CANDIDATE":
         decision = "JETZT KAUFEN"
-    elif recommendation == "CONDITIONAL_BUY":
+    elif recommendation == "READY_FOR_REVIEW":
         decision = "NOCH WARTEN"
     else:
         decision = "NOCH NICHT KAUFEN"

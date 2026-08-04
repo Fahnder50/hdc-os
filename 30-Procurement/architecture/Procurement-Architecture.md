@@ -99,7 +99,8 @@ Das Subsystem wird über stabile fachliche Services und IDs integriert, nicht ü
 
 - Übergabe von Cases, Anforderungen und Freigabekontexten
 - Abfrage von Status, Bewertungen, Angeboten und Events
-- Übergabe eines bestätigten `AssetHandover` an ein späteres Asset-Modul
+- optionale, opake Referenz auf einen extern entschiedenen Folgeprozess; keine
+  Erzeugung von Asset-, Registry-, Acceptance- oder Operations-Komponenten
 - Ausführung über einen späteren HDC-OS-Scheduler
 
 Die lokale CLI und der HTML-Report bleiben als Diagnose- und Notfallwerkzeuge erhalten.

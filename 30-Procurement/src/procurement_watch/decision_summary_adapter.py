@@ -1,4 +1,5 @@
 from datetime import date
+from html import escape
 
 from shared.decision_summary import DecisionDimension, create_decision_summary, render_decision_summary
 
@@ -73,6 +74,18 @@ def _format_date(value):
 
 
 def build_procurement_decision_summary(status, data=None, money_formatter=None):
+    if status.get("procurement_completed"):
+        external_reference = status.get("external_reference")
+        reference_label = "extern dokumentiert" if external_reference else "keine externe Referenz dokumentiert"
+        return (
+            '<section class="decision-summary">'
+            '<h2>Procurement abgeschlossen</h2>'
+            f'<p><strong>Abschluss:</strong> {escape(str(status.get("completion_status") or "CLOSED"))}</p>'
+            f'<p><strong>Abschlussdatum:</strong> {escape(str(status.get("completion_date") or "nicht dokumentiert"))}</p>'
+            f'<p><strong>Externe Referenz:</strong> {escape(reference_label)}</p>'
+            '<p>Keine Markt-, Preis- oder Kaufempfehlungsbewertung mehr aktiv.</p>'
+            '</section>'
+        )
     money = money_formatter or (lambda value: f"{value:.2f} €" if value is not None else "unbekannt")
     offers = status.get("active_offers", 0)
     ranking = status.get("ranking", [])
@@ -94,7 +107,12 @@ def build_procurement_decision_summary(status, data=None, money_formatter=None):
         "NO_OFFER": "Keine Preisbasis",
     }
     recommendation = status["recommendation_status"]
-    action = {"BUY_CANDIDATE": "JETZT KAUFEN", "CONDITIONAL_BUY": "NOCH WARTEN"}.get(recommendation, "NICHT KAUFEN")
+    action = {
+        "BUY_CANDIDATE": "JETZT KAUFEN",
+        "READY_FOR_REVIEW": "NOCH WARTEN",
+        "CONDITIONAL_BUY": "NOCH WARTEN",
+        "CLOSED": "PROCUREMENT ABGESCHLOSSEN",
+    }.get(recommendation, "NICHT KAUFEN")
     market_detail = f"{offers} valide Angebote · technisch freigegeben: {status.get('technically_eligible_offers', 0)}" if offers else "Keine auswertbaren Angebote"
     reasons = []
     reasons.append(f"Budget: {budget_labels.get(budget_status, budget_status)}.")

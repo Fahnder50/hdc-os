@@ -32,7 +32,7 @@ Ein `Product` beschreibt einen Produktkandidaten. Ein `Offer` beschreibt das Ang
 | `WatchRunResult` | Ergebnis einer Quelle oder Case-Verarbeitung innerhalb eines WatchRuns | `result_id`; gehört zu WatchRun, optional Case und Source | pending → succeeded/failed/skipped; Collector / SQLite |
 | `Event` | Nachvollziehbarer relevanter Zustand oder Zustandswechsel, z. B. BudgetExceeded | `event_id`, `event_type`, `severity`; deduplizierbarer Schlüssel aus Typ und fachlichem Kontext | open → acknowledged/resolved/superseded; Event Generator / SQLite |
 | `PurchaseDecision` | Menschlich verantwortete Entscheidung oder Freigabe mit Begründung | `decision_id`; gehört zu ProcurementCase und referenziert Evaluationsstand | proposed → approved/rejected/withdrawn; Project Owner / SQLite |
-| `AssetHandover` | Übergabe eines erhaltenen Beschaffungsgegenstands an ein späteres Asset-Modul | `handover_id`; gehört zu Case/Product und referenziert PurchaseDecision | planned → handed_over/cancelled; Procurement Service / SQLite |
+| `AssetHandover` | Deprecated Legacy-Datensatz der Foundation; keine aktive Core-Abhängigkeit | historische `handover_id`; wird nicht neu erzeugt | nur Bestandserhalt |
 
 ## Event-Vertrag
 
@@ -75,7 +75,10 @@ Unbekannte Event-Typen oder Schweregrade sind ungültig. Die Klassifizierung wir
 - Ein Angebot ist nicht gleich eine Preisbeobachtung: ein Angebot besitzt eine zeitliche Historie von Beobachtungen.
 - Ein Procurement Case ist nicht gleich ein Produkt: ein Case beschreibt einen Bedarf und kann mehrere Kandidaten enthalten.
 - Eine Kaufentscheidung ist nicht gleich eine automatische Bestellung: jede Entscheidung bleibt menschlich freigegeben; Bestellung ist außerhalb dieses Meilensteins.
-- Ein Asset-Handover ist nicht gleich vollständiges Asset Management: die Übergabe bildet nur die Integrationsgrenze für ein späteres Modul.
+- Nachgelagerte Verwendung ist vollständig optional und liegt außerhalb von
+  Procurement. Die Legacy-Tabelle `asset_handovers` bleibt ausschließlich zur
+  verlustfreien Historienkompatibilität bestehen; der Core liest oder schreibt
+  sie nicht.
 
 ## Zuständigkeiten
 

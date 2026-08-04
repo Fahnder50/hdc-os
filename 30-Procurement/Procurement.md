@@ -32,6 +32,11 @@ Der Watch beobachtet und bewertet; er bestellt nicht. Der Project Owner gibt ein
 konkretes Angebot frei. Mit `PURCHASED` endet Procurement. Danach ist
 ausschließlich die Asset Registry für Acceptance und Betriebsstatus maßgeblich.
 
+Procurement setzt ausdrücklich keine Asset-Erstellung voraus. Nach einem Kauf
+wird außerhalb dieses Systems entschieden, ob überhaupt ein Asset oder eine
+andere nachgelagerte Behandlung entsteht. Ohne externe Asset-Entscheidung endet
+der Ablauf vollständig bei Procurement.
+
 ## Aktuelles Portfolio
 
 | Case | Status | Entscheidung / nächster Schritt |
@@ -105,10 +110,16 @@ nicht einzelne Komponenten früh überdimensionieren.
 ## Übergang zu Operations
 
 ```text
-WATCHING → freigegebenes Angebot → PURCHASED
-                                      ↓
-                            Asset ACCEPTANCE → PRODUCTION
+WATCHING → QUALIFYING → READY_FOR_REVIEW → BUY_CANDIDATE
+                                             └─ PURCHASED
+
+Jeder aktive Zustand → CANCELLED
 ```
+
+Nur aktive Zustände werden beobachtet oder bewertet. Asset-Handover ist ein
+optionaler, externer Folgeprozess und kein Bestandteil dieses Lifecycles.
+`CLOSED` ist kein persistenter Status, sondern nur die automatisch erzeugte
+Archivansicht von `PURCHASED` und `CANCELLED`.
 
 Der Übergang von PC-0001 ist in
 [WO-0036](../20-Operations/WO-0036-Procurement-to-Asset-Handover.md)
@@ -118,6 +129,7 @@ dokumentiert. Assetzustände werden niemals aus Procurement abgeleitet.
 
 - [Procurement-Architektur](architecture/Procurement-Architecture.md)
 - [Datenmodell](architecture/Data-Model.md)
+- [Generic Procurement Lifecycle](architecture/Generic-Procurement-Lifecycle.md)
 - [Ausführungsmodell](architecture/Execution-Model.md)
 - [Runtime-Betrieb](README.md)
 

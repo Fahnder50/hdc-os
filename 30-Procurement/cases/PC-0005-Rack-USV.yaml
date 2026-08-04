@@ -1,6 +1,7 @@
 case_id: PC-0005
 title: Rack-USV
 status: WATCHING
+lifecycle_version: 2
 requirement_profile: profiles/PC-0005.yaml
 candidate_models:
   - id: OR1000ERM1U

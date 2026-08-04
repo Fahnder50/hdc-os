@@ -50,12 +50,7 @@ def test_decision_summary_is_first_class_report_section(tmp_path):
     )
     import_case(config, REPO_ROOT / "30-Procurement/cases/PC-0001-Router-USV.yaml")
     report = report_case(config, "PC-0001").read_text(encoding="utf-8")
-    assert report.index("Decision Summary") < report.index("Kurzübersicht")
-    assert report.count("<th>Markt</th>") == 1
-    assert report.count("<th>Budget</th>") == 1
-    assert report.count("<th>Technik</th>") == 1
-    assert report.count("<th>Zeit</th>") == 1
-    assert report.count("<th>Risiko</th>") == 1
-    assert "Handlungsempfehlung:" in report
-    assert "Die Empfehlung würde sich ändern wenn" in report
+    assert report.index("Procurement abgeschlossen") < report.index("Kurzübersicht")
+    assert "Abschluss:</strong> PURCHASED" in report
+    assert "Keine Markt-, Preis- oder Kaufempfehlungsbewertung mehr aktiv" in report
     assert "{{" not in report

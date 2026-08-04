@@ -40,7 +40,7 @@ def test_watching_case_without_candidates_fails_with_clear_error(tmp_path):
     invalid = tmp_path / "invalid.yaml"
     source = source.replace("status: PURCHASED", "status: WATCHING", 1)
     invalid.write_text(source.replace("candidate_models:\n", "candidate_models_disabled:\n", 1), encoding="utf-8")
-    with pytest.raises(ValueError, match="PC-0001 is WATCHING but defines no candidate models"):
+    with pytest.raises(ValueError, match="PC-0001 is active but defines no candidate models"):
         import_case(resolve_config(environ={"HDC_PROCUREMENT_DB": str(tmp_path / "procurement.db")}, repository_root=REPO_ROOT), invalid)
 
 

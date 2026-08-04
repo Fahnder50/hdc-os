@@ -10,7 +10,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 def test_decision_summary_shows_target_date_and_delivery_buffer():
     rendered = build_procurement_decision_summary({
-        "recommendation_status": "CONDITIONAL_BUY",
+        "recommendation_status": "READY_FOR_REVIEW",
         "active_offers": 1,
         "best_observed_price": 49.0,
         "budget_status": "WITHIN_TARGET_BUDGET",
@@ -46,17 +46,17 @@ def test_decision_summary_deduplicates_technical_facts_and_risks():
 
 def test_decision_summary_separates_engine_status_and_action():
     rendered = build_procurement_decision_summary({
-        "recommendation_status": "CONDITIONAL_BUY",
+        "recommendation_status": "READY_FOR_REVIEW",
         "warnings": [],
         "ranking": [],
     })
-    assert "Engine-Status:</strong> CONDITIONAL_BUY" in rendered
+    assert "Engine-Status:</strong> READY_FOR_REVIEW" in rendered
     assert "Handlungsempfehlung: NOCH WARTEN" in rendered
 
 
 def test_decision_summary_keeps_budget_codes_out_of_risk_dimension():
     rendered = build_procurement_decision_summary({
-        "recommendation_status": "CONDITIONAL_BUY",
+        "recommendation_status": "READY_FOR_REVIEW",
         "budget_status": "WITHIN_TARGET_BUDGET",
         "active_offers": 1,
         "warnings": [
@@ -77,7 +77,7 @@ def test_decision_summary_keeps_budget_codes_out_of_risk_dimension():
 
 def test_decision_summary_reasons_match_change_conditions():
     rendered = build_procurement_decision_summary({
-        "recommendation_status": "CONDITIONAL_BUY",
+        "recommendation_status": "READY_FOR_REVIEW",
         "budget_status": "WITHIN_MAXIMUM_BUDGET",
         "active_offers": 1,
         "warnings": ["RUNTIME_TARGET_DOCUMENTED: UNKNOWN"],
@@ -95,7 +95,7 @@ def test_decision_summary_reasons_match_change_conditions():
 
 def test_decision_summary_shows_checkout_and_runtime_risks():
     rendered = build_procurement_decision_summary({
-        "recommendation_status": "CONDITIONAL_BUY",
+        "recommendation_status": "READY_FOR_REVIEW",
         "budget_status": "WITHIN_TARGET_BUDGET",
         "warnings": ["RUNTIME_TARGET_DOCUMENTED: UNKNOWN"],
         "purchase_conditions": ["Versandkosten und Endpreis im Checkout bestätigen."],
@@ -121,6 +121,7 @@ def test_pc001_productive_report_contains_all_decision_dimensions(tmp_path):
     status = case_status(config, "PC-0001")
     assert status["target_date"] == "2026-08-04"
     report = report_case(config, "PC-0001").read_text(encoding="utf-8")
-    assert all(f"<th>{dimension}</th>" in report for dimension in ("Markt", "Budget", "Technik", "Zeit", "Risiko"))
-    assert "04.08.2026" in report
+    assert "Procurement abgeschlossen" in report
+    assert "PURCHASED" in report
+    assert "Keine Markt-, Preis- oder Kaufempfehlungsbewertung mehr aktiv" in report
     assert "{{" not in report

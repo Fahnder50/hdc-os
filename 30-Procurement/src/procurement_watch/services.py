@@ -14,12 +14,19 @@ from .evaluator import evaluate_case
 from .events import emit_event
 from .logging_utils import log_record
 from .journal import entries_for_case, record_entry
+from .lifecycle import (
+    ACTIVE_CASE_STATUSES, archive_view, is_active, is_completed,
+    transition_case_status, validate_case_status,
+)
 from .reporting import write_case_report
 from .requirements import load_requirement_profile, parse_requirement_profile
 
 
 def utc_now():
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+ACTIVE_STATUS_SQL = "(" + ", ".join("?" for _ in ACTIVE_CASE_STATUSES) + ")"
 
 
 def init_database(config):
@@ -41,7 +48,10 @@ def run_watch(config, simulate_failure=False):
             (run_id, started_at, "running"),
         )
         database_run_id = connection.execute("SELECT id FROM watch_runs WHERE watch_run_id = ?", (run_id,)).fetchone()[0]
-        for case in connection.execute("SELECT case_id FROM procurement_cases WHERE status = 'WATCHING'"):
+        for case in connection.execute(
+            f"SELECT case_id FROM procurement_cases WHERE status IN {ACTIVE_STATUS_SQL}",
+            ACTIVE_CASE_STATUSES,
+        ):
             case_db_id = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case["case_id"],)).fetchone()[0]
             _quarantine_unmatched_offers(connection, case_db_id)
             evaluate_case(connection, case["case_id"], database_run_id)
@@ -57,7 +67,10 @@ def run_watch(config, simulate_failure=False):
             (ended_at, result_status, int(simulate_failure), database_run_id),
         )
         connection.commit()
-        active_cases = [row["case_id"] for row in connection.execute("SELECT case_id FROM procurement_cases WHERE status = 'WATCHING'")]
+        active_cases = [row["case_id"] for row in connection.execute(
+            f"SELECT case_id FROM procurement_cases WHERE status IN {ACTIVE_STATUS_SQL}",
+            ACTIVE_CASE_STATUSES,
+        )]
         for case_id in active_cases:
             report_data = case_report_data(config, case_id)
             write_case_report(config, report_data)
@@ -94,11 +107,11 @@ def _candidate_model_ids(connection, case_db_id):
 
 
 def _validate_candidate_models(document):
-    if str(document.get("status", "")).upper() != "WATCHING":
+    if not is_active(document.get("status")):
         return
     candidates = document.get("candidate_models") or []
     if not candidates:
-        raise ValueError(f"{document['case_id']} is WATCHING but defines no candidate models.")
+        raise ValueError(f"{document['case_id']} is active but defines no candidate models.")
     identifiers = []
     for candidate in candidates:
         if not isinstance(candidate, dict) or not candidate.get("id"):
@@ -176,6 +189,7 @@ def _backfill_journal(config):
             JOIN procurement_cases ON procurement_cases.id = watch_run_results.case_id
             LEFT JOIN journal_entries ON journal_entries.watch_run_id = watch_runs.id
             WHERE journal_entries.id IS NULL
+              AND procurement_cases.status IN ('WATCHING', 'QUALIFYING', 'READY_FOR_REVIEW', 'BUY_CANDIDATE')
             GROUP BY watch_runs.id, procurement_cases.id
             ORDER BY watch_runs.started_at
             """
@@ -282,7 +296,7 @@ def run_live_watch(config, case_id):
         status_connection.close()
     if case_status_row is None:
         raise ValueError(f"Unknown case: {case_id}")
-    if case_status_row["status"] != "WATCHING":
+    if not is_active(case_status_row["status"]):
         raise ValueError(f"{case_id} is not active for watching (status {case_status_row['status']}).")
     _backfill_journal(config)
     sources_document = load_yaml_config(config.sources_path)
@@ -301,7 +315,7 @@ def run_live_watch(config, case_id):
             raise ValueError(f"Unknown case: {case_id}")
         candidate_ids = set(_candidate_model_ids(connection, case[0]))
         if not candidate_ids:
-            raise ValueError(f"{case_id} is WATCHING but defines no candidate models.")
+            raise ValueError(f"{case_id} is active but defines no candidate models.")
         required_by_date = _requirement_value(connection, case[0], "required_by_date", "2026-08-03")
         preferred_shipping_purchase_by = _requirement_value(connection, case[0], "preferred_shipping_purchase_by", "2026-07-31")
         shipping_exception_date = _requirement_value(connection, case[0], "shipping_purchase_exception_date", "2026-08-01")
@@ -431,6 +445,7 @@ def import_case(config, path):
     missing = [field for field in required if field not in document]
     if missing:
         raise ValueError(f"Case missing required fields: {', '.join(missing)}")
+    document["status"] = validate_case_status(document["status"])
     _validate_candidate_models(document)
     profile_document = document.get("requirement_profile")
     if isinstance(profile_document, str):
@@ -449,7 +464,9 @@ def import_case(config, path):
         existing_case = connection.execute(
             "SELECT id, status FROM procurement_cases WHERE case_id = ?", (document["case_id"],)
         ).fetchone()
-        preserve_closed_history = existing_case is not None and document["status"] != "WATCHING"
+        if existing_case is not None:
+            document["status"] = transition_case_status(existing_case["status"], document["status"])
+        preserve_closed_history = existing_case is not None and is_completed(document["status"])
         connection.execute(
             """
             INSERT INTO procurement_cases(case_id, title, status, priority, created_at, updated_at)
@@ -473,6 +490,13 @@ def import_case(config, path):
         _upsert_requirement(connection, case_db_id, "budget_target_price", budget.get("target_price"), "PASS")
         _upsert_requirement(connection, case_db_id, "budget_maximum_total_price", budget.get("maximum_total_price"), "PASS")
         _upsert_requirement(connection, case_db_id, "budget_absolute_maximum_total_price", budget.get("absolute_maximum_total_price"), "PASS")
+        if document.get("closed_at") or document.get("purchased_at") or document.get("cancelled_at"):
+            _upsert_requirement(
+                connection, case_db_id, "completion_date",
+                document.get("closed_at") or document.get("purchased_at") or document.get("cancelled_at"), "PASS",
+            )
+        if document.get("external_reference") is not None:
+            _upsert_requirement(connection, case_db_id, "external_reference", document["external_reference"], "PASS")
         if profile and not preserve_closed_history:
             connection.execute(
                 "INSERT INTO requirement_profiles(case_id, profile_id, name, status, version, approved_at, criteria_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -502,13 +526,42 @@ def import_all_cases(config):
     return {"imported": imported, "count": len(imported)}
 
 
+def transition_case(config, case_id, target_status):
+    """Persist a case transition after central lifecycle validation."""
+    initialize(config)
+    connection = connect(config)
+    try:
+        row = connection.execute(
+            "SELECT status FROM procurement_cases WHERE case_id = ?", (case_id,)
+        ).fetchone()
+        if row is None:
+            raise ValueError(f"Unknown case: {case_id}")
+        target = transition_case_status(row["status"], target_status)
+        connection.execute(
+            "UPDATE procurement_cases SET status = ?, updated_at = ? WHERE case_id = ?",
+            (target, utc_now(), case_id),
+        )
+        connection.commit()
+        return {"case_id": case_id, "previous_status": row["status"], "status": target}
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        connection.close()
+
+
 def portfolio_watch(config):
     started = perf_counter()
     initialize(config)
     connection = connect(config)
     try:
         case_ids = [row["case_id"] for row in connection.execute(
-            "SELECT case_id FROM procurement_cases WHERE status = 'WATCHING' ORDER BY case_id"
+            f"SELECT case_id FROM procurement_cases WHERE status IN {ACTIVE_STATUS_SQL} ORDER BY case_id",
+            ACTIVE_CASE_STATUSES,
+        )]
+        completed = [dict(row) for row in connection.execute(
+            "SELECT case_id, title, status, updated_at FROM procurement_cases "
+            "WHERE status IN ('PURCHASED', 'CANCELLED') ORDER BY case_id"
         )]
     finally:
         connection.close()
@@ -547,14 +600,18 @@ def portfolio_watch(config):
     recommendations = [item["status"] for item in results]
     health = {
         "watching": len(results),
-        "conditional_buy": recommendations.count("CONDITIONAL_BUY"),
-        "review": recommendations.count("REVIEW"),
+        "qualifying": recommendations.count("QUALIFYING"),
+        "ready_for_review": recommendations.count("READY_FOR_REVIEW"),
+        "buy_candidate": recommendations.count("BUY_CANDIDATE"),
+        "conditional_buy": 0,
+        "review": 0,
         "blocked": recommendations.count("BLOCKED"),
         "errors": errors,
         "duration_seconds": round(perf_counter() - started, 3),
     }
     return {
         "cases": results,
+        "completed_procurement": completed,
         "case_count": len(results),
         "offer_count": sum(item["offers"] for item in results),
         "source_count": sum(item["sources"] for item in results),
@@ -572,17 +629,20 @@ def portfolio_status(config):
     connection = connect(config)
     try:
         rows = connection.execute(
-            "SELECT status, COUNT(*) AS count FROM procurement_cases WHERE status = 'WATCHING' GROUP BY status"
+            f"SELECT status, COUNT(*) AS count FROM procurement_cases WHERE status IN {ACTIVE_STATUS_SQL} GROUP BY status",
+            ACTIVE_CASE_STATUSES,
         ).fetchall()
         statuses = {row["status"]: row["count"] for row in rows}
         last_run = connection.execute(
             "SELECT watch_run_id, status, started_at, ended_at FROM watch_runs ORDER BY started_at DESC LIMIT 1"
         ).fetchone()
         active_cases = connection.execute(
-            "SELECT COUNT(*) FROM procurement_cases WHERE status = 'WATCHING'"
+            f"SELECT COUNT(*) FROM procurement_cases WHERE status IN {ACTIVE_STATUS_SQL}",
+            ACTIVE_CASE_STATUSES,
         ).fetchone()[0]
         recommendations = connection.execute(
-            "SELECT procurement_cases.case_id FROM procurement_cases WHERE procurement_cases.status = 'WATCHING'"
+            f"SELECT procurement_cases.case_id FROM procurement_cases WHERE procurement_cases.status IN {ACTIVE_STATUS_SQL}",
+            ACTIVE_CASE_STATUSES,
         ).fetchall()
     finally:
         connection.close()
@@ -627,11 +687,23 @@ def _money_to_cents(value):
         raise ValueError(f"Invalid monetary value: {value}") from error
 
 
+def _active_case_id(connection, case_id):
+    row = connection.execute(
+        "SELECT id, status FROM procurement_cases WHERE case_id = ?", (case_id,)
+    ).fetchone()
+    if row is None:
+        raise ValueError(f"Unknown case: {case_id}")
+    if not is_active(row["status"]):
+        raise ValueError(f"{case_id} is closed for procurement changes (status {row['status']}).")
+    return row["id"]
+
+
 def add_product(config, product_id, product_name, manufacturer=None, model=None, technical_reference=None, technical=None, case_id=None):
     initialize(config)
     connection = connect(config)
     try:
         now = utc_now()
+        case_db_id = _active_case_id(connection, case_id) if case_id else None
         connection.execute(
             """
             INSERT INTO products(product_id, manufacturer, model, product_name, technical_reference, technical_json, status, created_at, updated_at)
@@ -644,12 +716,9 @@ def add_product(config, product_id, product_name, manufacturer=None, model=None,
         )
         product_db_id = connection.execute("SELECT id FROM products WHERE product_id = ?", (product_id,)).fetchone()[0]
         if case_id:
-            case_db_id = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
-            if case_db_id is None:
-                raise ValueError(f"Unknown case: {case_id}")
             connection.execute(
                 "INSERT OR IGNORE INTO case_products(case_id, product_id, status, created_at) VALUES (?, ?, 'proposed', ?)",
-                (case_db_id[0], product_db_id, now),
+                (case_db_id, product_db_id, now),
             )
         connection.commit()
     except Exception:
@@ -665,6 +734,7 @@ def add_offer(config, offer_id, product_id, vendor_id, vendor_name, price, shipp
     connection = connect(config)
     try:
         now = observed_at or utc_now()
+        case_db_id = _active_case_id(connection, case_id) if case_id else None
         product = connection.execute("SELECT id FROM products WHERE product_id = ?", (product_id,)).fetchone()
         if product is None:
             raise ValueError(f"Unknown product: {product_id}")
@@ -708,12 +778,9 @@ def add_offer(config, offer_id, product_id, vendor_id, vendor_name, price, shipp
             (observation_id, offer_db_id, price_cents, shipping_cents, total_cents, currency, availability, now, source_type, "valid" if valid_price else "quarantined"),
         )
         if case_id:
-            case_db_id = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
-            if case_db_id is None:
-                raise ValueError(f"Unknown case: {case_id}")
             connection.execute(
                 "INSERT OR IGNORE INTO case_products(case_id, product_id, status, created_at) VALUES (?, ?, 'proposed', ?)",
-                (case_db_id[0], product[0], now),
+                (case_db_id, product[0], now),
             )
         connection.commit()
     except Exception:
@@ -728,8 +795,8 @@ def offers_for_case(config, case_id):
     _require_initialized(config)
     connection = connect(config)
     try:
-        case = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
-        if case:
+        case = connection.execute("SELECT id, status FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
+        if case and is_active(case["status"]):
             _quarantine_invalid_prices(connection, case["id"])
             connection.commit()
         rows = connection.execute(
@@ -764,8 +831,8 @@ def history_for_case(config, case_id):
     _require_initialized(config)
     connection = connect(config)
     try:
-        case = connection.execute("SELECT id FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
-        if case:
+        case = connection.execute("SELECT id, status FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
+        if case and is_active(case["status"]):
             _quarantine_invalid_prices(connection, case["id"])
             connection.commit()
         rows = connection.execute(
@@ -804,6 +871,51 @@ def case_status(config, case_id):
         case = connection.execute("SELECT * FROM procurement_cases WHERE case_id = ?", (case_id,)).fetchone()
         if case is None:
             raise ValueError(f"Unknown case: {case_id}")
+        if is_completed(case["status"]):
+            profile = load_requirement_profile(connection, case["id"])
+            historical_offers = connection.execute(
+                "SELECT COUNT(*) FROM offers JOIN case_products ON case_products.product_id = offers.product_id "
+                "WHERE case_products.case_id = ? AND offers.price_cents > 0",
+                (case["id"],),
+            ).fetchone()[0]
+            historical_observations = connection.execute(
+                "SELECT COUNT(*) FROM price_observations JOIN offers ON offers.id = price_observations.offer_id "
+                "JOIN case_products ON case_products.product_id = offers.product_id "
+                "WHERE case_products.case_id = ? AND price_observations.price_cents > 0",
+                (case["id"],),
+            ).fetchone()[0]
+            return {
+                "case_id": case["case_id"],
+                "title": case["title"],
+                "priority": case["priority"],
+                "case_status": case["status"],
+                "lifecycle_status": archive_view(case["status"]),
+                "completion_status": case["status"],
+                "completion_date": _requirement_value(connection, case["id"], "completion_date"),
+                "external_reference": _requirement_value(connection, case["id"], "external_reference"),
+                "target_date": _requirement_value(connection, case["id"], "target_date"),
+                "requirement_profile_status": "Freigegeben" if profile and profile.is_approved else "Nicht definiert",
+                "requirement_profile_name": profile.name if profile and profile.is_approved else None,
+                "requirement_profile_id": profile.profile_id if profile and profile.is_approved else None,
+                "requirement_profile_version": profile.version if profile and profile.is_approved else None,
+                "requirement_profile_approved_at": profile.approved_at if profile and profile.is_approved else None,
+                "requirement_profile_criteria_count": len(profile.requirements) if profile and profile.is_approved else 0,
+                "requirement_profile_confirmed_count": sum(item["status"] == "CONFIRMED" for item in profile.requirements) if profile and profile.is_approved else 0,
+                "requirement_profile_proposed_count": sum(item["status"] == "PROPOSED" for item in profile.requirements) if profile and profile.is_approved else 0,
+                "requirement_profile_open_count": sum(item["status"] == "OPEN" for item in profile.requirements) if profile and profile.is_approved else 0,
+                "watch_enabled": False,
+                "recommendation_status": "CLOSED",
+                "procurement_completed": True,
+                "market_evaluation_active": False,
+                "message": "Procurement abgeschlossen.",
+                "active_offers": historical_offers,
+                "observed_offers": historical_observations,
+                "valid_offers": historical_offers,
+                "technically_eligible_offers": 0,
+                "ranking": [],
+                "warnings": [],
+                "purchase_conditions": [],
+            }
         _quarantine_invalid_prices(connection, case["id"])
         connection.commit()
         profile = load_requirement_profile(connection, case["id"])
@@ -871,24 +983,21 @@ def case_status(config, case_id):
                     offer_reference = connection.execute("SELECT offer_id FROM offers WHERE id = ?", (offer_id,)).fetchone()
                     conditional_buy.append(offer_reference[0] if offer_reference else offer_id)
         if product_count == 0:
-            recommendation = "NO_CANDIDATE"
+            recommendation = "WATCHING"
         elif offer_count == 0:
-            recommendation = "EVALUATING"
+            recommendation = "WATCHING"
         elif technically_eligible_offers == 0:
-            recommendation = "REVIEW"
+            recommendation = "QUALIFYING"
         elif any(result in {"FAIL", "REVIEW"} for values in offer_results.values() for result in values.values()):
-            recommendation = "REVIEW"
+            recommendation = "QUALIFYING"
         elif conditional_buy:
-            recommendation = "CONDITIONAL_BUY"
+            recommendation = "READY_FOR_REVIEW"
         elif any(result in {"UNKNOWN", "NOT_VERIFIED"} for values in offer_results.values() for result in values.values()):
-            recommendation = "WAIT"
+            recommendation = "QUALIFYING"
         elif any(set(values.values()) == {"PASS"} and len(values) >= (22 if live_mode else 7) for values in offer_results.values()) and cheapest is not None and (budget_cents is None or cheapest <= budget_cents):
             recommendation = "BUY_CANDIDATE"
         else:
-            recommendation = "EVALUATING"
-        if case["status"] != "WATCHING":
-            recommendation = "CLOSED"
-            conditional_buy = []
+            recommendation = "QUALIFYING"
         required_open = [row[0] for row in connection.execute("SELECT requirement_id FROM requirements WHERE case_id = ? AND status IN ('OPEN', 'UNKNOWN')", (case["id"],)).fetchall()]
         requirement_facts = [
             {"id": item["id"], "title": item["title"], "description": item["description"], "status": item["status"], "priority": item["priority"]}
@@ -948,7 +1057,8 @@ def case_status(config, case_id):
             row["total_price"] = row["total_price_cents"] / 100 if row["total_price_cents"] is not None else None
         return {
             "case_id": case["case_id"], "title": case["title"], "priority": case["priority"],
-            "case_status": case["status"], "watch_enabled": case["status"] == "WATCHING",
+            "case_status": case["status"], "lifecycle_status": recommendation,
+            "watch_enabled": is_active(case["status"]),
             "budget": budget_cents / 100 if budget_cents is not None else None,
             "budget_target": target_budget_cents / 100 if target_budget_cents is not None else None,
             "best_observed_price": best_observed_price / 100 if best_observed_price is not None else None,
@@ -982,7 +1092,7 @@ def case_status(config, case_id):
                 "Versandkosten und Endpreis im Checkout bestätigen; unbekannte Versandkosten sind vorläufig.",
                 "Für IEC-C13-Varianten je Gerät ein passendes IEC-C13-auf-Schuko-Kabel einplanen.",
                 "Die gewünschte Laufzeit von 4 Stunden ist mit den vorliegenden Modellnachweisen noch nicht belegt.",
-            ] if recommendation == "CONDITIONAL_BUY" else [],
+            ] if recommendation == "READY_FOR_REVIEW" else [],
             "ranking": ranking,
         }
     finally:
@@ -1063,7 +1173,7 @@ def doctor(config):
     checks = {
         "python": {"ok": sys.version_info >= (3, 12), "detail": sys.version.split()[0]},
         "database": {"ok": db["reachable"], "detail": db["path"]},
-        "schema": {"ok": db["schema_version"] == "008", "detail": db["schema_version"]},
+        "schema": {"ok": db["schema_version"] == "009", "detail": db["schema_version"]},
         "logs_path": {"ok": config.logs_path.parent.exists(), "detail": str(config.logs_path)},
         "reports_path": {"ok": config.reports_path.parent.exists(), "detail": str(config.reports_path)},
         "sources": {"ok": config.sources_path.exists(), "detail": str(config.sources_path)},

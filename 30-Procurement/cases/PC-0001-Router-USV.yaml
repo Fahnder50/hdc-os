@@ -1,6 +1,7 @@
 case_id: PC-0001
 title: USV für Internet-Gateway
 status: PURCHASED
+lifecycle_version: 2
 priority: critical
 closed_by_work_order: WO-0036
 closed_at: '2026-08-03'

@@ -38,7 +38,7 @@ def test_database_initialization_is_repeatable_and_tracks_repository(monkeypatch
     )
     first = init_database(config)
     second = init_database(config)
-    assert first["schema_version"] == "008"
+    assert first["schema_version"] == "009"
     assert second["repository_version"] == "knowledge-v1.2"
     connection = sqlite3.connect(config.database_path)
     metadata = dict(connection.execute("SELECT metadata_key, metadata_value FROM runtime_metadata").fetchall())
@@ -47,8 +47,8 @@ def test_database_initialization_is_repeatable_and_tracks_repository(monkeypatch
     assert len(metadata["repository_commit"]) == 40
     assert all(character in "0123456789abcdef" for character in metadata["repository_commit"])
     assert metadata["repository_version"] == "knowledge-v1.2"
-    assert metadata["schema_version"] == "008"
-    assert migration_count == 8
+    assert metadata["schema_version"] == "009"
+    assert migration_count == 9
 
 
 def test_foreign_keys_are_enforced(tmp_path):
@@ -73,7 +73,7 @@ def test_watch_run_completes_and_status_reads_it(tmp_path):
     assert result["ended_at"]
     assert status["last_watch_run"]["watch_run_id"] == result["watch_run_id"]
     assert status["last_watch_run"]["status"] == "succeeded"
-    assert status["schema_version"] == "008"
+    assert status["schema_version"] == "009"
     assert status["initialized"] is True
 
 
@@ -170,7 +170,7 @@ def test_evaluations_reference_watch_runs_and_enforce_foreign_key(tmp_path):
     assert any(row[2] == "watch_runs" and row[3] == "watch_run_id" for row in foreign_keys)
     connection.execute(
         "INSERT INTO procurement_cases(case_id, title, status, priority, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
-        ("PC-TEST", "Test case", "evaluating", "normal", "2026-07-20T00:00:00+00:00", "2026-07-20T00:00:00+00:00"),
+        ("PC-TEST", "Test case", "WATCHING", "normal", "2026-07-20T00:00:00+00:00", "2026-07-20T00:00:00+00:00"),
     )
     case_id = connection.execute("SELECT id FROM procurement_cases WHERE case_id = 'PC-TEST'").fetchone()[0]
     try:
@@ -222,6 +222,7 @@ def test_pc001_reimport_and_observation_history_are_idempotent(tmp_path):
     case_path = "30-Procurement/cases/PC-0001-Router-USV.yaml"
     import_case(config, case_path)
     import_case(config, case_path)
+    activate_case_for_engine_test(config)
     add_product(config, "PROD-PC001-002", "Historienprodukt", case_id="PC-0001")
     add_offer(config, "OFFER-PC001-002", "PROD-PC001-002", "VENDOR-002", "Händler", "40.00", "0", "EUR", "available", "manual", case_id="PC-0001")
     add_offer(config, "OFFER-PC001-002", "PROD-PC001-002", "VENDOR-002", "Händler", "35.00", "0", "EUR", "available", "manual", case_id="PC-0001")
@@ -352,7 +353,7 @@ def test_database_backup_and_restore(tmp_path):
     config.database_path.unlink()
     restored = restore_database(config, backup)
     assert restored == config.database_path
-    assert schema_status(config)["schema_version"] == "008"
+    assert schema_status(config)["schema_version"] == "009"
 
 
 def test_event_classification_contract_is_persisted(tmp_path):

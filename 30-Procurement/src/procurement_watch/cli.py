@@ -198,10 +198,14 @@ def _print_portfolio_summary(result):
     print(f"\n{result['error_count']} Fehler")
     print(f"\n{result['duration_seconds']:.3f} Sekunden")
     health = result["health"]
-    print(f"\nWATCHING: {health['watching']}")
-    print(f"CONDITIONAL_BUY: {health['conditional_buy']}")
-    print(f"REVIEW: {health['review']}")
+    print(f"\nACTIVE: {health['watching']}")
+    print(f"QUALIFYING: {health.get('qualifying', 0)}")
+    print(f"READY_FOR_REVIEW: {health.get('ready_for_review', 0)}")
+    print(f"BUY_CANDIDATE: {health.get('buy_candidate', 0)}")
     print(f"BLOCKED: {health['blocked']}")
+    print("\nCompleted Procurement")
+    for case in result.get("completed_procurement", []):
+        print(f"{case['case_id']}  {case['status']}")
     print("\n" + "=" * 50)
     if result["status"] == "completed_with_warnings":
         print("Portfolio completed with warnings.")
@@ -212,8 +216,9 @@ def _print_portfolio_summary(result):
 def _print_portfolio_status(result):
     print("Portfolio\n")
     print(f"{result['active_cases']} aktive Cases\n")
-    print(f"{result['statuses'].get('CONDITIONAL_BUY', 0)} CONDITIONAL_BUY")
-    print(f"{result['statuses'].get('REVIEW', 0)} REVIEW")
+    print(f"{result['statuses'].get('QUALIFYING', 0)} QUALIFYING")
+    print(f"{result['statuses'].get('READY_FOR_REVIEW', 0)} READY_FOR_REVIEW")
+    print(f"{result['statuses'].get('BUY_CANDIDATE', 0)} BUY_CANDIDATE")
     print(f"{result['statuses'].get('BLOCKED', 0)} BLOCKED")
     last_run = result.get("last_run")
     print("\nLetzter Lauf:")
