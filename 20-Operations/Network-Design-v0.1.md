@@ -123,6 +123,12 @@ verschiedenes privates Subnetz und ist Default Gateway, DHCP- und DNS-Endpunkt
 für das interne Netz. Der Managed Switch verteilt dieses LAN. Der Access Point
 transportiert das interne Netz und später mehrere VLANs als WLAN-SSIDs.
 
+Die Existenz dieses Pfads ist nicht gleichbedeutend mit externer
+Kommunikationsverfügbarkeit. Power, Gateway, WAN Transport, Internet
+Reachability und DNS werden fachlich getrennt. Maßgeblich ist das
+[Connectivity State Model](Connectivity-State-Model.md); es ändert die hier
+definierte Topologie nicht.
+
 ### 3.2 Komponenten und Beziehungen
 
 | Komponente | Zweck im Zielbild | Beziehung |

@@ -33,6 +33,12 @@ betreibbaren Infrastrukturpfad auf. Aktuelles Zwischenziel:
 Die verbindliche Architektur steht im
 [Network Design v0.1](Network-Design-v0.1.md).
 
+Externe Kommunikationsverfügbarkeit wird unabhängig von Strom- und
+Gerätezuständen durch das providerneutrale
+[Connectivity State Model](Connectivity-State-Model.md) beschrieben. Ein
+versorgter Speedport begründet weder einen verfügbaren WAN-Transport noch
+Internet-Reichweite oder DNS.
+
 ## Aktueller physischer Zustand
 
 | Standort | Komponente | Status |
