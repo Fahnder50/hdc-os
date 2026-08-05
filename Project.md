@@ -1,13 +1,13 @@
 ---
 document: Project.md
-version: 1.4.4-baseline
+version: 1.5.4-baseline
 status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
 last_review: "2026-08-03"
-release_reference: knowledge-v1.4.4
-last_updated: "2026-08-03"
-classification: Workspace
+release_reference: knowledge-v1.5.4
+last_updated: "2026-08-05"
+classification: Living
 ---
 
 # HDC-OS Project
@@ -24,12 +24,12 @@ Horizon-Schritten.
 
 | Feld | Stand |
 |---|---|
-| Release | `knowledge-v1.4.4` |
+| Release | `knowledge-v1.5.4` |
 | Sprint | Sprint 4 – First Deployment |
 | Horizon | Horizon 1 – Initial Build |
 | Reifegrad | Architektur-, Procurement- und Operations-Foundation abgeschlossen |
 | Physischer Stand | Router-USV akzeptiert und als erstes Infrastruktur-Asset in `PRODUCTION` |
-| Deploymentfokus | Rack-, Firewall-, Switch-, Rack-USV- und AP-Aufbau vorbereiten |
+| Deploymentfokus | Firewall und Managed Switch beschaffen; WO-0041-Gates für den LAN-Erstaufbau schließen |
 | Zwischenziel | Laptop hinter OPNsense per LAN oder WLAN sicher im Internet |
 
 ## Abgeschlossene Foundation
@@ -55,6 +55,23 @@ Relevante aktuelle Work Orders:
 | WO-0035 | Asset Lifecycle & Registry |
 | WO-0036 | PC-0001 geschlossen und an Asset Lifecycle übergeben |
 | WO-0038 | UPS-RTR-01-Acceptance abgeschlossen; Status `PRODUCTION` |
+| WO-0041 | First Deployment Readiness definiert; operativer Status `NOT_READY` |
+
+## Verbindlicher Governance-Snapshot
+
+| Dimension | Aktueller Stand |
+|---|---|
+| Release / Sprint | `knowledge-v1.5.4` / Sprint 4 – First Deployment |
+| Projektstatus | Foundations abgeschlossen; First Deployment vorbereitet, noch nicht startbereit |
+| Current Bottleneck | Firewall und Managed Switch fehlen; weitere WO-0041-Nachweise sind offen |
+| Current Physical State | Speedport, Telefon, Netgear Switch, PS5 und Sky Box in Production/Legacy-Betrieb; Router-USV in `PRODUCTION` |
+| Deployment-Status | `NOT_READY` gemäß WO-0041 |
+| PC-0001 | `PURCHASED` / Completed Procurement |
+| PC-0002 | `WATCHING` |
+| PC-0003 | `WATCHING` |
+| PC-0004 | `WATCHING` |
+| PC-0005 | `WATCHING` |
+| Produktive Assets | `UPS-RTR-01` – `PRODUCTION` |
 
 ## Existierende Systeme
 
@@ -88,9 +105,11 @@ prüfbaren Infrastrukturpfad. Definition des Zwischenziels:
 > Netzkonfiguration und erreicht über Managed Switch, Firewall, Speedport und
 > Telekom DSL sicher das Internet; Telefonie bleibt funktionsfähig.
 
-Noch fehlen dafür mindestens Rackentscheidung, qualifiziertes Firewall-Angebot,
-Managed Switch, Rack-USV, Access Point, physischer Aufbau, Basiskonfiguration und
-Migrationstest.
+Für das LAN-First-Deployment fehlen mindestens ein qualifiziertes
+Firewall-Angebot, der Managed Switch, die offenen WO-0041-Gate-Nachweise,
+physischer Aufbau, Basiskonfiguration und Migrationstest. Rack, Rack-USV und
+Access Point sind spätere Integrationsschritte und blockieren diesen Erstaufbau
+nicht.
 
 ## Arbeits- und Governance-Modell
 

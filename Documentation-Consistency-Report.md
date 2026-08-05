@@ -1,102 +1,111 @@
 ---
 document: Documentation-Consistency-Report.md
-version: 1.0
+version: 1.5.4
 status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
-last_review: "2026-08-03"
-release_reference: knowledge-v1.4.4
-last_updated: "2026-08-03"
-work_order: WO-0037
-classification: Workspace
+last_review: "2026-08-05"
+release_reference: knowledge-v1.5.4
+last_updated: "2026-08-05"
+work_order: WO-0042
+classification: Living
 ---
 
-# Repository Documentation Consistency Report
+# Documentation Consistency Report – knowledge-v1.5.4
 
 ## Prüfziel
 
-WO-0037 synchronisiert die Einstiegsdokumentation auf die technische Baseline
-`knowledge-v1.4.4`. Geprüft wurden Release, Sprint, Projektphase,
-Procurementstatus, Assetstatus, physischer Zustand, Vision, Zwischenziel,
-Dokumenthierarchie und lokale Markdownlinks.
+Prüfung der fünf Living Documents gegen den tatsächlich veröffentlichten Stand
+`knowledge-v1.5.4` und die verbindlichen Repository-Primärquellen. Der Bericht
+ist der erstmalige Nachweis nach WO-0042.
 
-## Einheitliche Repository Truth
+## Verbindlicher Governance-Snapshot
 
-| Dimension | Verbindlicher Stand | Primärquelle |
-|---|---|---|
-| Release | `knowledge-v1.4.4` | Knowledge Release / README |
-| Sprint | Sprint 4 – First Deployment | Project / Roadmap |
-| Horizon | Horizon 1 – Initial Build | PC-0003/PC-0004 Decisions |
-| Zwischenziel | Laptop hinter OPNsense per LAN oder WLAN im Internet | Network Design v0.1 |
-| Vision | lokales Home Datacenter mit KI-gestütztem Betrieb | Vision / Project |
-| PC-0001 | PURCHASED, Watch deaktiviert | PC-0001 / WO-0036 |
-| UPS-RTR-01 | ACCEPTANCE | Asset Registry |
-| PC-0002 bis PC-0005 | WATCHING | Case-Dateien |
-| Physisch neu | Eaton 3S850D Router-USV | Asset Acceptance / WO-0036 |
-
-## Bereinigte Widersprüche
-
-| Frühere Aussage | Behandlung |
+| Dimension | Aktueller Stand |
 |---|---|
-| Sprint 1/2 oder M2.1/M2.2 sei aktuell | als Historical/Superseded gekennzeichnet; Sprint 4 ist aktuell |
-| SG2218 sei der Horizon-1-Standardswitch | ersetzt durch TL-SG2008P V3 nach WO-0034 |
-| Router-USV sei offen oder WATCHING | ersetzt durch PC-0001 PURCHASED und Asset ACCEPTANCE |
-| Fünf Cases würden aktiv beobachtet | korrigiert auf PC-0002 bis PC-0005 |
-| Firewallmodell sei pauschal offen | Horizon-1-Strategie und Angebotsbedingungen dokumentiert |
-| Asset Lifecycle/Registry existiere nicht | Operations-Einstieg um WO-0035/0036 ergänzt |
-| Runtime-CLI solle PC-0001 live beobachten | Beispiel entfernt und als superseded markiert |
+| Release / Sprint | `knowledge-v1.5.4` / Sprint 4 – First Deployment |
+| Projektstatus | Foundations abgeschlossen; First Deployment vorbereitet, noch nicht startbereit |
+| Current Bottleneck | Firewall und Managed Switch fehlen; weitere WO-0041-Nachweise sind offen |
+| Current Physical State | Speedport, Telefon, Netgear Switch, PS5 und Sky Box in Production/Legacy-Betrieb; Router-USV in `PRODUCTION` |
+| Deployment-Status | `NOT_READY` gemäß WO-0041 |
+| PC-0001 | `PURCHASED` / Completed Procurement |
+| PC-0002 | `WATCHING` |
+| PC-0003 | `WATCHING` |
+| PC-0004 | `WATCHING` |
+| PC-0005 | `WATCHING` |
+| Produktive Assets | `UPS-RTR-01` – `PRODUCTION` |
 
-Historische Inhalte wurden nicht als aktuelle Wahrheit stehen gelassen. Ihre
-Herkunft bleibt in Git, Sprintabschlüssen, Knowledge-Recovery-Dokumenten und
-expliziten Historical-Abschnitten erhalten.
+## Geprüfte Living Documents
 
-## Dokumenthierarchie
+| Dokument | Release | Sprint | Klassifikation | Ergebnis |
+|---|---|---|---|---|
+| `README.md` | `knowledge-v1.5.4` | Sprint 4 – First Deployment | Living | PASS |
+| `Project.md` | `knowledge-v1.5.4` | Sprint 4 – First Deployment | Living | PASS |
+| `Project-Status.md` | `knowledge-v1.5.4` | Sprint 4 – First Deployment | Living | PASS |
+| `40-Backlog/Roadmap.md` | `knowledge-v1.5.4` | Sprint 4 – First Deployment | Living | PASS |
+| `Documentation-Consistency-Report.md` | `knowledge-v1.5.4` | Sprint 4 – First Deployment | Living | PASS |
 
-```text
-README
-  → Project Status / Project
-    → Architecture (Network Design)
-      → Procurement
-        → Operations
-          → Engineering
-            → Backlog / Roadmap
-```
+## Verwendete Primärquellen
 
-Jede Ebene besitzt einen klaren Zweck und verweist auf die nächste Detailstufe.
+- veröffentlichter Release `knowledge-v1.5.4`,
+- PC-0001 bis PC-0005 unter `30-Procurement/cases`,
+- Asset Registry und Record `UPS-RTR-01`,
+- Network Design v0.1 und Connectivity State Model,
+- WO-0038 für den produktiven Assetstatus,
+- WO-0041 für Deployment Readiness.
 
-## Außenstehenden-Test
+## Festgestellte Abweichungen
 
-README und Project Status beantworten unmittelbar:
+| ID | Abweichung vor Korrektur | Auswirkung |
+|---|---|---|
+| D-01 | Alle Living Documents referenzierten noch `knowledge-v1.4.4`. | Release Reference war zwei Releases veraltet. |
+| D-02 | Consistency Report führte `UPS-RTR-01` noch als `ACCEPTANCE`. | Widerspruch zum produktiven Asset Record und WO-0038. |
+| D-03 | Deployment-Status `NOT_READY` aus WO-0041 fehlte. | Aktuelle Deployment-Reife war nicht sichtbar. |
+| D-04 | Roadmap enthielt die bereits abgeschlossene UPS-Acceptance als nächstes Ziel. | Überholter nächster Schritt. |
+| D-05 | First Deployment wurde teilweise an Rack, Rack-USV, AP oder WLAN gekoppelt. | Widerspruch zur Abgrenzung aus WO-0041. |
+| D-06 | Dokumentklassen waren uneinheitlich als Public/Workspace bezeichnet. | Living/Historical-Governance war nicht anwendbar. |
 
-- Definition und Vision von HDC-OS,
-- aktuelles Release, Sprint und Reifegrad,
-- abgeschlossene Foundations,
-- vorhandene Systeme und physische Hardware,
-- gekaufte sowie noch fehlende Komponenten,
-- aktuellen Asset- und Procurementstatus,
-- Sprintziel, Entfernung zum Ziel und nächste Schritte.
+## Vorgenommene Korrekturen
 
-Für diese Antworten ist kein Lesen von Python-Code erforderlich.
+- alle fünf Living Documents auf `knowledge-v1.5.4`, Sprint 4 und Prüfdatum
+  2026-08-05 synchronisiert,
+- alle fünf Dokumente mit `classification: Living` gekennzeichnet,
+- identischen Governance-Snapshot in alle Living Documents aufgenommen,
+- UPS-RTR-01 auf `PRODUCTION` und PC-0001 auf `PURCHASED` synchronisiert,
+- PC-0002 bis PC-0005 einzeln als `WATCHING` bestätigt,
+- Deployment `NOT_READY` und Firewall/Managed Switch als unmittelbaren
+  Bottleneck dokumentiert,
+- Roadmap und Projekttexte an die WO-0041-Abgrenzung des LAN-Erstaufbaus
+  angepasst,
+- Dokumentenklassifizierung, Checklist und Release Gate in
+  `Repository-Documentation-Governance.md` definiert.
 
-## Scope-Nachweis
-
-- keine Python- oder sonstigen Codeänderungen,
-- keine Änderung an Infrastructure Core, Procurement-Logik oder Asset Registry,
-- keine neue Architektur oder Funktion,
-- ausschließlich Markdown-Dokumentation geändert beziehungsweise ergänzt,
-- keine Runtime-Dateien erzeugt.
-
-## Validierungsergebnis
+## Abschlussprüfung
 
 | Prüfung | Ergebnis |
 |---|---|
-| Alle lokalen Markdown-Ziele im Repository existieren | PASS – keine toten lokalen Links |
-| Zentrale Dokumente enthalten Status, Reviewer, Reviewdatum, Releasebezug und letzte Aktualisierung | PASS |
-| Aktuelle Einstiegsdokumente nennen `knowledge-v1.4.4` und Sprint 4 | PASS |
-| Repository-Quelle bestätigt PC-0001 `PURCHASED` | PASS |
-| Repository-Quelle bestätigt `UPS-RTR-01` `ACCEPTANCE` und Modell 3S850D | PASS |
-| Repository-Quelle bestätigt PC-0002 bis PC-0005 `WATCHING` | PASS |
-| Git-Diff enthält ausschließlich Markdown-Dokumentation | PASS |
+| Fünf definierte Living Documents vorhanden | PASS |
+| Alle Living Documents als `Living` klassifiziert | PASS |
+| Einheitliche Release Reference `knowledge-v1.5.4` | PASS |
+| Einheitlicher Sprint 4 – First Deployment | PASS |
+| Einheitliches Aktualisierungsdatum 2026-08-05 | PASS |
+| Projektstatus und Bottleneck konsistent | PASS |
+| Current Physical State konsistent | PASS |
+| Deployment-Status `NOT_READY` konsistent | PASS |
+| PC-0001 bis PC-0005 stimmen mit Case-Dateien überein | PASS |
+| UPS-RTR-01 stimmt mit Registry/Record überein | PASS |
+| Nur freigegebene Architektur als verbindlich dargestellt | PASS |
+| Historische Dokumente nicht inhaltlich verändert | PASS |
+| Lokale Markdownziele der Living Documents vorhanden | PASS |
+| Änderungen ausschließlich Dokumentation | PASS |
+| Runtime-Dateien erzeugt | keine |
 | `git diff --check` | PASS |
-| Bestehende Procurement-/Operations-Regression | PASS – 120 Tests |
-| Runtime-Dateien durch WO-0037 erzeugt | keine |
+
+## Gate-Ergebnis
+
+**PASS – `DOCUMENTATION_READY_FOR_RELEASE`**
+
+Für die geprüfte Baseline bestehen keine offenen Dokumentationsabweichungen.
+Ein nachfolgendes Knowledge Release muss vor Veröffentlichung seine eigene
+Release Reference in allen fünf Living Documents setzen und diesen Report erneut
+aktualisieren.

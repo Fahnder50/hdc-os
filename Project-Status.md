@@ -5,12 +5,12 @@ status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
 last_review: "2026-08-03"
-release_reference: knowledge-v1.4.4
-last_updated: "2026-08-03"
-classification: Workspace
+release_reference: knowledge-v1.5.4
+last_updated: "2026-08-05"
+classification: Living
 ---
 
-# Project Status – knowledge-v1.4.4
+# Project Status – knowledge-v1.5.4
 
 ## Zehn-Minuten-Überblick
 
@@ -41,6 +41,22 @@ Das Projekt befindet sich in Sprint 4 – First Deployment.
 | PC-0004 Switch | WATCHING | TL-SG2008P V3; Ziel 100 EUR, harte Gesamtgrenze 130 EUR |
 | PC-0005 Rack-USV | WATCHING | OR1000ERM1U beobachtet; Requirements noch offen |
 | Access Point | kein Case | vor Beschaffung anzulegen; muss PC-0004-PoE-Gate erfüllen |
+
+## Verbindlicher Governance-Snapshot
+
+| Dimension | Aktueller Stand |
+|---|---|
+| Release / Sprint | `knowledge-v1.5.4` / Sprint 4 – First Deployment |
+| Projektstatus | Foundations abgeschlossen; First Deployment vorbereitet, noch nicht startbereit |
+| Current Bottleneck | Firewall und Managed Switch fehlen; weitere WO-0041-Nachweise sind offen |
+| Current Physical State | Speedport, Telefon, Netgear Switch, PS5 und Sky Box in Production/Legacy-Betrieb; Router-USV in `PRODUCTION` |
+| Deployment-Status | `NOT_READY` gemäß WO-0041 |
+| PC-0001 | `PURCHASED` / Completed Procurement |
+| PC-0002 | `WATCHING` |
+| PC-0003 | `WATCHING` |
+| PC-0004 | `WATCHING` |
+| PC-0005 | `WATCHING` |
+| Produktive Assets | `UPS-RTR-01` – `PRODUCTION` |
 
 ## Current Bottleneck
 
@@ -73,9 +89,11 @@ jedes Geräts als HDC-OS-Asset.
 ## Entfernung zum Zwischenziel
 
 Architektur und Beschaffungsregeln stehen. Der reale Zielpfad ist noch nicht
-aufgebaut. Erforderlich sind Beschaffungsabschlüsse für PC-0002 bis PC-0005,
-AP-Entscheidung, Asset Acceptance der neuen Komponenten, physische Installation,
-OPNsense-Basiskonfiguration und schrittweise Validierung des LAN-/WLAN-Pfads.
+aufgebaut. Für das in WO-0041 definierte LAN-First-Deployment sind insbesondere
+Firewall, Managed Switch, geschlossene Readiness-Gates, physische Installation,
+OPNsense-Basiskonfiguration und Validierung erforderlich. Rack, Rack-USV und
+Access Point bleiben spätere Integrationsziele und blockieren diesen Erstaufbau
+nicht.
 
 ## Verbindliche nächste Leserouten
 
