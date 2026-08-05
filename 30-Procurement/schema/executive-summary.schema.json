@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hdc-os.local/schemas/executive-summary.schema.json",
+  "title": "Procurement Executive Summary",
+  "type": "object",
+  "required": ["schema_version", "agent", "approval", "executive_summary", "recommendations", "case_errors"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "recommendations": {"type": "array", "items": {"$ref": "recommendation.schema.json"}}
+  },
+  "additionalProperties": true
+}

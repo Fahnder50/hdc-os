@@ -1,11 +1,11 @@
 ---
 document: Project.md
-version: 1.5.5-baseline
+version: 1.5.6-baseline
 status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
 last_review: "2026-08-03"
-release_reference: knowledge-v1.5.5
+release_reference: knowledge-v1.5.6
 last_updated: "2026-08-05"
 classification: Living
 ---
@@ -24,7 +24,7 @@ Horizon-Schritten.
 
 | Feld | Stand |
 |---|---|
-| Release | `knowledge-v1.5.5` |
+| Release | `knowledge-v1.5.6` |
 | Sprint | Sprint 4 – First Deployment |
 | Horizon | Horizon 1 – Initial Build |
 | Reifegrad | Architektur-, Procurement- und Operations-Foundation abgeschlossen |
@@ -42,6 +42,7 @@ Horizon-Schritten.
 - Horizon-basierte Firewall- und Switchentscheidungen,
 - generischer Infrastructure Core,
 - generischer Asset Lifecycle, Registry, Relationships und Graphen,
+- generische Agent Runtime und Procurement Agent v1 mit lokaler KI-Analyse,
 - erster Procurement-to-Operations-Handover für PC-0001.
 
 Relevante aktuelle Work Orders:
@@ -56,12 +57,13 @@ Relevante aktuelle Work Orders:
 | WO-0036 | PC-0001 geschlossen und an Asset Lifecycle übergeben |
 | WO-0038 | UPS-RTR-01-Acceptance abgeschlossen; Status `PRODUCTION` |
 | WO-0041 | First Deployment Readiness definiert; operativer Status `NOT_READY` |
+| WO-0043 / R1 | Generische Agent Runtime, Procurement Agent v1 und realer Scheduled-Betrieb |
 
 ## Verbindlicher Governance-Snapshot
 
 | Dimension | Aktueller Stand |
 |---|---|
-| Release / Sprint | `knowledge-v1.5.5` / Sprint 4 – First Deployment |
+| Release / Sprint | `knowledge-v1.5.6` / Sprint 4 – First Deployment |
 | Projektstatus | Foundations abgeschlossen; First Deployment vorbereitet, noch nicht startbereit |
 | Current Bottleneck | Firewall und Managed Switch fehlen; weitere WO-0041-Nachweise sind offen |
 | Current Physical State | Speedport, Telefon, Netgear Switch, PS5 und Sky Box in Production/Legacy-Betrieb; Router-USV in `PRODUCTION` |
@@ -81,6 +83,7 @@ Relevante aktuelle Work Orders:
 | Procurement Watch | lokal betreibbar; PC-0002 bis PC-0005 aktiv |
 | Infrastructure Core | generisch implementiert |
 | Asset Registry | implementiert; `UPS-RTR-01` registriert |
+| Agent Runtime | generisch implementiert; Procurement Agent v1 lokal und geplant betreibbar |
 | Network Design | Accepted, noch nicht physisch umgesetzt |
 | Monitoring/Automation | noch nicht implementiert |
 

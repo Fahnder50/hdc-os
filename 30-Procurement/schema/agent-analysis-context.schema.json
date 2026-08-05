@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hdc-os.local/schemas/agent-analysis-context.schema.json",
+  "title": "Procurement Agent Analysis Context",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "trigger", "watch_result", "cases", "case_errors"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "trigger": {"enum": ["MANUAL", "SCHEDULED"]},
+    "cases": {"type": "array"},
+    "case_errors": {"type": "array"}
+  },
+  "additionalProperties": true
+}

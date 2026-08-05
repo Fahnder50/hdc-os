@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hdc-os.local/schemas/agent-log.schema.json",
+  "title": "Agent Log",
+  "type": "object",
+  "required": ["agent", "version", "trigger", "started_at", "ended_at", "duration_seconds", "processed_cases", "recommendations", "result", "exit_status", "execution_result", "failed_phase", "lifecycle", "analysis"],
+  "properties": {
+    "trigger": {"enum": ["MANUAL", "SCHEDULED"]},
+    "execution_result": {"enum": ["SUCCESS", "FAILED"]},
+    "failed_phase": {"type": ["string", "null"]},
+    "lifecycle": {"type": "array", "items": {"enum": ["IDLE", "TRIGGERED", "COLLECT", "ANALYZE", "GENERATE_REPORT", "WAIT_FOR_OWNER", "COMPLETED"]}},
+    "analysis": {"type": "object", "required": ["provider", "model", "fallback_used"]}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,9 @@
+agent:
+  provider: ollama
+  model: llama3.2:3b
+  endpoint: http://127.0.0.1:11434
+  timeout_seconds: 180
+  deterministic_fallback: true
+scheduler:
+  daily_at: "07:00"
+  task_name: HDC-OS Procurement Agent

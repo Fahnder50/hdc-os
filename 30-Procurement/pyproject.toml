@@ -14,13 +14,16 @@ test = ["pytest>=8.0,<9"]
 
 [project.scripts]
 procurement-watch = "procurement_watch.cli:main"
+procurement-agent = "procurement_agent.cli:main"
+procurement-agent-scheduler = "procurement_agent.scheduler_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src", ".."]
-include = ["procurement_watch*", "shared*"]
+include = ["procurement_watch*", "procurement_agent*", "shared*"]
 
 [tool.setuptools.package-dir]
 procurement_watch = "src/procurement_watch"
+procurement_agent = "src/procurement_agent"
 shared = "../shared"
 
 [tool.pytest.ini_options]
