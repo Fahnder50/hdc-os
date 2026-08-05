@@ -5,7 +5,7 @@ status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
 last_review: "2026-08-03"
-release_reference: knowledge-v1.5.6
+release_reference: knowledge-v1.5.7
 last_updated: "2026-08-05"
 classification: Living
 ---
@@ -46,11 +46,18 @@ classification: Living
 - Executive Summary, beratende Recommendations und Agent Logging,
 - idempotente Windows-Scheduler-Integration real nachgewiesen.
 
+### Operations Cockpit
+
+- standardisierte Dashboard Contracts für Procurement, Deployment, Assets und Agents,
+- fachneutrale Aggregation und Overall Health,
+- Daily Briefing und ausschließlich aktuelle Recommended Actions,
+- feste Ein-Klick-Einstiege `Dashboard/Latest.md` und `Dashboard/Latest.html`.
+
 ## Verbindlicher Governance-Snapshot
 
 | Dimension | Aktueller Stand |
 |---|---|
-| Release / Sprint | `knowledge-v1.5.6` / Sprint 4 – First Deployment |
+| Release / Sprint | `knowledge-v1.5.7` / Sprint 4 – First Deployment |
 | Projektstatus | Foundations abgeschlossen; First Deployment vorbereitet, noch nicht startbereit |
 | Current Bottleneck | Firewall und Managed Switch fehlen; weitere WO-0041-Nachweise sind offen |
 | Current Physical State | Speedport, Telefon, Netgear Switch, PS5 und Sky Box in Production/Legacy-Betrieb; Router-USV in `PRODUCTION` |

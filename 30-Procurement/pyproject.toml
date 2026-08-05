@@ -16,6 +16,7 @@ test = ["pytest>=8.0,<9"]
 procurement-watch = "procurement_watch.cli:main"
 procurement-agent = "procurement_agent.cli:main"
 procurement-agent-scheduler = "procurement_agent.scheduler_cli:main"
+procurement-dashboard-contracts = "procurement_agent.dashboard_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src", ".."]

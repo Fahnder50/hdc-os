@@ -155,6 +155,7 @@ class ProcurementAgent:
             "executive_summary": {key: analysis.get(key, []) for key in ("summary", "important_changes", "critical_developments", "unchanged_cases", "risks", "open_points")},
             "recommendations": recommendations,
             "case_errors": context["case_errors"],
+            "dashboard": {"active_procurement_cases": len(context["cases"])},
         }
         schemas = self.schemas_directory or Path(self.config.repository_root) / "30-Procurement" / "schema"
         report_schema = json.loads((schemas / "executive-summary.schema.json").read_text(encoding="utf-8"))

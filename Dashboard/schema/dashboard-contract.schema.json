@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hdc-os.local/schemas/dashboard-contract.schema.json",
+  "title": "HDC-OS Dashboard Contract",
+  "type": "object",
+  "required": ["domain", "health", "summary", "status", "last_update", "requires_action", "recommendations", "links"],
+  "properties": {
+    "domain": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {"id": {"type": "string"}, "version": {"type": "string"}},
+      "additionalProperties": false
+    },
+    "health": {"enum": ["HEALTHY", "WARNING", "CRITICAL"]},
+    "summary": {"type": "string"},
+    "status": {"type": "string"},
+    "last_update": {"type": "string"},
+    "requires_action": {"type": "boolean"},
+    "recommendations": {"type": "array"},
+    "links": {"type": "array"},
+    "details": {"type": "object"}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>HDC-OS Operations Cockpit</title><style>body{font:16px system-ui;max-width:1100px;margin:2rem auto;padding:0 1rem;color:#17202a}h1{border-bottom:4px solid #2463a9}h2{margin-top:2rem;color:#193b63}li{margin:.4rem 0}p{line-height:1.5}</style></head><body>
+<h1>HDC-OS Operations Cockpit</h1>
+<h2>Overall Health</h2>
+<p>**CRITICAL**</p>
+<h2>Today&#x27;s Summary — Daily Briefing</h2>
+<ul>
+<li>No important changes since the previous cockpit run.</li>
+</ul>
+<h2>Agents</h2>
+<p>**HEALTHY — SUCCESS**</p>
+<p>One registered agent: Procurement Agent v1.</p>
+<ul>
+<li>**Registered Agents:** procurement-agent</li>
+<li>**Last Run:** 2026-08-05T07:01:14+00:00</li>
+<li>**Next Run:** 2026-08-06T07:00+02:00</li>
+<li>**Result:** SUCCESS</li>
+<li>**Duration Seconds:** 62.696023</li>
+<li>**Provider:** deterministic-fallback</li>
+<li>**Model:** rules-v1</li>
+<li>**Fallback Used:** True</li>
+</ul>
+<h2>Assets</h2>
+<p>**HEALTHY — OPERATIONAL**</p>
+<p>1 productive asset; no known acceptance blockers.</p>
+<ul>
+<li>**Productive Assets:** 1</li>
+<li>**Asset Health:** HEALTHY</li>
+<li>**Critical Assets:** UPS-RTR-01</li>
+<li>**Last Acceptance Status:** UPS-RTR-01: PRODUCTION on 2026-08-04</li>
+</ul>
+<h2>Deployment</h2>
+<p>**CRITICAL — NOT_READY**</p>
+<p>First Deployment is blocked by missing firewall, managed switch, and open readiness evidence.</p>
+<ul>
+<li>**Gates:** Gate: Hardware Ready, Status: FAIL; Gate: Configuration Ready, Status: FAIL; Gate: Installation Ready, Status: FAIL; Gate: Test Ready, Status: FAIL; Gate: Rollback Ready, Status: FAIL; Gate: Architecture Conformity, Status: PASS</li>
+<li>**Bottleneck:** Firewall and Managed Switch are missing; further WO-0041 evidence is open.</li>
+<li>**Missing Hardware:** OPNsense Firewall, Managed Switch</li>
+<li>**First Deployment Progress:** 1/6 gates PASS (17%)</li>
+</ul>
+<h2>Procurement</h2>
+<p>**HEALTHY — SUCCESS**</p>
+<p>4 procurement cases analyzed by deterministic fallback; 3 changed.</p>
+<ul>
+<li>**Active Cases:** 4</li>
+<li>**Last Run:** 2026-08-05T07:01:14+00:00</li>
+<li>**Next Run:** 2026-08-06T07:00+02:00</li>
+<li>**Agent Status:** SUCCESS</li>
+<li>**Current Recommendations:** Case Id: PC-0002, Recommendation: KEEP_WATCHING, Information Status: INFORMATION, Reason: Deterministic fallback derived from QUALIFYING.; Case Id: PC-0003, Recommendation: KEEP_WATCHING, Information Status: INFORMATION, Reason: Deterministic fallback derived from WATCHING.; Case Id: PC-0004, Recommendation: KEEP_WATCHING, Information Status: INFORMATION, Reason: Deterministic fallback derived from QUALIFYING.; Case Id: PC-0005, Recommendation: KEEP_WATCHING, Information Status: INFORMATION, Reason: Deterministic fallback derived from QUALIFYING.</li>
+</ul>
+<h2>Recommended Actions</h2>
+<ul>
+<li>deployment-hardware: Procure and qualify the Horizon-1 firewall and managed switch.</li>
+<li>deployment-gates: Close the remaining WO-0041 readiness evidence before deployment.</li>
+</ul>
+</body></html>
