@@ -1,29 +1,29 @@
 ---
 document: Documentation-Consistency-Report.md
-version: 1.5.4
+version: 1.5.5
 status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
 last_review: "2026-08-05"
-release_reference: knowledge-v1.5.4
+release_reference: knowledge-v1.5.5
 last_updated: "2026-08-05"
 work_order: WO-0042
 classification: Living
 ---
 
-# Documentation Consistency Report – knowledge-v1.5.4
+# Documentation Consistency Report – knowledge-v1.5.5
 
 ## Prüfziel
 
-Prüfung der fünf Living Documents gegen den tatsächlich veröffentlichten Stand
-`knowledge-v1.5.4` und die verbindlichen Repository-Primärquellen. Der Bericht
-ist der erstmalige Nachweis nach WO-0042.
+Prüfung der fünf Living Documents gegen den zur Veröffentlichung vorgesehenen
+Stand `knowledge-v1.5.5` und die verbindlichen Repository-Primärquellen. Der
+Bericht ist der erstmalige Nachweis nach WO-0042.
 
 ## Verbindlicher Governance-Snapshot
 
 | Dimension | Aktueller Stand |
 |---|---|
-| Release / Sprint | `knowledge-v1.5.4` / Sprint 4 – First Deployment |
+| Release / Sprint | `knowledge-v1.5.5` / Sprint 4 – First Deployment |
 | Projektstatus | Foundations abgeschlossen; First Deployment vorbereitet, noch nicht startbereit |
 | Current Bottleneck | Firewall und Managed Switch fehlen; weitere WO-0041-Nachweise sind offen |
 | Current Physical State | Speedport, Telefon, Netgear Switch, PS5 und Sky Box in Production/Legacy-Betrieb; Router-USV in `PRODUCTION` |
@@ -39,15 +39,15 @@ ist der erstmalige Nachweis nach WO-0042.
 
 | Dokument | Release | Sprint | Klassifikation | Ergebnis |
 |---|---|---|---|---|
-| `README.md` | `knowledge-v1.5.4` | Sprint 4 – First Deployment | Living | PASS |
-| `Project.md` | `knowledge-v1.5.4` | Sprint 4 – First Deployment | Living | PASS |
-| `Project-Status.md` | `knowledge-v1.5.4` | Sprint 4 – First Deployment | Living | PASS |
-| `40-Backlog/Roadmap.md` | `knowledge-v1.5.4` | Sprint 4 – First Deployment | Living | PASS |
-| `Documentation-Consistency-Report.md` | `knowledge-v1.5.4` | Sprint 4 – First Deployment | Living | PASS |
+| `README.md` | `knowledge-v1.5.5` | Sprint 4 – First Deployment | Living | PASS |
+| `Project.md` | `knowledge-v1.5.5` | Sprint 4 – First Deployment | Living | PASS |
+| `Project-Status.md` | `knowledge-v1.5.5` | Sprint 4 – First Deployment | Living | PASS |
+| `40-Backlog/Roadmap.md` | `knowledge-v1.5.5` | Sprint 4 – First Deployment | Living | PASS |
+| `Documentation-Consistency-Report.md` | `knowledge-v1.5.5` | Sprint 4 – First Deployment | Living | PASS |
 
 ## Verwendete Primärquellen
 
-- veröffentlichter Release `knowledge-v1.5.4`,
+- vorgesehener Release `knowledge-v1.5.5`,
 - PC-0001 bis PC-0005 unter `30-Procurement/cases`,
 - Asset Registry und Record `UPS-RTR-01`,
 - Network Design v0.1 und Connectivity State Model,
@@ -67,7 +67,7 @@ ist der erstmalige Nachweis nach WO-0042.
 
 ## Vorgenommene Korrekturen
 
-- alle fünf Living Documents auf `knowledge-v1.5.4`, Sprint 4 und Prüfdatum
+- alle fünf Living Documents auf `knowledge-v1.5.5`, Sprint 4 und Prüfdatum
   2026-08-05 synchronisiert,
 - alle fünf Dokumente mit `classification: Living` gekennzeichnet,
 - identischen Governance-Snapshot in alle Living Documents aufgenommen,
@@ -86,7 +86,7 @@ ist der erstmalige Nachweis nach WO-0042.
 |---|---|
 | Fünf definierte Living Documents vorhanden | PASS |
 | Alle Living Documents als `Living` klassifiziert | PASS |
-| Einheitliche Release Reference `knowledge-v1.5.4` | PASS |
+| Einheitliche Release Reference `knowledge-v1.5.5` | PASS |
 | Einheitlicher Sprint 4 – First Deployment | PASS |
 | Einheitliches Aktualisierungsdatum 2026-08-05 | PASS |
 | Projektstatus und Bottleneck konsistent | PASS |

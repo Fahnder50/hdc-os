@@ -5,12 +5,12 @@ status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
 last_review: "2026-08-03"
-release_reference: knowledge-v1.5.4
+release_reference: knowledge-v1.5.5
 last_updated: "2026-08-05"
 classification: Living
 ---
 
-# Project Status – knowledge-v1.5.4
+# Project Status – knowledge-v1.5.5
 
 ## Zehn-Minuten-Überblick
 
@@ -46,7 +46,7 @@ Das Projekt befindet sich in Sprint 4 – First Deployment.
 
 | Dimension | Aktueller Stand |
 |---|---|
-| Release / Sprint | `knowledge-v1.5.4` / Sprint 4 – First Deployment |
+| Release / Sprint | `knowledge-v1.5.5` / Sprint 4 – First Deployment |
 | Projektstatus | Foundations abgeschlossen; First Deployment vorbereitet, noch nicht startbereit |
 | Current Bottleneck | Firewall und Managed Switch fehlen; weitere WO-0041-Nachweise sind offen |
 | Current Physical State | Speedport, Telefon, Netgear Switch, PS5 und Sky Box in Production/Legacy-Betrieb; Router-USV in `PRODUCTION` |
