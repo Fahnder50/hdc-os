@@ -4,25 +4,26 @@ version: 1.0
 status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
-last_review: "2026-08-03"
-release_reference: knowledge-v1.5.7
-last_updated: "2026-08-05"
+last_review: "2026-08-06"
+release_reference: knowledge-v1.5.8
+last_updated: "2026-08-06"
 classification: Living
 ---
 
-# Project Status – knowledge-v1.5.7
+# Project Status – knowledge-v1.5.8
 
 ## Zehn-Minuten-Überblick
 
 HDC-OS ist eine lokale, KI-gestützte Operations-Plattform für ein schrittweise
 aufgebautes Home Datacenter. Foundation, Knowledge, Procurement-System,
-Netzwerkarchitektur, Infrastructure Core, Asset Lifecycle, Agent Runtime und Operations Cockpit sind abgeschlossen.
+Netzwerkarchitektur, Infrastructure Core, Asset Lifecycle, Agent Runtime,
+Scheduler Lifecycle und automatischer Cockpit-Refresh sind abgeschlossen.
 Das Projekt befindet sich in Sprint 4 – First Deployment.
 
 | Frage | Antwort |
 |---|---|
 | Was ist das Ziel? | Sicherer, lokaler und nachvollziehbarer Betrieb physischer und später virtueller Infrastruktur mit KI-Unterstützung. |
-| Was existiert technisch? | Repository, Procurement Watch, Network Design, Infrastructure Core, Asset Registry, Acceptance Workflow, Agent Runtime und zentrales Operations Cockpit. |
+| Was existiert technisch? | Repository, Procurement Watch, Network Design, Infrastructure Core, Asset Registry, Acceptance Workflow, Agent Runtime, Scheduler Lifecycle und automatischer Cockpit-Refresh. |
 | Was existiert physisch neu? | Eaton 3S850D Router-USV, Asset `UPS-RTR-01`, Status `PRODUCTION`. |
 | Was wurde gekauft? | PC-0001 Router-USV; Procurement ist abgeschlossen. |
 | Was fehlt? | Rack, Firewall, Managed Switch, Rack-USV, Access Point und deren Deployment. |
@@ -46,7 +47,7 @@ Das Projekt befindet sich in Sprint 4 – First Deployment.
 
 | Dimension | Aktueller Stand |
 |---|---|
-| Release / Sprint | `knowledge-v1.5.7` / Sprint 4 – First Deployment |
+| Release / Sprint | `knowledge-v1.5.8` / Sprint 4 – First Deployment |
 | Projektstatus | Foundations abgeschlossen; First Deployment vorbereitet, noch nicht startbereit |
 | Current Bottleneck | Firewall und Managed Switch fehlen; weitere WO-0041-Nachweise sind offen |
 | Current Physical State | Speedport, Telefon, Netgear Switch, PS5 und Sky Box in Production/Legacy-Betrieb; Router-USV in `PRODUCTION` |
