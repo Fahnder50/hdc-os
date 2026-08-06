@@ -6,6 +6,8 @@ from pathlib import Path
 from procurement_watch.config import resolve_config
 from shared.agent_runtime import AgentRuntime, Trigger
 from shared.agent_runtime.scheduler import SchedulerTrigger
+from shared.dashboard_contract import write_dashboard_contract
+from operations_cockpit.runtime import CockpitRuntime
 
 from .agent import ProcurementAgent
 from .analyzers import DeterministicFallbackAnalysisProvider, OllamaLocalAnalysisProvider
@@ -19,7 +21,8 @@ def main(argv=None):
     config = resolve_config()
     agent_config = load_agent_config(config.repository_root)
     root = Path(os.environ.get("HDC_AGENT_RUNTIME", Path(config.runtime_path) / "agents" / "procurement"))
-    runtime = AgentRuntime(root / "logs")
+    dashboard = Path(config.repository_root) / "Dashboard"
+    runtime = AgentRuntime(root / "logs", lambda contract: write_dashboard_contract(dashboard / "contracts", contract), lambda: CockpitRuntime(dashboard).build())
     provider = OllamaLocalAnalysisProvider(agent_config.model, agent_config.endpoint, agent_config.timeout_seconds)
     fallback = DeterministicFallbackAnalysisProvider() if agent_config.deterministic_fallback else None
     agent = ProcurementAgent(config, root / "executive-summaries", provider, fallback)

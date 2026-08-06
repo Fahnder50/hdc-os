@@ -168,3 +168,29 @@ class ProcurementAgent:
         destination = self.report_directory / f"{stamp}-executive-summary.json"
         destination.write_text(json.dumps(result.report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         return str(destination)
+
+    def dashboard_contracts(self, result: AgentResult, execution: Mapping[str, Any]):
+        recommendations = list(result.report["recommendations"])
+        actions = [item for item in recommendations if item["information_status"] == "ACTION_REQUIRED"]
+        last_update = execution["ended_at"]
+        return [{
+            "domain": {"id": "procurement", "version": "1.0"},
+            "health": "WARNING" if actions else "HEALTHY",
+            "summary": result.report["executive_summary"]["summary"],
+            "status": result.status,
+            "last_update": last_update,
+            "requires_action": bool(actions),
+            "recommendations": actions,
+            "links": ["30-Procurement/operations/Procurement-Agent-Scheduler.md"],
+            "details": {"active_cases": result.case_count, "current_recommendations": recommendations},
+        }, {
+            "domain": {"id": "agents", "version": "1.0"},
+            "health": "HEALTHY",
+            "summary": "One registered agent: Procurement Agent v1.",
+            "status": result.status,
+            "last_update": last_update,
+            "requires_action": False,
+            "recommendations": [],
+            "links": ["10-Engineering/Architecture/Generic-Agent-Runtime.md"],
+            "details": {"registered_agents": [self.agent_id], "last_run": last_update, "result": result.status, "duration_seconds": execution["duration_seconds"], "provider": self.execution_metadata.get("provider"), "model": self.execution_metadata.get("model"), "fallback_used": self.execution_metadata.get("fallback_used")},
+        }]

@@ -6,7 +6,7 @@ from pathlib import Path
 from procurement_watch.config import resolve_config
 from shared.dashboard_contract import write_dashboard_contract
 
-from .config import load_agent_config
+from shared.scheduler_lifecycle.registry import load_registry
 
 
 def _latest(directory: Path, pattern: str):
@@ -25,7 +25,7 @@ def _next_run(daily_at: str) -> str:
 
 def publish(contract_directory: Path):
     app = resolve_config()
-    config = load_agent_config(app.repository_root)
+    scheduler = next(item for item in load_registry(Path(app.repository_root) / "20-Operations" / "config" / "schedulers.yaml") if item["scheduler_id"] == "procurement-agent-daily")
     external_default = Path(os.environ["LOCALAPPDATA"]) / "HDC-OS" / "agent-runtime" / "procurement" if os.environ.get("LOCALAPPDATA") else Path(app.runtime_path) / "agents" / "procurement"
     runtime = Path(os.environ.get("HDC_AGENT_RUNTIME", external_default))
     log = _latest(runtime / "logs", "*.json")
@@ -45,7 +45,7 @@ def publish(contract_directory: Path):
         "details": {
             "active_cases": summary.get("dashboard", {}).get("active_procurement_cases", len(recommendations)) if summary else 0,
             "last_run": log.get("ended_at") if log else None,
-            "next_run": _next_run(config.daily_at),
+            "next_run": _next_run(scheduler["schedule"]["at"]),
             "agent_status": log.get("execution_result", "UNKNOWN") if log else "UNKNOWN",
             "current_recommendations": recommendations,
         },
@@ -62,7 +62,7 @@ def publish(contract_directory: Path):
         "details": {
             "registered_agents": ["procurement-agent"],
             "last_run": log.get("ended_at") if log else None,
-            "next_run": _next_run(config.daily_at),
+            "next_run": _next_run(scheduler["schedule"]["at"]),
             "result": log.get("execution_result", "NO_RUN") if log else "NO_RUN",
             "duration_seconds": log.get("duration_seconds") if log else None,
             "provider": log.get("analysis", {}).get("provider") if log else None,

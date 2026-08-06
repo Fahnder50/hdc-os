@@ -34,6 +34,12 @@ Der interne vorherige Snapshot liegt in `Dashboard/.state.json` und ist kein Aus
 
 Der Project Owner öffnet mit einem Klick eine der beiden `Latest`-Dateien. Runtime-Verzeichnisse, JSON-Contracts und Agent Logs müssen nicht manuell gelesen werden.
 
+## Automatischer Refresh
+
+Gemäß WO-0046 besitzt ausschließlich die generische Agent Runtime die Refresh-Entscheidung. Nach `execution_result: SUCCESS` fordert sie vom Agenten dessen Dashboard Contracts an, schreibt diese über den generischen Contract Sink und ruft genau einmal den injizierten Cockpit Refresher auf. Fehlgeschlagene Agentläufe erzeugen weder Contracts noch Refresh.
+
+Markdown und HTML werden zunächst vollständig in temporäre Dateien gerendert und anschließend als Paar ersetzt. Schlägt Staging oder Replacement fehl, werden bestehende Views wiederhergestellt und der Fehler in `.refresh.log` sowie `.refresh-status.json` dokumentiert. Das letzte erfolgreiche Cockpit bleibt erhalten. Jede erfolgreiche Darstellung zeigt Last Refresh, Refresh Result und Refresh Duration; das Schema liegt unter `Dashboard/schema/refresh-status.schema.json`.
+
 ## Bewusste Grenzen
 
 Nicht implementiert sind Live-Monitoring, Connectivity-, Firewall- oder Sensordaten, Netzwerkgraphen, Webserver, REST APIs, Authentifizierung, Interaktion, Benachrichtigungen, KI-Auswertung und automatische Entscheidungen. Connectivity, Monitoring, Backup, Security, Temperature und Network Topology können später ausschließlich als weitere Contract-Producer ergänzt werden.

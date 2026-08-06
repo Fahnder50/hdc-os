@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hdc-os.local/schemas/refresh-status.schema.json",
+  "title": "Cockpit Refresh Status",
+  "type": "object",
+  "required": ["last_refresh", "result", "duration_seconds"],
+  "properties": {
+    "last_refresh": {"type": "string"},
+    "result": {"enum": ["SUCCESS", "FAILED"]},
+    "duration_seconds": {"type": "number"},
+    "error": {"type": "string"}
+  },
+  "additionalProperties": false
+}

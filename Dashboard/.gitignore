@@ -1,2 +1,4 @@
 contracts/*.json
 .state.json
+.refresh.log
+.refresh-status.json

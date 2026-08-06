@@ -15,8 +15,10 @@ def _utc_now() -> str:
 class AgentRuntime:
     """Executes contracts and lifecycle only; it contains no domain logic."""
 
-    def __init__(self, log_directory: Path):
+    def __init__(self, log_directory: Path, dashboard_contract_sink=None, dashboard_refresher=None):
         self.log_directory = Path(log_directory)
+        self.dashboard_contract_sink = dashboard_contract_sink
+        self.dashboard_refresher = dashboard_refresher
 
     def execute(self, agent: Agent, trigger: Trigger, payload: Mapping[str, Any] | None = None) -> Mapping[str, Any]:
         if trigger == Trigger.EVENT:
@@ -31,6 +33,7 @@ class AgentRuntime:
         report_path = None
         failure = None
         failed_phase = None
+        dashboard_refresh = {"result": "NOT_RUN", "duration_seconds": 0}
         try:
             self._advance(agent, trace, LifecycleState.TRIGGERED)
             self._advance(agent, trace, LifecycleState.COLLECT)
@@ -44,6 +47,18 @@ class AgentRuntime:
             self._advance(agent, trace, LifecycleState.WAIT_FOR_OWNER)
             self._advance(agent, trace, LifecycleState.COMPLETED)
             exit_status = "COMPLETED_WITH_ERRORS" if result.errors else "SUCCESS"
+            if result.status == "SUCCESS" and self.dashboard_refresher is not None:
+                refresh_started = perf_counter()
+                try:
+                    execution = {"started_at": started_at, "ended_at": _utc_now(), "duration_seconds": round(perf_counter() - started, 6), "trigger": trigger.value}
+                    contracts = agent.dashboard_contracts(result, execution)
+                    if self.dashboard_contract_sink is not None:
+                        for contract in contracts:
+                            self.dashboard_contract_sink(contract)
+                    self.dashboard_refresher()
+                    dashboard_refresh = {"result": "SUCCESS", "duration_seconds": round(perf_counter() - refresh_started, 6)}
+                except Exception as refresh_error:
+                    dashboard_refresh = {"result": "FAILED", "duration_seconds": round(perf_counter() - refresh_started, 6), "error": str(refresh_error)}
         except Exception as error:
             failed_phase = agent.current_state.value
             failure = {"classification": error.__class__.__name__, "message": str(error)}
@@ -68,6 +83,7 @@ class AgentRuntime:
                 "failed_phase": failed_phase,
                 "lifecycle": [state.value for state in trace.states],
                 "analysis": dict(getattr(agent, "execution_metadata", {})),
+                "dashboard_refresh": dashboard_refresh,
             }
             self._write_one_log(agent.agent_id, started_at, log)
         return log

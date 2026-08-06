@@ -6,7 +6,15 @@
 
 ## Today's Summary — Daily Briefing
 
-- No important changes since the previous cockpit run.
+- **Agents:** One registered agent: Procurement Agent v1.
+- **Procurement:** 4 procurement cases analyzed by deterministic fallback; 3 changed.
+- **Schedulers:** 1 HDC-OS scheduler verified; 0 require attention.
+
+## Cockpit Refresh
+
+- **Last Refresh:** 2026-08-06T10:52:29+00:00
+- **Refresh Result:** SUCCESS
+- **Refresh Duration Seconds:** 0.068076
 
 ## Agents
 
@@ -15,10 +23,9 @@
 One registered agent: Procurement Agent v1.
 
 - **Registered Agents:** procurement-agent
-- **Last Run:** 2026-08-05T07:01:14+00:00
-- **Next Run:** 2026-08-06T07:00+02:00
+- **Last Run:** 2026-08-06T10:52:29+00:00
 - **Result:** SUCCESS
-- **Duration Seconds:** 62.696023
+- **Duration Seconds:** 63.895146
 - **Provider:** deterministic-fallback
 - **Model:** rules-v1
 - **Fallback Used:** True
@@ -52,10 +59,16 @@ First Deployment is blocked by missing firewall, managed switch, and open readin
 4 procurement cases analyzed by deterministic fallback; 3 changed.
 
 - **Active Cases:** 4
-- **Last Run:** 2026-08-05T07:01:14+00:00
-- **Next Run:** 2026-08-06T07:00+02:00
-- **Agent Status:** SUCCESS
 - **Current Recommendations:** Case Id: PC-0002, Recommendation: KEEP_WATCHING, Information Status: INFORMATION, Reason: Deterministic fallback derived from QUALIFYING.; Case Id: PC-0003, Recommendation: KEEP_WATCHING, Information Status: INFORMATION, Reason: Deterministic fallback derived from WATCHING.; Case Id: PC-0004, Recommendation: KEEP_WATCHING, Information Status: INFORMATION, Reason: Deterministic fallback derived from QUALIFYING.; Case Id: PC-0005, Recommendation: KEEP_WATCHING, Information Status: INFORMATION, Reason: Deterministic fallback derived from QUALIFYING.
+
+## Schedulers
+
+**HEALTHY — HEALTHY**
+
+1 HDC-OS scheduler verified; 0 require attention.
+
+- **Registered Schedulers:** 1
+- **Scheduler Health:** Scheduler Id: procurement-agent-daily, State: HEALTHY, Last Verification: 2026-08-06T10:17:24+00:00
 
 ## Recommended Actions
 

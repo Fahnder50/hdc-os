@@ -1,0 +1,23 @@
+schema_version: 1
+schedulers:
+  - scheduler_id: procurement-agent-daily
+    name: HDC-OS Procurement Agent
+    version: "1.0"
+    owner: Project Owner
+    trigger: DAILY
+    schedule:
+      at: "07:00"
+      start_when_available: true
+      wake_to_run: true
+    runtime:
+      platform: windows-task-scheduler
+      user: CURRENT_USER
+      logon_type: InteractiveToken
+      command: powershell.exe
+      arguments: '-NoProfile -ExecutionPolicy Bypass -File "{repository_root}\30-Procurement\scripts\run-procurement-agent.ps1" -PythonPath "{python_path}"'
+      allow_start_on_batteries: true
+      stop_on_batteries: false
+      enabled: true
+    configuration_hash: "4109f0b2ecf99ef3f58ba3f6c034a401359ef6bb6080c0258f74e48a3af66643"
+    installation_state: "HEALTHY"
+    last_verification: "2026-08-06T11:28:32+00:00"

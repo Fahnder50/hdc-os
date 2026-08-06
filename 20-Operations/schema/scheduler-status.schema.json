@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hdc-os.local/schemas/scheduler-status.schema.json",
+  "title": "HDC-OS Scheduler Status",
+  "type": "object",
+  "required": ["scheduler_id", "name", "version", "owner", "trigger", "schedule", "runtime", "configuration_hash", "installation_state", "last_verification", "drift", "health"],
+  "properties": {
+    "scheduler_id": {"type": "string"},
+    "installation_state": {"enum": ["NOT_INSTALLED", "INSTALLED", "HEALTHY", "DRIFT", "BROKEN"]},
+    "configuration_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "last_verification": {"type": "string"},
+    "drift": {"type": "array"},
+    "health": {"enum": ["HEALTHY", "WARNING", "CRITICAL"]}
+  },
+  "additionalProperties": true
+}

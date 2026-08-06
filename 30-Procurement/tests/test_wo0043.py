@@ -6,9 +6,9 @@ import pytest
 from procurement_agent.agent import ProcurementAgent
 from procurement_agent.analyzers import DeterministicFallbackAnalysisProvider, OllamaLocalAnalysisProvider
 from procurement_agent.config import load_agent_config
-import procurement_agent.scheduler_cli as scheduler_cli
 from shared.agent_runtime import AgentResult, AgentRuntime, LifecycleState, Trigger
 from shared.agent_runtime.scheduler import SchedulerTrigger
+from shared.scheduler_lifecycle.registry import load_registry
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -134,11 +134,10 @@ def test_model_provider_technically_rejects_cloud_endpoints(endpoint):
         OllamaLocalAnalysisProvider("llama3.2:3b", endpoint, 1)
 
 
-def test_provider_model_and_schedule_are_configuration_driven():
+def test_provider_and_model_are_configuration_driven():
     config = load_agent_config(ROOT)
     assert config.provider == "ollama"
     assert config.model == "llama3.2:3b"
-    assert config.daily_at == "07:00"
 
 
 def test_schema_invalid_model_response_uses_explicit_fallback(tmp_path):
@@ -161,19 +160,8 @@ def test_schema_invalid_model_response_uses_explicit_fallback(tmp_path):
     assert agent.execution_metadata["provider"] == "deterministic-fallback"
 
 
-def test_scheduler_install_reads_time_from_config_and_is_idempotent(monkeypatch):
-    config = load_agent_config(ROOT)
-    calls = []
-
-    class Result:
-        returncode = 0
-        stdout = "ready"
-        stderr = ""
-
-    monkeypatch.setattr(scheduler_cli, "_run", lambda arguments, check=True: calls.append(arguments) or Result())
-    first = scheduler_cli.install(config)
-    second = scheduler_cli.install(config)
-    create_calls = [call for call in calls if "/Create" in call]
-    assert len(create_calls) == 2
-    assert all("/F" in call and call[call.index("/ST") + 1] == config.daily_at for call in create_calls)
-    assert first["installed"] and second["installed"]
+def test_procurement_scheduler_is_owned_by_scheduler_registry():
+    entries = load_registry(ROOT / "20-Operations" / "config" / "schedulers.yaml")
+    assert len(entries) == 1
+    assert entries[0]["scheduler_id"] == "procurement-agent-daily"
+    assert entries[0]["schedule"]["at"] == "07:00"

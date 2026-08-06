@@ -1,6 +1,8 @@
 from html import escape
 from pathlib import Path
 from typing import Any, Mapping
+import os
+import uuid
 
 
 def _contract_by_id(model, domain_id):
@@ -23,6 +25,8 @@ def markdown(model: Mapping[str, Any]) -> str:
     changed = _lines([f"**{item['domain']['id'].title()}:** {item['summary']}" for item in model["changed"]], "No important changes since the previous cockpit run.")
     lines = ["# HDC-OS Operations Cockpit", "", "## Overall Health", "", f"**{model['overall_health']}**", "", "## Today's Summary — Daily Briefing", ""]
     lines.extend(f"- {item}" for item in changed)
+    refresh = model.get("refresh", {})
+    lines.extend(["", "## Cockpit Refresh", "", f"- **Last Refresh:** {refresh.get('last_refresh')}", f"- **Refresh Result:** {refresh.get('result')}", f"- **Refresh Duration Seconds:** {refresh.get('duration_seconds')}"])
     domain_ids = sorted(item["domain"]["id"] for item in model["contracts"])
     for domain_id in domain_ids:
         item = _contract_by_id(model, domain_id)
@@ -63,6 +67,29 @@ def html(model: Mapping[str, Any]) -> str:
 
 
 def write_views(model: Mapping[str, Any], directory: Path) -> None:
-    Path(directory).mkdir(parents=True, exist_ok=True)
-    (Path(directory) / "Latest.md").write_text(markdown(model), encoding="utf-8")
-    (Path(directory) / "Latest.html").write_text(html(model), encoding="utf-8")
+    directory = Path(directory)
+    directory.mkdir(parents=True, exist_ok=True)
+    values = {directory / "Latest.md": markdown(model), directory / "Latest.html": html(model)}
+    token = uuid.uuid4().hex
+    staged = {}
+    backups = {}
+    try:
+        for destination, content in values.items():
+            temporary = destination.with_name(f".{destination.name}.{token}.tmp")
+            temporary.write_text(content, encoding="utf-8")
+            staged[destination] = temporary
+        for destination in values:
+            if destination.exists():
+                backup = destination.with_name(f".{destination.name}.{token}.bak")
+                backup.write_bytes(destination.read_bytes())
+                backups[destination] = backup
+        for destination, temporary in staged.items():
+            os.replace(temporary, destination)
+    except Exception:
+        for destination, backup in backups.items():
+            if backup.exists():
+                os.replace(backup, destination)
+        raise
+    finally:
+        for path in (*staged.values(), *backups.values()):
+            path.unlink(missing_ok=True)

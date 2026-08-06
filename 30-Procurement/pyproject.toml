@@ -17,6 +17,7 @@ procurement-watch = "procurement_watch.cli:main"
 procurement-agent = "procurement_agent.cli:main"
 procurement-agent-scheduler = "procurement_agent.scheduler_cli:main"
 procurement-dashboard-contracts = "procurement_agent.dashboard_cli:main"
+hdc-scheduler = "shared.scheduler_lifecycle.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src", ".."]
