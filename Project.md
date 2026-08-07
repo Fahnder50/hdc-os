@@ -1,12 +1,12 @@
 ---
 document: Project.md
-version: 1.5.8-baseline
+version: 1.5.9-baseline
 status: Accepted
 owner: Project Owner
 reviewed_by: Lead Architect
-last_review: "2026-08-06"
-release_reference: knowledge-v1.5.8
-last_updated: "2026-08-06"
+last_review: "2026-08-07"
+release_reference: knowledge-v1.5.9
+last_updated: "2026-08-07"
 classification: Living
 ---
 
@@ -24,7 +24,7 @@ Horizon-Schritten.
 
 | Feld | Stand |
 |---|---|
-| Release | `knowledge-v1.5.8` |
+| Release | `knowledge-v1.5.9` |
 | Sprint | Sprint 4 – First Deployment |
 | Horizon | Horizon 1 – Initial Build |
 | Reifegrad | Architektur-, Procurement- und Operations-Foundation abgeschlossen |
@@ -43,6 +43,7 @@ Horizon-Schritten.
 - generischer Infrastructure Core,
 - generischer Asset Lifecycle, Registry, Relationships und Graphen,
 - generische Agent Runtime und Procurement Agent v1 mit lokaler KI-Analyse,
+- zentrale Intelligence Layer v0.1 mit Knowledge Retrieval, Decision Memory, Feedback Memory und Intelligence Metrics,
 - generisches Scheduler-Lifecycle-Management mit Registry, Drift-Erkennung und Repair,
 - zentrales Operations Cockpit mit erfolgsgebundenem automatischem Refresh und Daily Briefing,
 - erster Procurement-to-Operations-Handover für PC-0001.
@@ -63,12 +64,13 @@ Relevante aktuelle Work Orders:
 | WO-0044 | Contract-basiertes Operations Cockpit und Daily Briefing |
 | WO-0045 | Generisches Scheduler-Lifecycle-Management; Procurement-Scheduler migriert |
 | WO-0046 | Automatischer atomarer Cockpit-Refresh nach erfolgreichen Agentläufen |
+| WO-0047 | HDC-OS Intelligence Layer und Procurement Intelligence v0.1 |
 
 ## Verbindlicher Governance-Snapshot
 
 | Dimension | Aktueller Stand |
 |---|---|
-| Release / Sprint | `knowledge-v1.5.8` / Sprint 4 – First Deployment |
+| Release / Sprint | `knowledge-v1.5.9` / Sprint 4 – First Deployment |
 | Projektstatus | Foundations abgeschlossen; First Deployment vorbereitet, noch nicht startbereit |
 | Current Bottleneck | Firewall und Managed Switch fehlen; weitere WO-0041-Nachweise sind offen |
 | Current Physical State | Speedport, Telefon, Netgear Switch, PS5 und Sky Box in Production/Legacy-Betrieb; Router-USV in `PRODUCTION` |
@@ -89,6 +91,7 @@ Relevante aktuelle Work Orders:
 | Infrastructure Core | generisch implementiert |
 | Asset Registry | implementiert; `UPS-RTR-01` registriert |
 | Agent Runtime | generisch implementiert; Procurement Agent v1 lokal und geplant betreibbar |
+| Intelligence Layer | v0.1 implementiert; Procurement nutzt Retrieval, Decision-/Feedback-Memory und austauschbare lokale Provider |
 | Scheduler Lifecycle | generisch implementiert; Windows-Task verifiziert, Drift und Repair unterstützt |
 | Operations Cockpit | implementiert; automatischer Refresh nach erfolgreichen Agentläufen; feste Einstiege `Dashboard/Latest.md` und `Latest.html` |
 | Network Design | Accepted, noch nicht physisch umgesetzt |
