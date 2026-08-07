@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hdc-os.local/schemas/procurement-intelligence-response.schema.json",
+  "title": "Procurement Intelligence Model Response v0.1",
+  "type": "object",
+  "required": ["executive_summary", "procurement_recommendations"],
+  "properties": {
+    "executive_summary": {"type": "string"},
+    "procurement_recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["case_id", "recommendation", "information_status", "reasoning"],
+        "properties": {
+          "case_id": {"type": "string"},
+          "recommendation": {"enum": ["KEEP_WATCHING", "REQUEST_REVIEW", "BUY_CANDIDATE", "NO_ACTION"]},
+          "information_status": {"enum": ["INFORMATION", "RECOMMENDATION", "ACTION_REQUIRED"]},
+          "reasoning": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

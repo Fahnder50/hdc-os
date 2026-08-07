@@ -3,10 +3,20 @@
   "$id": "https://hdc-os.local/schemas/executive-summary.schema.json",
   "title": "Procurement Executive Summary",
   "type": "object",
-  "required": ["schema_version", "agent", "approval", "executive_summary", "recommendations", "case_errors"],
+  "required": ["schema_version", "agent", "approval", "executive_summary", "recommendations", "case_errors", "explainability"],
   "properties": {
     "schema_version": {"const": "1.0"},
-    "recommendations": {"type": "array", "items": {"$ref": "recommendation.schema.json"}}
+    "recommendations": {"type": "array", "items": {"$ref": "recommendation.schema.json"}},
+    "explainability": {
+      "type": "object",
+      "required": ["knowledge_sources", "considered_decisions", "reasoning"],
+      "properties": {
+        "knowledge_sources": {"type": "array"},
+        "considered_decisions": {"type": "array"},
+        "reasoning": {"type": "array"}
+      },
+      "additionalProperties": false
+    }
   },
   "additionalProperties": true
 }

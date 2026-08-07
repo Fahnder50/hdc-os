@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hdc-os.local/schemas/intelligence-metrics.schema.json",
+  "title": "HDC-OS Intelligence Metrics",
+  "type": "object",
+  "required": ["ai_calls", "successful_model_responses", "schema_errors", "fallback_uses", "fallback_rate", "average_response_seconds", "last_successful_ai_response", "health"],
+  "properties": {
+    "ai_calls": {"type": "integer"},
+    "successful_model_responses": {"type": "integer"},
+    "schema_errors": {"type": "integer"},
+    "fallback_uses": {"type": "integer"},
+    "fallback_rate": {"type": "number"},
+    "average_response_seconds": {"type": "number"},
+    "last_successful_ai_response": {"type": ["string", "null"]},
+    "health": {"enum": ["HEALTHY", "WARNING", "DEGRADED"]}
+  },
+  "additionalProperties": true
+}

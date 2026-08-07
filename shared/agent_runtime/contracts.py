@@ -33,13 +33,6 @@ class AgentResult:
 
 
 @runtime_checkable
-class AnalysisProvider(Protocol):
-    """Read-only boundary: providers receive only a serializable context."""
-
-    def analyze(self, context: Mapping[str, Any]) -> Mapping[str, Any]: ...
-
-
-@runtime_checkable
 class Agent(Protocol):
     agent_id: str
     name: str

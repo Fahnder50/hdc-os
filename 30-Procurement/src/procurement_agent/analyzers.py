@@ -1,9 +1,8 @@
-import ipaddress
 import json
 from pathlib import Path
 from typing import Any, Mapping
-from urllib.parse import urlparse
-from urllib.request import Request, urlopen
+
+from shared.intelligence_providers import OllamaProvider
 
 
 ANALYSIS_SCHEMA = {
@@ -26,6 +25,29 @@ ANALYSIS_SCHEMA = {
                     "recommendation": {"enum": ["KEEP_WATCHING", "REQUEST_REVIEW", "BUY_CANDIDATE", "NO_ACTION"]},
                     "information_status": {"enum": ["INFORMATION", "RECOMMENDATION", "ACTION_REQUIRED"]},
                     "reason": {"type": "string"},
+                },
+                "additionalProperties": False,
+            },
+        },
+    },
+    "additionalProperties": False,
+}
+
+PROCUREMENT_INTELLIGENCE_SCHEMA = {
+    "type": "object",
+    "required": ["executive_summary", "procurement_recommendations"],
+    "properties": {
+        "executive_summary": {"type": "string"},
+        "procurement_recommendations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["case_id", "recommendation", "information_status", "reasoning"],
+                "properties": {
+                    "case_id": {"type": "string"},
+                    "recommendation": {"enum": ["KEEP_WATCHING", "REQUEST_REVIEW", "BUY_CANDIDATE", "NO_ACTION"]},
+                    "information_status": {"enum": ["INFORMATION", "RECOMMENDATION", "ACTION_REQUIRED"]},
+                    "reasoning": {"type": "string"},
                 },
                 "additionalProperties": False,
             },
@@ -69,45 +91,7 @@ def validate_schema(value: Any, schema: Mapping[str, Any], schemas_directory: Pa
             validate_schema(item, item_schema, schemas_directory)
 
 
-class OllamaLocalAnalysisProvider:
-    provider_name = "ollama"
-
-    def __init__(self, model: str, endpoint: str, timeout_seconds: float):
-        parsed = urlparse(endpoint)
-        if parsed.scheme != "http" or not parsed.hostname:
-            raise ValueError("Local Ollama endpoint must use plain HTTP on loopback")
-        try:
-            if not ipaddress.ip_address(parsed.hostname).is_loopback:
-                raise ValueError("Cloud and non-loopback model endpoints are forbidden")
-        except ValueError as error:
-            if "forbidden" in str(error):
-                raise
-            raise ValueError("Model endpoint must be a numeric loopback address") from error
-        if not model.strip():
-            raise ValueError("A local model name is required")
-        self.model = model
-        self.endpoint = endpoint.rstrip("/")
-        self.timeout_seconds = timeout_seconds
-
-    def analyze(self, context: Mapping[str, Any]) -> Mapping[str, Any]:
-        prompt = (
-            "Analyze only the supplied procurement context. Return JSON matching the supplied schema. "
-            "Produce exactly one advisory recommendation per case. Allowed recommendations: KEEP_WATCHING, "
-            "REQUEST_REVIEW, BUY_CANDIDATE, NO_ACTION. Allowed information_status values: INFORMATION, "
-            "RECOMMENDATION, ACTION_REQUIRED. Never make or execute a purchase decision.\n\nCONTEXT:\n"
-            + json.dumps(context, ensure_ascii=False, default=str)
-        )
-        body = json.dumps({
-            "model": self.model,
-            "stream": False,
-            "format": ANALYSIS_SCHEMA,
-            "messages": [{"role": "user", "content": prompt}],
-            "options": {"temperature": 0},
-        }).encode("utf-8")
-        request = Request(f"{self.endpoint}/api/chat", data=body, headers={"Content-Type": "application/json"}, method="POST")
-        with urlopen(request, timeout=self.timeout_seconds) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-        return json.loads(payload["message"]["content"])
+OllamaLocalAnalysisProvider = OllamaProvider
 
 
 class DeterministicFallbackAnalysisProvider:

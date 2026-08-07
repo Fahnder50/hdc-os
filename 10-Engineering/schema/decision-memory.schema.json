@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hdc-os.local/schemas/decision-memory.schema.json",
+  "title": "HDC-OS Decision Memory Entry v0.1",
+  "type": "object",
+  "required": ["recommendation", "owner_decision", "reason", "timestamp", "procurement_case"],
+  "properties": {
+    "recommendation": {"type": "string"},
+    "owner_decision": {"enum": ["ACCEPT", "REJECT", "DEFER"]},
+    "reason": {"type": "string"},
+    "timestamp": {"type": "string"},
+    "procurement_case": {"type": "string"}
+  },
+  "additionalProperties": false
+}

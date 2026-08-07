@@ -9,6 +9,7 @@ from procurement_agent.config import load_agent_config
 from shared.agent_runtime import AgentResult, AgentRuntime, LifecycleState, Trigger
 from shared.agent_runtime.scheduler import SchedulerTrigger
 from shared.scheduler_lifecycle.registry import load_registry
+from shared.intelligence_layer import DecisionMemory, IntelligenceLayer, IntelligenceMetrics, load_intelligence_config
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -62,29 +63,35 @@ class CapturingAnalyzer:
     def __init__(self):
         self.context = None
 
-    def analyze(self, context):
-        self.context = context
+    provider_name = "local-model"
+    model = "test-model"
+
+    def generate(self, prompt, schema):
+        self.context = prompt
         return {
-            "summary": "Local analysis",
-            "important_changes": [],
-            "critical_developments": [],
-            "unchanged_cases": ["PC-1"],
-            "risks": [],
-            "open_points": [],
-            "recommendations": [{
+            "executive_summary": "Local analysis",
+            "procurement_recommendations": [{
                 "case_id": "PC-1", "recommendation": "NO_ACTION",
-                "information_status": "INFORMATION", "reason": "No change."
+                "information_status": "INFORMATION", "reasoning": "No change."
             }],
         }
+
+
+class EmptyRetriever:
+    def retrieve(self, terms): return ()
+
+
+def _intelligence(tmp_path, provider):
+    return IntelligenceLayer(provider, EmptyRetriever(), DecisionMemory(tmp_path / "decisions.json"), IntelligenceMetrics(tmp_path / "metrics.json"))
 
 
 def test_analyzer_receives_serializable_context_only_and_owner_keeps_authority(tmp_path):
     analyzer = CapturingAnalyzer()
     schemas = ROOT / "30-Procurement" / "schema"
-    agent = ProcurementAgent(object(), tmp_path, analyzer, schemas_directory=schemas)
+    agent = ProcurementAgent(object(), tmp_path, _intelligence(tmp_path, analyzer), schemas_directory=schemas)
     context = {"cases": [{"case_id": "PC-1"}], "case_errors": []}
     analysis = agent.analyze(context)
-    assert analyzer.context == json.loads(json.dumps(context))
+    assert json.dumps(context) in analyzer.context
     result = agent.generate_report(context, analysis)
     assert result.recommendation_count == 1
     assert result.report["approval"] == {
@@ -135,8 +142,8 @@ def test_model_provider_technically_rejects_cloud_endpoints(endpoint):
 
 
 def test_provider_and_model_are_configuration_driven():
-    config = load_agent_config(ROOT)
-    assert config.provider == "ollama"
+    config = load_intelligence_config(ROOT)
+    assert config.provider.value == "OLLAMA"
     assert config.model == "llama3.2:3b"
 
 
@@ -145,11 +152,11 @@ def test_schema_invalid_model_response_uses_explicit_fallback(tmp_path):
         provider_name = "ollama"
         model = "test-model"
 
-        def analyze(self, context):
+        def generate(self, prompt, schema):
             return {"recommendations": []}
 
     agent = ProcurementAgent(
-        object(), tmp_path, InvalidModel(),
+        object(), tmp_path, _intelligence(tmp_path, InvalidModel()),
         fallback_provider=DeterministicFallbackAnalysisProvider(),
         schemas_directory=ROOT / "30-Procurement" / "schema",
     )

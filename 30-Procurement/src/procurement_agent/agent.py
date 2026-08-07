@@ -4,10 +4,11 @@ import json
 from pathlib import Path
 from typing import Any, Mapping
 
-from shared.agent_runtime import AgentResult, AnalysisProvider, LifecycleState, Trigger
+from shared.agent_runtime import AgentResult, LifecycleState, Trigger
+from shared.intelligence_layer import IntelligenceLayer
 from procurement_watch.services import case_report_data, case_status, history_for_case, offers_for_case, portfolio_watch
 
-from .analyzers import ANALYSIS_SCHEMA, DeterministicFallbackAnalysisProvider, SchemaValidationError, validate_schema
+from .analyzers import ANALYSIS_SCHEMA, PROCUREMENT_INTELLIGENCE_SCHEMA, DeterministicFallbackAnalysisProvider, SchemaValidationError, validate_schema
 
 
 RECOMMENDATIONS = {"KEEP_WATCHING", "REQUEST_REVIEW", "BUY_CANDIDATE", "NO_ACTION"}
@@ -18,8 +19,8 @@ INFORMATION_STATUSES = {"INFORMATION", "RECOMMENDATION", "ACTION_REQUIRED"}
 class ProcurementAgent:
     config: Any
     report_directory: Path
-    analysis_provider: AnalysisProvider = field(default_factory=DeterministicFallbackAnalysisProvider)
-    fallback_provider: AnalysisProvider | None = None
+    intelligence_layer: IntelligenceLayer | None = None
+    fallback_provider: Any | None = None
     schemas_directory: Path | None = None
     agent_id: str = "procurement-agent"
     name: str = "Procurement Agent"
@@ -35,7 +36,7 @@ class ProcurementAgent:
 
     def __post_init__(self):
         if not self.execution_metadata:
-            self.execution_metadata = self._provider_metadata(self.analysis_provider, False)
+            self.execution_metadata = {"provider": None, "model": None, "fallback_used": False}
 
     def collect(self, trigger: Trigger, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         watch = portfolio_watch(self.config)
@@ -99,24 +100,46 @@ class ProcurementAgent:
     def analyze(self, context: Mapping[str, Any]) -> Mapping[str, Any]:
         # The provider receives this value only; no config, repository, DB or runtime handle crosses the boundary.
         isolated_context = json.loads(json.dumps(context, default=str))
-        fallback_used = False
-        provider_error = None
-        provider = self.analysis_provider
+        if self.intelligence_layer is None:
+            raise RuntimeError("Procurement analysis requires the central Intelligence Layer")
         schemas = self.schemas_directory or Path(self.config.repository_root) / "30-Procurement" / "schema"
-        try:
-            analysis = provider.analyze(isolated_context)
-            self._validate_analysis(analysis, schemas, isolated_context)
-        except Exception as error:
-            if self.fallback_provider is None:
-                self.execution_metadata = self._provider_metadata(provider, False, error)
-                raise
-            provider_error = error
-            provider = self.fallback_provider
-            fallback_used = True
-            analysis = provider.analyze(isolated_context)
-            self._validate_analysis(analysis, schemas, isolated_context)
-        self.execution_metadata = self._provider_metadata(provider, fallback_used, provider_error)
+        outcome = self.intelligence_layer.analyze(
+            role="You are the advisory HDC-OS Procurement Intelligence service. You never buy or approve anything.",
+            task="Create only an executive summary and exactly one advisory procurement recommendation with reasoning per case.",
+            request=isolated_context, schema=PROCUREMENT_INTELLIGENCE_SCHEMA,
+            validate=lambda value: self._validate_intelligence_response(value, schemas, isolated_context),
+            fallback=self.fallback_provider,
+            fallback_validate=lambda value: self._validate_analysis(value, schemas, isolated_context),
+        )
+        self.execution_metadata = outcome.metadata
+        analysis = outcome.analysis if outcome.metadata["fallback_used"] else self._normalize_intelligence_response(outcome.analysis, isolated_context)
+        self._validate_analysis(analysis, schemas, isolated_context)
         return analysis
+
+    @staticmethod
+    def _validate_intelligence_response(value, schemas, context):
+        validate_schema(value, PROCUREMENT_INTELLIGENCE_SCHEMA, schemas)
+        expected_ids = {case["case_id"] for case in context["cases"]}
+        actual_ids = [item["case_id"] for item in value["procurement_recommendations"]]
+        if len(actual_ids) != len(expected_ids) or set(actual_ids) != expected_ids:
+            raise SchemaValidationError("Model response must contain exactly one recommendation per context case")
+
+    @staticmethod
+    def _normalize_intelligence_response(value, context):
+        recommendations = [{
+            "case_id": item["case_id"], "recommendation": item["recommendation"],
+            "information_status": item["information_status"], "reason": item["reasoning"],
+        } for item in value["procurement_recommendations"]]
+        changed = [item["case_id"] for item in context["cases"] if item.get("changes")]
+        return {
+            "summary": value["executive_summary"],
+            "important_changes": changed,
+            "critical_developments": [item["case_id"] for item in recommendations if item["information_status"] == "ACTION_REQUIRED"],
+            "unchanged_cases": [item["case_id"] for item in context["cases"] if not item.get("changes")],
+            "risks": list(context.get("case_errors", [])),
+            "open_points": [item["case_id"] for item in recommendations if item["recommendation"] == "REQUEST_REVIEW"],
+            "recommendations": recommendations,
+        }
 
     @staticmethod
     def _validate_analysis(analysis, schemas, context):
@@ -128,15 +151,6 @@ class ProcurementAgent:
         actual_ids = [item["case_id"] for item in analysis["recommendations"]]
         if len(actual_ids) != len(expected_ids) or set(actual_ids) != expected_ids:
             raise SchemaValidationError("Model response must contain exactly one recommendation per context case")
-
-    @staticmethod
-    def _provider_metadata(provider, fallback_used, provider_error=None):
-        return {
-            "provider": getattr(provider, "provider_name", provider.__class__.__name__),
-            "model": getattr(provider, "model", "unknown"),
-            "fallback_used": fallback_used,
-            "provider_error": str(provider_error) if provider_error else None,
-        }
 
     def generate_report(self, context: Mapping[str, Any], analysis: Mapping[str, Any]) -> AgentResult:
         recommendations = list(analysis.get("recommendations", []))
@@ -156,6 +170,11 @@ class ProcurementAgent:
             "recommendations": recommendations,
             "case_errors": context["case_errors"],
             "dashboard": {"active_procurement_cases": len(context["cases"])},
+            "explainability": {
+                "knowledge_sources": self.execution_metadata.get("knowledge_sources", []),
+                "considered_decisions": self.execution_metadata.get("considered_decisions", []),
+                "reasoning": [{"case_id": item["case_id"], "reason": item["reason"]} for item in recommendations],
+            },
         }
         schemas = self.schemas_directory or Path(self.config.repository_root) / "30-Procurement" / "schema"
         report_schema = json.loads((schemas / "executive-summary.schema.json").read_text(encoding="utf-8"))
@@ -173,6 +192,8 @@ class ProcurementAgent:
         recommendations = list(result.report["recommendations"])
         actions = [item for item in recommendations if item["information_status"] == "ACTION_REQUIRED"]
         last_update = execution["ended_at"]
+        metrics = self.execution_metadata.get("metrics", {})
+        intelligence_health = metrics.get("health", "DEGRADED")
         return [{
             "domain": {"id": "procurement", "version": "1.0"},
             "health": "WARNING" if actions else "HEALTHY",
@@ -193,4 +214,14 @@ class ProcurementAgent:
             "recommendations": [],
             "links": ["10-Engineering/Architecture/Generic-Agent-Runtime.md"],
             "details": {"registered_agents": [self.agent_id], "last_run": last_update, "result": result.status, "duration_seconds": execution["duration_seconds"], "provider": self.execution_metadata.get("provider"), "model": self.execution_metadata.get("model"), "fallback_used": self.execution_metadata.get("fallback_used")},
+        }, {
+            "domain": {"id": "intelligence", "version": "0.1"},
+            "health": "HEALTHY" if intelligence_health == "HEALTHY" else "WARNING" if intelligence_health == "WARNING" else "CRITICAL",
+            "summary": "Central Intelligence Layer health and local model metrics.",
+            "status": intelligence_health,
+            "last_update": last_update,
+            "requires_action": intelligence_health == "DEGRADED",
+            "recommendations": [{"id": "intelligence-health", "text": "Review local Intelligence Layer failures."}] if intelligence_health == "DEGRADED" else [],
+            "links": ["10-Engineering/Architecture/Intelligence-Layer.md"],
+            "details": {"intelligence_health": intelligence_health, "active_provider": self.execution_metadata.get("configured_provider"), "model": self.execution_metadata.get("configured_model"), "fallback_rate": metrics.get("fallback_rate", 0.0), "last_successful_ai_response": metrics.get("last_successful_ai_response")},
         }]
